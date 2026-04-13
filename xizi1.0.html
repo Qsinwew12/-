@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
   <meta charset="utf-8" />
@@ -224,8 +224,8 @@
       .canvas-wrap { max-height: min(72svh, 620px); }
       .feedback-text { min-height: 38px; height: auto; padding: 6px 8px; }
     }
-    @media (max-width: 800px) { body { padding: 12px; padding-bottom: 110px; } .top-section { grid-template-columns: 1fr; } .char-input-wrap { width: 100px; height: 100px; } input#charInput { font-size: 68px; } .pinyin-large { font-size: 34px; } .radical-info { font-size: 14px; } .teacher-panel { min-height: 430px; } .mizige-container { width: min(100%, 390px); } .student-grid { grid-template-columns: 1fr; max-width: 520px; } .capy-img { width: 74px; } .capy-bubble { max-width: 180px; font-size: 12px; } }
-    @media (max-width: 520px) { .top-bar { gap: 8px; } .back-btn, .manual-btn { padding: 8px 12px; font-size: 13px; } .breadcrumb { width: 100%; font-size: 13px; } .control-panel { padding: 14px; } .char-header { gap: 12px; align-items: flex-start; } .quick-tags { max-height: 118px; } .tag-btn { font-size: 18px; padding: 7px 12px; } .action-btns, .mini-nav { grid-template-columns: 1fr; } .student-card { padding: 12px 8px; } .canvas-wrap { border-width: 2px; } .word-card { min-width: 94px; } }
+    @media (max-width: 800px) { body { padding: 12px; padding-bottom: 110px; } .top-section { grid-template-columns: 1fr; } .char-input-wrap { width: 100px; height: 100px; } input#charInput { font-size: 68px; } .pinyin-large { font-size: 34px; } .radical-info { font-size: 14px; } .teacher-panel { min-height: auto; padding: 14px 10px; justify-content: flex-start; } .teacher-header { position: static; width: 100%; display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 8px; } .teacher-title { text-align: center; white-space: nowrap; font-size: 18px; } .teacher-actions { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 7px !important; } .teacher-actions .btn { width: 100%; min-height: 40px; padding: 8px 6px !important; font-size: 13px; white-space: nowrap; } .mizige-container { width: min(100%, 390px); margin: 8px 0 12px; } .student-grid { grid-template-columns: 1fr; max-width: 520px; } .capy-img { width: 74px; } .capy-bubble { max-width: 180px; font-size: 12px; } }
+    @media (max-width: 520px) { .top-bar { gap: 8px; } .back-btn, .manual-btn { padding: 8px 12px; font-size: 13px; } .breadcrumb { width: 100%; font-size: 13px; } .control-panel { padding: 14px; } .char-header { gap: 12px; align-items: flex-start; } .quick-tags { max-height: 118px; } .tag-btn { font-size: 18px; padding: 7px 12px; } .action-btns, .mini-nav { grid-template-columns: 1fr; } .teacher-title { font-size: 17px; } .teacher-actions .btn { font-size: 12px; min-height: 38px; } .teacher-status, #teacherStatus { margin-top: 8px !important; font-size: 14px; } .student-card { padding: 12px 8px; } .canvas-wrap { border-width: 2px; } .word-card { min-width: 94px; } }
   </style>
 </head>
 <body>
@@ -387,7 +387,7 @@
           <div class="action-btns"><button class="btn btn-orange" onclick="animateTeacher()">▶ 教师演示</button><button class="btn btn-red" onclick="resetAll()">🗑️ 全局清空</button></div>
         </div>
         <div class="card teacher-panel">
-          <div class="teacher-header"><div class="teacher-title">👨‍🏫 教师楷体示范</div><div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;"><button class="btn btn-purple" id="teacherModeBtn" onclick="toggleTeacherMode()" style="padding:6px 12px;">✍️ 教师写字</button><button class="btn btn-blue" onclick="toggleTeacherFullscreen()" style="padding:6px 12px; background:#00897b;">⛶ 大屏</button><button class="btn btn-blue" onclick="clearTeacherCanvas()" style="padding:6px 12px; background:#607d8b;">🗑️ 清空</button></div></div>
+          <div class="teacher-header"><div class="teacher-title">👨‍🏫 教师楷体示范</div><div class="teacher-actions" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;"><button class="btn btn-purple" id="teacherModeBtn" onclick="toggleTeacherMode()" style="padding:6px 12px;">✍️ 教师写字</button><button class="btn btn-blue" onclick="toggleTeacherFullscreen()" style="padding:6px 12px; background:#00897b;">⛶ 大屏</button><button class="btn btn-blue" onclick="clearTeacherCanvas()" style="padding:6px 12px; background:#607d8b;">🗑️ 清空</button></div></div>
           <div class="mizige-container teacher-demo-mode" id="teacherBox"><div class="grid-lines"></div><div id="teacherTarget" class="teacher-hanzi-layer"></div><canvas id="teacherCanvas"></canvas><button class="fullscreen-exit-btn" onclick="exitTeacherFullscreen(event)" type="button">退出全屏</button></div>
           <div id="teacherStatus" style="margin-top:15px; font-weight:bold; color:#78909c;">当前状态：观看演示</div>
         </div>
