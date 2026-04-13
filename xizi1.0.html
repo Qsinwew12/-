@@ -1,0 +1,2731 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no, maximum-scale=1" />
+  <title>戏字小助手 · 一至六年级华文练字</title>
+
+  <script src="https://unpkg.com/hanzi-writer@3.5.0/dist/hanzi-writer.min.js"></script>
+  <script src="https://unpkg.com/pinyin-pro/dist/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cnchar/cnchar.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cnchar-order/cnchar.order.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cnchar-radical/cnchar.radical.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cnchar-idiom/cnchar.idiom.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cnchar-structure/cnchar.structure.min.js"></script>
+
+  <style>
+    /* 样式设置 */
+    :root {
+      --bg-body: #f0faff; --card-bg: #ffffff; --primary: #039be5; --primary-dark: #0277bd;
+      --accent: #ff6f00; --text-main: #37474f; --radius: 20px; --grid-border: #b8c7cf; --grid-cross: #b7dce8;
+      --kai-font: "KaiTi", "楷体", "STKaiti", "华文楷体", "DFKai-SB", "BiauKai", serif;
+    }
+    * { box-sizing: border-box; touch-action: manipulation; user-select: none; font-family: "Rounded Mplus 1c", "Microsoft YaHei", sans-serif; }
+    body { margin: 0; padding: 20px; background: var(--bg-body); color: var(--text-main); padding-bottom: 150px; overscroll-behavior: none; }
+    h1 { text-align: center; color: var(--primary-dark); margin: 0 0 20px; font-weight: 900; letter-spacing: 1px; text-shadow: 2px 2px 0 rgba(255,255,255,0.8); }
+    h1 small { font-size: 16px; color: #78909c; display: block; margin-top: 5px; font-weight: 600; }
+
+    .top-bar { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .back-btn { background: #ffffff; border: 2px solid #b3e5fc; border-radius: 40px; padding: 9px 18px; font-weight: 900; color: var(--primary-dark); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: 0.2s; }
+    .back-btn:hover { background: var(--primary); color: white; transform: translateX(-2px); }
+    .back-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .manual-btn { background: #fff8e1; border: 2px solid #ffe082; border-radius: 40px; padding: 9px 18px; font-weight: 900; color: #bf360c; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: 0.2s; }
+    .manual-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+    .breadcrumb { background: rgba(255,255,255,0.7); padding: 8px 18px; border-radius: 40px; backdrop-filter: blur(4px); font-weight: 600; color: var(--primary-dark); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .breadcrumb a { color: var(--primary); text-decoration: none; margin: 0 4px; }
+    .breadcrumb span { color: #5d4037; }
+    .home-btn { background: white; border-radius: 40px; padding: 8px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-weight: bold; color: #0033a0; cursor: pointer; border: 1px solid #cfd8dc; transition: 0.2s; }
+    .home-btn:hover { background: var(--primary); color: white; }
+
+    .view-container { max-width: 1580px; margin: 0 auto; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; margin-top: 20px; }
+    .nav-card { background: white; border-radius: 24px; padding: 24px 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.06); border: 2px solid #fff; transition: all 0.2s; cursor: pointer; }
+    .nav-card:hover { transform: translateY(-6px); border-color: var(--primary); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .nav-card .emoji-big { font-size: 48px; margin-bottom: 10px; }
+    .nav-card h3 { margin: 8px 0; color: var(--primary-dark); }
+    .nav-card .desc { font-size: 13px; color: #607d8b; }
+    .manual-hero { background: white; border-radius: 30px; padding: 28px; border: 3px solid #b3e5fc; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+    .manual-hero h2 { margin: 0 0 8px; color: var(--primary-dark); font-size: 34px; }
+    .manual-hero p { margin: 0; color: #546e7a; font-size: 18px; font-weight: 700; }
+    .manual-picture-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
+    .manual-picture-card { background: #ffffff; border-radius: 24px; padding: 16px; border: 2px solid #d7edf7; box-shadow: 0 8px 18px rgba(0,0,0,0.06); }
+    .manual-picture-card h3 { margin: 0 0 10px; color: var(--primary-dark); font-size: 20px; }
+    .manual-picture-card p { margin: 10px 0 0; color: #455a64; font-weight: 750; line-height: 1.45; }
+    .manual-shot { position: relative; overflow: hidden; min-height: 190px; border-radius: 20px; background: linear-gradient(135deg,#e1f5fe,#fff8e1); border: 2px solid #b3e5fc; padding: 14px; }
+    .shot-top { display: flex; align-items: center; gap: 7px; height: 22px; }
+    .shot-dot { width: 9px; height: 9px; border-radius: 50%; background: #ff8a65; box-shadow: 16px 0 #ffd54f, 32px 0 #81c784; }
+    .shot-title { margin-left: 38px; color: #607d8b; font-size: 12px; font-weight: 900; }
+    .shot-body { margin-top: 14px; display: grid; gap: 9px; }
+    .shot-row { display: flex; gap: 8px; align-items: center; }
+    .shot-pill { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 7px 12px; border-radius: 999px; background: white; color: var(--primary-dark); font-weight: 900; box-shadow: 0 2px 7px rgba(0,0,0,0.08); }
+    .shot-pill.active { background: var(--primary); color: white; }
+    .shot-button { background: var(--accent); color: white; border-radius: 14px; padding: 10px 12px; font-weight: 900; text-align: center; box-shadow: 0 4px 10px rgba(255,111,0,0.24); }
+    .shot-grid { width: 112px; height: 112px; border-radius: 18px; border: 3px solid var(--grid-border); background: #fff; position: relative; display: grid; place-items: center; font-family: var(--kai-font); font-size: 64px; color: #0d47a1; }
+    .shot-grid::before, .shot-grid::after { content: ""; position: absolute; background: var(--grid-cross); }
+    .shot-grid::before { width: 100%; height: 2px; top: 50%; left: 0; }
+    .shot-grid::after { width: 2px; height: 100%; left: 50%; top: 0; }
+    .shot-grid span { position: relative; z-index: 1; }
+    .shot-panel { flex: 1; background: rgba(255,255,255,0.82); border-radius: 16px; padding: 10px; color: #546e7a; font-weight: 850; }
+    .shot-canvas { height: 118px; border-radius: 18px; border: 2px solid var(--grid-border); background: #fff; position: relative; overflow: hidden; }
+    .shot-canvas::before, .shot-canvas::after { content: ""; position: absolute; background: var(--grid-cross); }
+    .shot-canvas::before { width: 100%; height: 2px; top: 50%; }
+    .shot-canvas::after { width: 2px; height: 100%; left: 50%; }
+    .shot-stroke { position: absolute; left: 28%; top: 24%; width: 48%; height: 48%; border-left: 12px solid #263238; border-bottom: 12px solid #263238; border-radius: 12px; transform: rotate(-12deg); opacity: 0.9; }
+    .shot-circle { position: absolute; width: 46px; height: 46px; border: 5px solid #e53935; border-radius: 50%; right: 20%; top: 28%; }
+    .shot-score { position: absolute; right: 12px; bottom: 12px; background: #43a047; color: white; border-radius: 999px; padding: 7px 10px; font-weight: 900; }
+    .manual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 20px; }
+    .manual-card { background: #ffffff; border-radius: 22px; padding: 20px; border: 2px solid #eef5f8; box-shadow: 0 6px 14px rgba(0,0,0,0.05); }
+    .manual-card h3 { margin: 0 0 12px; color: var(--primary-dark); font-size: 21px; }
+    .manual-card p { margin: 8px 0; color: #455a64; font-size: 16px; line-height: 1.45; font-weight: 650; }
+    .manual-mini-img { height: 96px; border-radius: 18px; margin-bottom: 14px; border: 2px solid #d7edf7; background: linear-gradient(135deg,#f7fcff,#fff8e1); position: relative; overflow: hidden; display: grid; place-items: center; }
+    .manual-mini-img::before { content: ""; position: absolute; inset: 12px; border-radius: 14px; background: rgba(255,255,255,0.72); box-shadow: inset 0 0 0 1px rgba(3,155,229,0.14); }
+    .mini-ui { position: relative; z-index: 1; display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 10px; width: 100%; }
+    .mini-chip { min-width: 52px; padding: 7px 10px; border-radius: 999px; background: #e3f2fd; color: var(--primary-dark); font-weight: 900; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .mini-chip.hot { background: var(--primary); color: white; }
+    .mini-grid-char { width: 66px; height: 66px; border-radius: 14px; border: 2px solid var(--grid-border); background: #fff; display: grid; place-items: center; position: relative; color: #0d47a1; font-size: 42px; font-family: var(--kai-font); font-weight: 900; }
+    .mini-grid-char::before, .mini-grid-char::after { content: ""; position: absolute; background: var(--grid-cross); }
+    .mini-grid-char::before { width: 100%; height: 1.5px; top: 50%; }
+    .mini-grid-char::after { width: 1.5px; height: 100%; left: 50%; }
+    .mini-grid-char span { position: relative; z-index: 1; }
+    .mini-pencil { width: 74px; height: 16px; border-radius: 999px; background: linear-gradient(90deg,#ffca28 0 72%,#ef5350 72% 86%,#37474f 86%); transform: rotate(-18deg); box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
+    .mini-score-badge { background: #43a047; color: #fff; border-radius: 999px; padding: 8px 12px; font-weight: 900; box-shadow: 0 4px 10px rgba(67,160,71,0.24); }
+    .mini-red-circle { width: 44px; height: 44px; border: 5px solid #e53935; border-radius: 50%; }
+    .mini-standard { width: 78px; height: 58px; border-radius: 12px; background: #fff; border: 2px solid #c8e8f5; padding: 7px; display: grid; gap: 5px; }
+    .mini-standard span { display: block; height: 7px; border-radius: 999px; background: #90caf9; }
+    .mini-standard span:nth-child(2) { width: 72%; background: #ffe082; }
+    .mini-standard span:nth-child(3) { width: 88%; background: #a5d6a7; }
+    .mini-sound { font-size: 42px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.14)); }
+    .mini-key { min-width: 42px; padding: 8px 10px; border-radius: 10px; background: #eceff1; color: #37474f; font-weight: 900; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); text-align: center; }
+    .mini-device { width: 58px; height: 72px; border: 5px solid #37474f; border-radius: 14px; background: #ffffff; position: relative; }
+    .mini-device::after { content: ""; position: absolute; width: 14px; height: 4px; border-radius: 999px; background: #90a4ae; left: 50%; bottom: 5px; transform: translateX(-50%); }
+    .manual-note { background: #e8f5e9; color: #2e7d32; border-radius: 18px; padding: 14px 18px; margin-top: 18px; font-weight: 900; }
+
+    .semester-tabs { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+    .semester-tab { padding: 8px 24px; border-radius: 30px; background: #eceff1; font-weight: bold; cursor: pointer; border: none; }
+    .semester-tab.active { background: var(--primary); color: white; }
+
+    .top-section { display: grid; grid-template-columns: minmax(420px, 500px) 1fr; gap: 24px; max-width: 1580px; margin: 0 auto 30px; align-items: stretch; }
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; box-shadow: 0 6px 16px rgba(0,0,0,0.08); border: 3px solid #fff; }
+
+    .control-panel { display: flex; flex-direction: column; gap: 12px; }
+    .char-header { display: flex; gap: 18px; align-items: center; }
+    .char-input-wrap { border: 4px solid #b3e5fc; border-radius: 22px; background: #f1f8e9; width: 128px; height: 128px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    input#charInput { width: 100%; height: 100%; font-size: 86px; font-weight: 900; text-align: center; border: none; background: transparent; color: var(--primary-dark); outline: none; padding: 0; font-family: var(--kai-font); line-height: 1; }
+    .basic-info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+    .pinyin-area { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pinyin-large { font-size: 42px; color: #e53935; font-weight: bold; cursor: pointer; }
+    .speaker-btn { border: none; background: transparent; cursor: pointer; font-size: 30px; padding: 0 4px; line-height: 1; }
+    .tone-selector { background: #fff3e0; border-radius: 20px; padding: 2px 8px; border: 1px solid #ffb74d; }
+    .tone-selector select { border: none; background: transparent; font-weight: bold; color: #bf360c; font-size: 16px; outline: none; }
+    .radical-info { font-size: 18px; color: #546e7a; background: #eceff1; padding: 6px 12px; border-radius: 8px; width: fit-content; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .radical-info:hover { background: #d7edf7; color: var(--primary-dark); }
+
+    .quick-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 5px; max-height: 170px; overflow-y: auto; padding-right: 5px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .tag-btn { padding: 7px 14px; background: #e3f2fd; color: #0277bd; border: 1px solid #b3e5fc; border-radius: 10px; cursor: pointer; font-size: 20px; font-weight: bold; transition: 0.2s; font-family: var(--kai-font); }
+    .tag-btn:hover { background: #29b6f6; color: white; transform: translateY(-2px); }
+    .tag-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(3,155,229,0.25); }
+    .lesson-progress { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #e8f5e9; color: #2e7d32; border-radius: 14px; padding: 8px 12px; font-size: 15px; font-weight: 900; }
+    .standard-section { background: #eef7fb; border: 2px solid #c8e8f5; border-radius: 16px; padding: 10px 12px; color: #455a64; }
+    .standard-section summary { cursor: pointer; font-weight: 900; color: var(--primary-dark); }
+    .standard-body { margin-top: 10px; display: grid; gap: 10px; font-size: 14px; line-height: 1.45; }
+    .standard-title { font-weight: 900; color: #00695c; }
+    .standard-note { background: #fff8e1; border-left: 4px solid #ffca28; border-radius: 8px; padding: 8px; color: #6d4c41; font-weight: 800; }
+    .rubric-list { display: grid; gap: 6px; max-height: 170px; overflow-y: auto; padding-right: 4px; }
+    .rubric-item { background: white; border: 1px solid #d8e7ee; border-radius: 10px; padding: 7px 9px; }
+    .rubric-item b { color: #ef6c00; }
+    .mini-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mini-nav .btn { font-size: 15px; padding: 11px 12px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.4); }
+
+    .meaning-section { background: #fff8e1; border-left: 5px solid #ffca28; border-radius: 6px; padding: 12px; font-size: 18px; color: #5d4037; line-height: 1.55; min-height: 74px; }
+    .meaning-title { font-weight: bold; color: #f57f17; font-size: 15px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+
+    .words-section { background: #f0f4f8; border-radius: 12px; padding: 10px; flex: 1; display: flex; flex-direction: column; min-height: 120px; }
+    .words-title { font-size: 15px; font-weight: bold; color: #546e7a; margin-bottom: 8px; }
+    .words-list { display: flex; flex-wrap: wrap; gap: 10px; overflow-y: auto; max-height: 190px; }
+    .word-card { background: white; border: 1px solid #cfd8dc; border-radius: 10px; padding: 8px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; min-width: 110px; max-width: 180px; }
+    .word-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .word-pinyin { font-size: 14px; color: #ef5350; font-weight: bold; }
+    .word-hanzi { font-size: 24px; color: #37474f; font-weight: bold; margin-top: 1px; font-family: var(--kai-font); }
+    .word-meaning { font-size: 13px; color: #607d8b; line-height: 1.25; margin-top: 3px; text-align: center; }
+
+    .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+    .btn { border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 13px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .btn:active { transform: scale(0.96); }
+    .btn-blue { background: var(--primary); } .btn-orange { background: var(--accent); } .btn-red { background: #ef5350; }
+    .btn-purple { background: #ab47bc; } .btn-mark { background: #8d6e63; }
+
+    .teacher-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 640px; }
+    .teacher-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; width: calc(100% - 40px); z-index: 5; }
+    .teacher-title { font-weight: bold; color: var(--primary-dark); font-size: 18px; }
+
+    .mizige-container { position: relative; width: min(100%, 560px); max-width: 560px; aspect-ratio: 1/1; background: white; border: 3px solid var(--grid-border); border-radius: 28px; overflow: hidden; margin: 24px 0; }
+    .grid-lines { position: absolute; inset: 0; pointer-events: none; z-index: 0; background-image: linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--grid-cross) calc(50% - 0.5px), var(--grid-cross) calc(50% + 0.5px), transparent calc(50% + 0.5px)), linear-gradient(to right, transparent calc(50% - 0.5px), var(--grid-cross) calc(50% - 0.5px), var(--grid-cross) calc(50% + 0.5px), transparent calc(50% + 0.5px)); }
+
+    .teacher-hanzi-layer { position: absolute; inset: 0; z-index: 1; display: flex; justify-content: center; align-items: center; transition: opacity 0.2s; touch-action: none; }
+    .teacher-hanzi-layer svg, .hanzi-layer svg { touch-action: none; }
+    #teacherCanvas { position: absolute; inset: 0; z-index: 10; display: none; background: transparent; cursor: crosshair; touch-action: none; }
+
+    .teacher-demo-mode .teacher-hanzi-layer { opacity: 1; }
+    .teacher-demo-mode #teacherCanvas { display: none; }
+    .teacher-write-mode .teacher-hanzi-layer { opacity: 0.6; pointer-events: none; }
+    .teacher-write-mode #teacherCanvas { display: block; }
+    .mizige-container:fullscreen { width: min(92vmin, 92vw); max-width: none; border-radius: 24px; background: white; }
+    .fullscreen-exit-btn { display: none; position: absolute; top: 18px; right: 18px; z-index: 40; border: none; border-radius: 999px; padding: 10px 18px; background: #263238; color: white; font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.22); }
+    .mizige-container:fullscreen .fullscreen-exit-btn { display: block; }
+
+    .section-header { text-align: center; margin: 40px 0 20px; font-size: 22px; font-weight: 900; color: var(--primary-dark); }
+    .device-note { display: none; max-width: 720px; margin: -10px auto 18px; padding: 12px 16px; border-radius: 18px; background: #fff8e1; border: 2px solid #ffe082; color: #6d4c41; font-weight: 900; text-align: center; }
+    .student-grid { display: grid; grid-template-columns: repeat(5, minmax(190px, 1fr)); gap: 18px; max-width: 1580px; margin: 0 auto; touch-action: none; overscroll-behavior: contain; }
+
+    .student-card { position: relative; display: flex; flex-direction: column; align-items: center; padding: 15px 10px; touch-action: none; }
+    .score-container { width: 100%; display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
+    .score-box { background: #eee; padding: 3px 8px; border-radius: 8px; font-weight: bold; color: #555; }
+    .total-score { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+    .current-badge { position: absolute; top: -10px; right: -5px; padding: 5px 10px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 20; background: #78909c; }
+    .current-badge.high { background: #43a047; } .current-badge.low { background: #d32f2f; }
+
+    .switch-capsule { display: flex; background: #eceff1; border-radius: 15px; padding: 3px; width: 100%; margin-bottom: 8px; }
+    .switch-opt { flex: 1; text-align: center; font-size: 12px; padding: 4px; border-radius: 12px; color: #90a4ae; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .switch-opt.active { background: white; color: var(--primary-dark); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+    .canvas-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: white; border: 1px solid var(--grid-border); border-radius: 16px; overflow: hidden; touch-action: none; overscroll-behavior: contain; }
+    .hanzi-layer { position: absolute; inset: 0; z-index: 1; display: flex; justify-content: center; align-items: center; touch-action: none; }
+    .draw-layer { position: absolute; inset: 0; z-index: 10; touch-action: none; cursor: crosshair; }
+    .markup-layer { position: absolute; inset: 0; z-index: 20; touch-action: none; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="red"><circle cx="12" cy="12" r="8" stroke="red" stroke-width="2" fill="none"/></svg>') 12 12, crosshair; display: none; background: transparent; }
+    .markup-active .markup-layer { display: block; }
+    .score-mark-active:not(.markup-active) .markup-layer { display: block; pointer-events: none; }
+    .mode-stroke .draw-layer { display: none; pointer-events: none; }
+    .mode-stroke .hanzi-layer { opacity: 0.6; }
+    .mode-free .hanzi-layer { opacity: 0.6; pointer-events: none; }
+
+    .feedback-text { margin-top: 8px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #555; background: #f5f5f5; width: 100%; border-radius: 8px; }
+    .student-card.celebrate { animation: cardCelebrate 0.9s ease-out; }
+    @keyframes cardCelebrate { 0%{transform:scale(1)} 35%{transform:scale(1.035); box-shadow:0 0 0 7px rgba(255,202,40,0.35)} 100%{transform:scale(1)} }
+    .undo-btn { background: #cfd8dc; color: #37474f; border-radius: 8px; padding: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; }
+    .redo-btn { background: #e8f5e9; color: #2e7d32; border-radius: 8px; padding: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; }
+    .undo-btn:disabled, .redo-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.35); }
+    .capy-wrap { position: fixed; left: 18px; bottom: 8px; z-index: 100; display: flex; flex-direction: column; align-items: flex-start; pointer-events: none; }
+    .capy-bubble { background: #fff; padding: 12px 18px; border-radius: 18px 18px 18px 4px; border: 3px solid #795548; color: #5d4037; font-weight: bold; font-size: 14px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transition: 0.4s; pointer-events: auto; max-width: 220px; text-align: left; }
+    .capy-bubble.show { opacity: 1; transform: translateY(0); }
+    .capy-img { width: 96px; cursor: pointer; pointer-events: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); transition: 0.2s; animation: float 3s ease-in-out infinite; }
+    .capy-img:hover { transform: scale(1.05); }
+    .copyright-footer { max-width: 1300px; margin: 40px auto 0; text-align: center; color: #607d8b; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.75); border-radius: 18px; padding: 12px 16px; border: 1px solid #d6e4ea; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @media (max-width: 1200px) { .top-section { grid-template-columns: 1fr; } .student-grid { grid-template-columns: repeat(3, minmax(180px, 1fr)); } .teacher-panel { min-height: 560px; } .mizige-container { width: min(100%, 500px); } }
+    @media (max-width: 1024px), (pointer: coarse) and (max-width: 1180px) {
+      .student-grid { grid-template-columns: minmax(260px, 640px); justify-content: center; max-width: 720px; }
+      .student-card:nth-child(n+2) { display: none; }
+      .device-note { display: block; }
+      .canvas-wrap { max-height: min(72svh, 620px); }
+      .feedback-text { min-height: 38px; height: auto; padding: 6px 8px; }
+    }
+    @media (max-width: 800px) { body { padding: 12px; padding-bottom: 110px; } .top-section { grid-template-columns: 1fr; } .char-input-wrap { width: 100px; height: 100px; } input#charInput { font-size: 68px; } .pinyin-large { font-size: 34px; } .radical-info { font-size: 14px; } .teacher-panel { min-height: 430px; } .mizige-container { width: min(100%, 390px); } .student-grid { grid-template-columns: 1fr; max-width: 520px; } .capy-img { width: 74px; } .capy-bubble { max-width: 180px; font-size: 12px; } }
+    @media (max-width: 520px) { .top-bar { gap: 8px; } .back-btn, .manual-btn { padding: 8px 12px; font-size: 13px; } .breadcrumb { width: 100%; font-size: 13px; } .control-panel { padding: 14px; } .char-header { gap: 12px; align-items: flex-start; } .quick-tags { max-height: 118px; } .tag-btn { font-size: 18px; padding: 7px 12px; } .action-btns, .mini-nav { grid-template-columns: 1fr; } .student-card { padding: 12px 8px; } .canvas-wrap { border-width: 2px; } .word-card { min-width: 94px; } }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button class="back-btn" id="backBtn" onclick="goBack()" type="button">← 返回</button>
+    <button class="manual-btn" onclick="app.showManual()" type="button">📘 使用手册</button>
+    <div class="breadcrumb" id="breadcrumb"><a href="#" onclick="app.showHome()">首页</a></div>
+  </div>
+
+  <div class="view-container">
+    <div id="viewHome" class="view active">
+      <h1>📖 戏字小助手<br><small>KSSR Semakan 2017 · 一至六年级华文练字</small></h1>
+      <div style="display:flex; justify-content:center; margin:30px 0;"><img src="https://cdn-icons-png.flaticon.com/512/1864/1864472.png" style="width:140px;" alt="青蛙老师"></div>
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px;"><button class="btn btn-blue" style="padding:16px 40px; font-size:20px;" onclick="app.showGradeSelect()">🚀 开始学习 · 选择年级</button><button class="btn btn-orange" style="padding:16px 34px; font-size:20px;" onclick="app.showManual()">📘 使用手册</button></div>
+      <div style="background:white; border-radius:30px; padding:25px; margin-top:30px; text-align:center; border:3px solid #0033a0;"><p style="font-size:18px; margin:0 0 10px;">✨ 点击🔊可朗读拼音 · 点击部首可听名称 · 支持多处圈画</p><p style="margin:0;">🐸 青蛙老师陪你一起练字，智能批改更真实</p></div>
+    </div>
+
+    <div id="viewManual" class="view">
+      <div class="manual-hero">
+        <h2>📘 使用手册</h2>
+        <p>这个网站用来选课文、看楷体示范、多人练字、朗读拼音和自动评分。</p>
+      </div>
+      <div class="manual-picture-grid" aria-label="使用流程图解">
+        <div class="manual-picture-card">
+          <h3>图 1：选择课文</h3>
+          <div class="manual-shot">
+            <div class="shot-top"><span class="shot-dot"></span><span class="shot-title">首页 / 年级 / 单元</span></div>
+            <div class="shot-body">
+              <div class="shot-row"><span class="shot-pill active">1 年级</span><span class="shot-pill">2 年级</span><span class="shot-pill">3 年级</span></div>
+              <div class="shot-row"><span class="shot-pill">第一单元</span><span class="shot-pill active">天安门</span></div>
+              <div class="shot-button">开始练字</div>
+            </div>
+          </div>
+          <p>先选年级，再选单元和课文，系统只显示该课要学的生字。</p>
+        </div>
+        <div class="manual-picture-card">
+          <h3>图 2：看教师示范</h3>
+          <div class="manual-shot">
+            <div class="shot-top"><span class="shot-dot"></span><span class="shot-title">教师楷体示范</span></div>
+            <div class="shot-body">
+              <div class="shot-row">
+                <div class="shot-grid"><span>天</span></div>
+                <div class="shot-panel">点“教师演示”看笔顺动画。点“大屏”可给全班观看。</div>
+              </div>
+            </div>
+          </div>
+          <p>老师可以先演示楷体和笔顺，也可以进入大屏写给学生看。</p>
+        </div>
+        <div class="manual-picture-card">
+          <h3>图 3：学生临摹</h3>
+          <div class="manual-shot">
+            <div class="shot-top"><span class="shot-dot"></span><span class="shot-title">学生练习区</span></div>
+            <div class="shot-body">
+              <div class="shot-row"><span class="shot-pill active">严格笔顺</span><span class="shot-pill">描红临摹</span></div>
+              <div class="shot-canvas"><div class="shot-stroke"></div></div>
+            </div>
+          </div>
+          <p>电脑可多人同写；iPad 和手机会自动只显示学生 1，临摹区更大。</p>
+        </div>
+        <div class="manual-picture-card">
+          <h3>图 4：交卷评分</h3>
+          <div class="manual-shot">
+            <div class="shot-top"><span class="shot-dot"></span><span class="shot-title">评分与圈画</span></div>
+            <div class="shot-body">
+              <div class="shot-canvas"><div class="shot-stroke"></div><div class="shot-circle"></div><div class="shot-score">表现5</div></div>
+              <div class="shot-row"><span class="shot-pill active">交卷</span><span class="shot-pill">圈画</span><span class="shot-pill">撤销</span></div>
+            </div>
+          </div>
+          <p>交卷后会依结构、重心和匀称评分；有真实问题才自动圈出重点。</p>
+        </div>
+      </div>
+      <div class="manual-grid">
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><span class="mini-chip hot">年级</span><span class="mini-chip">单元</span><span class="mini-chip">课文</span></div></div>
+          <h3>1. 开始练习</h3>
+          <p>点“开始学习”，选择年级、单元和课文。</p>
+          <p>进入练字页后，点生字按钮切换要练的字。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-grid-char"><span>天</span></div><span class="mini-chip hot">大屏</span></div></div>
+          <h3>2. 老师示范</h3>
+          <p>点“教师演示”观看笔画动画。</p>
+          <p>点“⛶ 大屏”把示范字放大给全班看，右上角有“退出全屏”。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-grid-char"><span>写</span></div><div class="mini-pencil"></div></div></div>
+          <h3>3. 学生练字</h3>
+          <p>“严格笔顺”会检查笔顺。</p>
+          <p>“描红临摹”可以自由书写，支持多点触控。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-red-circle"></div><span class="mini-score-badge">表现5</span></div></div>
+          <h3>4. 评分与圈画</h3>
+          <p>点“交卷”后会评分，并标出主要问题。</p>
+          <p>点“圈画”后，老师可以手动画出需要注意的地方。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-standard"><span></span><span></span><span></span></div><span class="mini-chip hot">1-6级</span></div></div>
+          <h3>5. 表现标准</h3>
+          <p>练字页会依年级显示学习标准和 1-6 级表现说明。</p>
+          <p>自动评分主要参考字形、间架结构和匀称；坐姿、执笔法由老师现场观察。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><span class="mini-sound">🔊</span><span class="mini-chip">pīn yīn</span><span class="mini-chip hot">字义</span></div></div>
+          <h3>6. 朗读与字义</h3>
+          <p>点 🔊 可听生字读音。</p>
+          <p>配词卡会显示拼音、配词和简短词义。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><span class="mini-key">←</span><span class="mini-key">→</span><span class="mini-key">Z</span><span class="mini-key">Esc</span></div></div>
+          <h3>7. 常用按键</h3>
+          <p>← / →：切换上一个字、下一个字。</p>
+          <p>Ctrl+Z：撤销；Ctrl+Y：重做；Esc：返回上一页。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-device"></div><span class="mini-chip hot">学生1</span></div></div>
+          <h3>8. iPad 与手机</h3>
+          <p>电脑会显示 5 位学生；iPad 和手机会自动只显示学生 1。</p>
+          <p>这样临摹区更大，比较适合触控书写。</p>
+        </div>
+      </div>
+      <div class="manual-note">小提示：如果页面没有更新，请按 Ctrl + F5 强制刷新。若画面太大，可点 Chrome 或 Microsoft Edge 右上角“三个点”，按“−”缩小银幕比例。</div>
+    </div>
+
+    <div id="viewGrade" class="view"><h2>📌 选择年级 (Tahun 1-6)</h2><div class="card-grid" id="gradeGrid"></div></div>
+    <div id="viewUnit" class="view"><h2 id="unitGradeTitle">📚 单元列表</h2><div class="semester-tabs" id="semesterTabs"></div><div class="card-grid" id="unitGrid"></div></div>
+    <div id="viewLesson" class="view"><h2 id="lessonUnitTitle">📖 课文选择</h2><div class="card-grid" id="lessonGrid"></div></div>
+
+    <div id="viewPractice" class="view">
+      <h2 id="practiceTitle" style="margin-bottom:5px;">✍️ 练字课堂</h2>
+      <div class="top-section">
+        <div class="card control-panel">
+          <div class="char-header">
+            <div class="char-input-wrap"><input type="text" id="charInput" maxlength="1" value="天" placeholder="字" autocomplete="off"></div>
+            <div class="basic-info">
+              <div class="pinyin-area">
+                <span class="pinyin-large" id="pinyinDisplay" onclick="playAudio()">tiān</span>
+                <button type="button" class="speaker-btn" onclick="playAudio()" aria-label="播放读音">🔊</button>
+                <span class="tone-selector" id="multiToneSelector" style="display:none;">
+                  <select id="toneSelect" onchange="onToneChange()"></select>
+                </span>
+              </div>
+              <div class="radical-info" id="radicalInfo" onclick="playRadicalAudio()" title="点击朗读部首名称">部首: 一 | 结构: 上下 | 笔画: 4</div>
+            </div>
+          </div>
+          <div class="quick-tags" id="quickTags"></div>
+          <div class="lesson-progress"><span id="lessonProgress">第 1 / 1 字</span><span id="shortcutHint">← → 可换字</span></div>
+          <details class="standard-section" id="standardBox">
+            <summary>📋 学习标准与表现标准</summary>
+            <div class="standard-body">
+              <div><div class="standard-title">学习标准 3.1.1</div><div id="learningStandardText"></div></div>
+              <div class="standard-note">自动评分参考：字形端正、间架结构、重心与匀称。坐姿、执笔法、卷面整洁需由老师现场观察。</div>
+              <div><div class="standard-title">表现标准</div><div class="rubric-list" id="performanceRubric"></div></div>
+            </div>
+          </details>
+          <div class="meaning-section"><div class="meaning-title"><span>📖 释义</span><a id="dictLink" href="#" target="_blank" style="color:#0288d1; text-decoration:none;">🔗 百度百科</a></div><div class="meaning-content" id="meaningContent">天空；高处</div></div>
+          <div class="words-section"><div class="words-title">🌟 配词与词义</div><div class="words-list" id="wordsList"></div></div>
+          <div class="mini-nav"><button class="btn btn-blue" id="prevCharBtn" onclick="prevCharacter()">← 上一个字</button><button class="btn btn-blue" id="nextCharBtn" onclick="nextCharacter()">下一个字 →</button></div>
+          <div class="action-btns"><button class="btn btn-orange" onclick="animateTeacher()">▶ 教师演示</button><button class="btn btn-red" onclick="resetAll()">🗑️ 全局清空</button></div>
+        </div>
+        <div class="card teacher-panel">
+          <div class="teacher-header"><div class="teacher-title">👨‍🏫 教师楷体示范</div><div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;"><button class="btn btn-purple" id="teacherModeBtn" onclick="toggleTeacherMode()" style="padding:6px 12px;">✍️ 教师写字</button><button class="btn btn-blue" onclick="toggleTeacherFullscreen()" style="padding:6px 12px; background:#00897b;">⛶ 大屏</button><button class="btn btn-blue" onclick="clearTeacherCanvas()" style="padding:6px 12px; background:#607d8b;">🗑️ 清空</button></div></div>
+          <div class="mizige-container teacher-demo-mode" id="teacherBox"><div class="grid-lines"></div><div id="teacherTarget" class="teacher-hanzi-layer"></div><canvas id="teacherCanvas"></canvas><button class="fullscreen-exit-btn" onclick="exitTeacherFullscreen(event)" type="button">退出全屏</button></div>
+          <div id="teacherStatus" style="margin-top:15px; font-weight:bold; color:#78909c;">当前状态：观看演示</div>
+        </div>
+      </div>
+      <div class="section-header">🏆 学生练习区</div>
+      <div class="device-note">平板 / 手机模式：这里只显示学生 1，临摹区会自动放大，方便触控书写。</div>
+      <div class="student-grid" id="studentGrid"></div>
+    </div>
+  </div>
+
+  <div class="capy-wrap"><div class="capy-bubble" id="capyMsg">青蛙老师提醒：点击🔊可朗读拼音，圈画会标出多处问题！</div><img src="https://cdn-icons-png.flaticon.com/512/1864/1864472.png" class="capy-img" onclick="capyTalk()" alt="青蛙老师"></div>
+  <footer class="copyright-footer">版权所有。此互动教学工具为丘欣怡与吴巧滢的原创作品，仅供学习与教育用途。未经许可，严禁复制、修改或作商业用途。<br>Hak Cipta Terpelihara © Kiew Sin Yi dan Irene Ngu Kiew Ying, tertakluk bawah Akta Hakcipta 1987.</footer>
+
+<script>
+// ================= 一年级课程数据（按你的最新版更新） =================
+const AppData = {
+  grades: [1, 2, 3, 4, 5, 6],
+  grade1: {
+    name: "一年级",
+    semesters: [
+      { name: "第一阶段", units: [
+        { id: "g1_s1_u1", name: "识字一" },
+        { id: "g1_s1_u2", name: "第一单元：奇妙开端" },
+        { id: "g1_s1_u3", name: "第二单元：走进校园" }
+      ]},
+      { name: "第二阶段", units: [
+        { id: "g1_s2_u1", name: "识字二" },
+        { id: "g1_s2_u2", name: "第三单元：我爱我的家" },
+        { id: "g1_s2_u3", name: "第四单元：快乐校园" },
+        { id: "g1_s2_u4", name: "第五单元：自然景物" },
+        { id: "g1_s2_u5", name: "第六单元：数量世界" }
+      ]},
+      { name: "第三阶段", units: [
+        { id: "g1_s3_u1", name: "识字三" },
+        { id: "g1_s3_u2", name: "第七单元：爱护牙齿" },
+        { id: "g1_s3_u3", name: "第八单元：快乐活动" },
+        { id: "g1_s3_u4", name: "第九单元：夜晚景色" },
+        { id: "g1_s3_u5", name: "第十单元：生活用品" }
+      ]},
+      { name: "第四阶段", units: [
+        { id: "g1_s4_u1", name: "识字四" },
+        { id: "g1_s4_u2", name: "第十一单元：校园生活" },
+        { id: "g1_s4_u3", name: "第十二单元：家庭成员" },
+        { id: "g1_s4_u4", name: "第十三单元：时间变化" },
+        { id: "g1_s4_u5", name: "第十四单元：游戏活动" }
+      ]},
+      { name: "第五阶段", units: [
+        { id: "g1_s5_u1", name: "识字五" },
+        { id: "g1_s5_u2", name: "第十五单元：朋友之间" },
+        { id: "g1_s5_u3", name: "第十六单元：动物世界" },
+        { id: "g1_s5_u4", name: "第十七单元：飞翔梦想" },
+        { id: "g1_s5_u5", name: "第十八单元：生活常识" },
+        { id: "g1_s5_u6", name: "第十九单元：桥与夜景" },
+        { id: "g1_s5_u7", name: "第二十单元：身体五官" },
+        { id: "g1_s5_u8", name: "第二十一单元：家庭成员" },
+        { id: "g1_s5_u9", name: "第二十二单元：日常活动" }
+      ]}
+    ],
+    unitsData: {
+      "g1_s1_u1": { unitName: "识字一", lessons: [
+        { id: "g1_s1_u1_l1", name: "习写生字", characters: ["天", "太", "阳", "上", "学"] }
+      ]},
+      "g1_s1_u2": { unitName: "第一单元：奇妙开端", lessons: [
+        { id: "g1_s1_u2_l1", name: "（一）天安门", characters: ["了", "一", "走", "门", "口"] },
+        { id: "g1_s1_u2_l2", name: "（二）小鸟早来", characters: ["小", "鸟", "早", "来", "去"] }
+      ]},
+      "g1_s1_u3": { unitName: "第二单元：走进校园", lessons: [
+        { id: "g1_s1_u3_l1", name: "（一）读书乐", characters: ["书", "儿", "习", "长", "知"] },
+        { id: "g1_s1_u3_l2", name: "（二）写字歌", characters: ["写", "手", "心", "也", "不"] }
+      ]},
+      "g1_s2_u1": { unitName: "识字二", lessons: [
+        { id: "g1_s2_u1_l1", name: "习写生字", characters: ["双", "片", "羊", "大", "舌"] }
+      ]},
+      "g1_s2_u2": { unitName: "第三单元：我爱我的家", lessons: [
+        { id: "g1_s2_u2_l1", name: "（一）开门声", characters: ["开", "回", "哥", "姐", "声"] },
+        { id: "g1_s2_u2_l2", name: "（二）亲亲一家人", characters: ["妈", "爸", "中", "三", "亲"] }
+      ]},
+      "g1_s2_u3": { unitName: "第四单元：快乐校园", lessons: [
+        { id: "g1_s2_u3_l1", name: "（一）吃饭真开心", characters: ["饭", "有", "瓜", "鱼", "喜"] },
+        { id: "g1_s2_u3_l2", name: "（二）校园真快乐", characters: ["妹", "木", "校", "乐"] }
+      ]},
+      "g1_s2_u4": { unitName: "第五单元：自然景物", lessons: [
+        { id: "g1_s2_u4_l1", name: "（一）月亮出来了", characters: ["又", "月", "亮", "见", "家"] },
+        { id: "g1_s2_u4_l2", name: "（二）青山雨后", characters: ["雨", "更", "山", "青", "曲"] }
+      ]},
+      "g1_s2_u5": { unitName: "第六单元：数量世界", lessons: [
+        { id: "g1_s2_u5_l1", name: "（一）多少朋友", characters: ["个", "只", "这", "多", "少", "群"] },
+        { id: "g1_s2_u5_l2", name: "（二）数字歌", characters: ["出", "重", "四", "五", "六", "七"] }
+      ]},
+      "g1_s3_u1": { unitName: "识字三", lessons: [
+        { id: "g1_s3_u1_l1", name: "习写生字", characters: ["对", "说", "关", "安", "空", "放"] }
+      ]},
+      "g1_s3_u2": { unitName: "第七单元：爱护牙齿", lessons: [
+        { id: "g1_s3_u2_l1", name: "（一）我要刷牙", characters: ["要", "西", "牙", "齿", "我", "以"] },
+        { id: "g1_s3_u2_l2", name: "（二）你真香", characters: ["你", "飞", "香", "才", "时"] }
+      ]},
+      "g1_s3_u3": { unitName: "第八单元：快乐活动", lessons: [
+        { id: "g1_s3_u3_l1", name: "（一）黄飞机", characters: ["黄", "爬", "下", "坐", "机", "快"] },
+        { id: "g1_s3_u3_l2", name: "（二）唱歌真快乐", characters: ["唱", "在", "里", "爱", "从", "风"] }
+      ]},
+      "g1_s3_u4": { unitName: "第九单元：夜晚景色", lessons: [
+        { id: "g1_s3_u4_l1", name: "（一）夜色真美", characters: ["夜", "色", "衣", "的", "蓝", "森"] },
+        { id: "g1_s3_u4_l2", name: "（二）学习用品", characters: ["用", "发", "地", "白", "文", "本"] }
+      ]},
+      "g1_s3_u5": { unitName: "第十单元：生活用品", lessons: [
+        { id: "g1_s3_u5_l1", name: "（一）金工单", characters: ["金", "工", "单", "是", "身", "后"] },
+        { id: "g1_s3_u5_l2", name: "（二）工具在哪里", characters: ["公", "头", "带", "起", "刀", "子"] }
+      ]},
+      "g1_s4_u1": { unitName: "识字四", lessons: [
+        { id: "g1_s4_u1_l1", name: "习写生字", characters: ["养", "羽", "毛", "红", "找", "物"] }
+      ]},
+      "g1_s4_u2": { unitName: "第十一单元：校园生活", lessons: [
+        { id: "g1_s4_u2_l1", name: "（一）同学见面", characters: ["同", "面", "师", "助", "点", "人"] },
+        { id: "g1_s4_u2_l2", name: "（二）我们的学校", characters: ["车", "存", "半", "年", "十", "再"] }
+      ]},
+      "g1_s4_u3": { unitName: "第十二单元：家庭成员", lessons: [
+        { id: "g1_s4_u3_l1", name: "（一）爸爸妈妈", characters: ["马", "孩", "左", "右", "父", "节"] },
+        { id: "g1_s4_u3_l2", name: "（二）家庭称呼", characters: ["到", "几", "别", "久", "得", "名"] }
+      ]},
+      "g1_s4_u4": { unitName: "第十三单元：时间变化", lessons: [
+        { id: "g1_s4_u4_l1", name: "（一）晚上灯光", characters: ["晚", "光", "比", "东", "西", "为"] },
+        { id: "g1_s4_u4_l2", name: "（二）我们做什么", characters: ["出", "么", "着", "们", "干", "净"] }
+      ]},
+      "g1_s4_u5": { unitName: "第十四单元：游戏活动", lessons: [
+        { id: "g1_s4_u5_l1", name: "（一）跳一跳", characters: ["跳", "和", "玩", "成", "力", "士"] },
+        { id: "g1_s4_u5_l2", name: "（二）花园里", characters: ["前", "花", "弟", "分", "看", "话"] }
+      ]},
+      "g1_s5_u1": { unitName: "识字五", lessons: [
+        { id: "g1_s5_u1_l1", name: "习写生字", characters: ["包", "足", "水", "食", "奶", "叫"] }
+      ]},
+      "g1_s5_u2": { unitName: "第十五单元：朋友之间", lessons: [
+        { id: "g1_s5_u2_l1", name: "（一）我的朋友", characters: ["球", "高", "生", "朋", "友", "脸"] },
+        { id: "g1_s5_u2_l2", name: "（二）美丽的小窝", characters: ["变", "很", "窝", "朵", "美", "丽"] }
+      ]},
+      "g1_s5_u3": { unitName: "第十六单元：动物世界", lessons: [
+        { id: "g1_s5_u3_l1", name: "（一）小狗升旗", characters: ["电", "外", "狗", "道", "升"] },
+        { id: "g1_s5_u3_l2", name: "（二）火车来了", characters: ["火", "可", "笑", "最", "关", "做"] }
+      ]},
+      "g1_s5_u4": { unitName: "第十七单元：飞翔梦想", lessons: [
+        { id: "g1_s5_u4_l1", name: "（一）白云飞", characters: ["云", "什", "都", "翅", "追", "方"] },
+        { id: "g1_s5_u4_l2", name: "（二）兄弟一起走", characters: ["兄", "因", "海", "顺", "他", "呼"] }
+      ]},
+      "g1_s5_u5": { unitName: "第十八单元：生活常识", lessons: [
+        { id: "g1_s5_u5_l1", name: "（一）数字歌", characters: ["九", "八", "日", "今", "目", "男", "女"] },
+        { id: "g1_s5_u5_l2", name: "（二）农田水果", characters: ["农", "田", "米", "果", "土", "共"] }
+      ]},
+      "g1_s5_u6": { unitName: "第十九单元：桥与夜景", lessons: [
+        { id: "g1_s5_u6_l1", name: "（一）那座桥", characters: ["那", "桥", "平", "各", "害", "彩"] },
+        { id: "g1_s5_u6_l2", name: "（二）星星灯光", characters: ["星", "灯", "姨", "立"] }
+      ]},
+      "g1_s5_u7": { unitName: "第二十单元：身体五官", lessons: [
+        { id: "g1_s5_u7_l1", name: "（一）自己最美", characters: ["自", "己", "二", "尺", "已", "眉", "妆"] },
+        { id: "g1_s5_u7_l2", name: "（二）大象和牛", characters: ["动", "鼻", "象", "牛", "正", "谈", "音"] }
+      ]},
+      "g1_s5_u8": { unitName: "第二十一单元：家庭成员", lessons: [
+        { id: "g1_s5_u8_l1", name: "（一）爷爷来了", characters: ["常", "老", "爷", "办", "易", "吞", "耳"] },
+        { id: "g1_s5_u8_l2", name: "（二）吃肉条", characters: ["问", "吃", "肉", "条", "两", "气"] }
+      ]},
+      "g1_s5_u9": { unitName: "第二十二单元：日常活动", lessons: [
+        { id: "g1_s5_u9_l1", name: "（一）谁来了", characters: ["没", "午", "采", "弄", "谁", "巴"] },
+        { id: "g1_s5_u9_l2", name: "（二）整理环境", characters: ["百", "齐", "皮", "张", "等", "扫", "周"] }
+      ]}
+    },
+    lessonsData: {}
+  },
+  grade2: {
+    name: "二年级",
+    semesters: [
+      { name: "第一阶段", units: [
+        { id: "g2_s1_u1", name: "识字一：我的小天地" },
+        { id: "g2_s1_u2", name: "第一单元：丰富多彩的校园生活" },
+        { id: "g2_s1_u3", name: "第二单元：生活多美好" },
+        { id: "g2_s1_u4", name: "第三单元：温暖的家" },
+        { id: "g2_s1_u5", name: "第四单元：我们的文化" }
+      ]},
+      { name: "第二阶段", units: [
+        { id: "g2_s2_u1", name: "识字二：小白兔种果树" },
+        { id: "g2_s2_u2", name: "第五单元：珍贵的友情" },
+        { id: "g2_s2_u3", name: "第六单元：动物世界" },
+        { id: "g2_s2_u4", name: "第七单元：有趣的游戏" },
+        { id: "g2_s2_u5", name: "第八单元：乡野风光好" }
+      ]},
+      { name: "第三阶段", units: [
+        { id: "g2_s3_u1", name: "识字三：添“口”歌" },
+        { id: "g2_s3_u2", name: "第九单元：童年是一首歌" },
+        { id: "g2_s3_u3", name: "第十单元：阅读世界真有趣" },
+        { id: "g2_s3_u4", name: "第十一单元：海阔天空" },
+        { id: "g2_s3_u5", name: "第十二单元：植物的故事" }
+      ]},
+      { name: "第四阶段", units: [
+        { id: "g2_s4_u1", name: "识字四：求取学问要勤劳" },
+        { id: "g2_s4_u2", name: "第十三单元：你知道吗？" },
+        { id: "g2_s4_u3", name: "第十四单元：环保大家做" },
+        { id: "g2_s4_u4", name: "第十五单元：谢谢你们" },
+        { id: "g2_s4_u5", name: "第十六单元：小故事，大道理" }
+      ]},
+      { name: "第五阶段", units: [
+        { id: "g2_s5_u1", name: "识字五：分秒必争勤学习" },
+        { id: "g2_s5_u2", name: "第十七单元：珍惜时间" },
+        { id: "g2_s5_u3", name: "第十八单元：想和做" },
+        { id: "g2_s5_u4", name: "第十九单元：走走看看" },
+        { id: "g2_s5_u5", name: "第二十单元：生活处处有学问" },
+        { id: "g2_s5_u6", name: "第二十一单元：知识的力量" },
+        { id: "g2_s5_u7", name: "第二十二单元：小小心愿" }
+      ]}
+    ],
+    unitsData: {
+      "g2_s1_u1": { unitName: "识字一：我的小天地", lessons: [
+        { id: "g2_s1_u1_l1", name: "习写生字", characters: ["台", "满", "简", "典", "邮"] }
+      ]},
+      "g2_s1_u2": { unitName: "第一单元：丰富多彩的校园生活", lessons: [
+        { id: "g2_s1_u2_l1", name: "（一）我们的校园故事", characters: ["万", "千", "列", "世", "界"] },
+        { id: "g2_s1_u2_l2", name: "（二）热闹的乐园", characters: ["奔", "牵", "浪"] }
+      ]},
+      "g2_s1_u3": { unitName: "第二单元：生活多美好", lessons: [
+        { id: "g2_s1_u3_l1", name: "（一）美术课", characters: ["载", "货", "卡", "整", "交", "匆"] },
+        { id: "g2_s1_u3_l2", name: "（二）小猫看着我", characters: ["瓶", "插", "迎", "支", "布", "专"] }
+      ]},
+      "g2_s1_u4": { unitName: "第三单元：温暖的家", lessons: [
+        { id: "g2_s1_u4_l1", name: "（一）我爱我家", characters: ["舒", "轮", "合", "暖"] },
+        { id: "g2_s1_u4_l2", name: "（二）借生日", characters: ["晨", "枕", "餐", "装", "借"] }
+      ]},
+      "g2_s1_u5": { unitName: "第四单元：我们的文化", lessons: [
+        { id: "g2_s1_u5_l1", name: "（一）小渔童和年画", characters: ["向", "求", "然", "汤", "余"] },
+        { id: "g2_s1_u5_l2", name: "（二）吃年糕", characters: ["春", "乡", "拜", "定", "希", "望"] }
+      ]},
+      "g2_s2_u1": { unitName: "识字二：小白兔种果树", lessons: [
+        { id: "g2_s2_u1_l1", name: "习写生字", characters: ["竹", "旁", "笼", "挖", "摘"] }
+      ]},
+      "g2_s2_u2": { unitName: "第五单元：珍贵的友情", lessons: [
+        { id: "g2_s2_u2_l1", name: "（一）三个好朋友", characters: ["野", "袋", "栽", "紧", "围"] },
+        { id: "g2_s2_u2_l2", name: "（二）池塘边的叫声", characters: ["遇", "岸", "离", "兴", "此", "遍"] }
+      ]},
+      "g2_s2_u3": { unitName: "第六单元：动物世界", lessons: [
+        { id: "g2_s2_u3_l1", name: "（一）我的观察日记", characters: ["而", "神", "形", "状", "坚"] },
+        { id: "g2_s2_u3_l2", name: "（二）动物的心声", characters: ["类", "捕", "王", "乱", "迟", "临"] }
+      ]},
+      "g2_s2_u4": { unitName: "第七单元：有趣的游戏", lessons: [
+        { id: "g2_s2_u4_l1", name: "（一）坐椅子", characters: ["危", "盗", "作", "员", "微"] },
+        { id: "g2_s2_u4_l2", name: "（二）风筝，快乐地飞着！", characters: ["族", "之", "其", "由", "民"] }
+      ]},
+      "g2_s2_u5": { unitName: "第八单元：乡野风光好", lessons: [
+        { id: "g2_s2_u5_l1", name: "（一）回乡下", characters: ["宽", "阔", "石", "景", "替"] },
+        { id: "g2_s2_u5_l2", name: "（二）鱼米之乡——适耕庄", characters: ["北", "先", "与", "夕", "处", "丰"] }
+      ]},
+      "g2_s3_u1": { unitName: "识字三：添“口”歌", lessons: [
+        { id: "g2_s3_u1_l1", name: "习写生字", characters: ["欠", "号", "乞", "未", "丁"] }
+      ]},
+      "g2_s3_u2": { unitName: "第九单元：童年是一首歌", lessons: [
+        { id: "g2_s3_u2_l1", name: "（一）童年的问号", characters: ["考", "烧", "壶", "古", "底"] },
+        { id: "g2_s3_u2_l2", name: "（二）聪明的司马光", characters: ["庭", "假", "藏", "缸", "壮", "义", "勇"] }
+      ]},
+      "g2_s3_u3": { unitName: "第十单元：阅读世界真有趣", lessons: [
+        { id: "g2_s3_u3_l1", name: "（一）拜访书的家", characters: ["陆", "龟", "壳", "饼", "趣", "馆"] },
+        { id: "g2_s3_u3_l2", name: "（二）我的阅读心得", characters: ["主", "示", "劳", "杀", "康", "复"] }
+      ]},
+      "g2_s3_u4": { unitName: "第十一单元：海阔天空", lessons: [
+        { id: "g2_s3_u4_l1", name: "（一）诗", characters: ["滚", "诗", "闪", "昏", "雪", "厌"] },
+        { id: "g2_s3_u4_l2", name: "（二）雾", characters: ["顽", "无", "论", "切", "消", "失"] }
+      ]},
+      "g2_s3_u5": { unitName: "第十二单元：植物的故事", lessons: [
+        { id: "g2_s3_u5_l1", name: "（一）荷叶", characters: ["步", "接", "拆", "绳", "熟", "非"] },
+        { id: "g2_s3_u5_l2", name: "（二）我们奇妙的世界", characters: ["充", "丹", "浅", "芒", "炎", "乘"] }
+      ]},
+      "g2_s4_u1": { unitName: "识字四：求取学问要勤劳", lessons: [
+        { id: "g2_s4_u1_l1", name: "习写生字", characters: ["败", "导", "冠", "勤", "鸽", "乌"] }
+      ]},
+      "g2_s4_u2": { unitName: "第十三单元：你知道吗？", lessons: [
+        { id: "g2_s4_u2_l1", name: "（一）种子的旅行", characters: ["旅", "随", "沉", "椰", "幼", "刺"] },
+        { id: "g2_s4_u2_l2", name: "（二）又臭又懒的花", characters: ["入", "臭", "懒", "察", "帮"] }
+      ]},
+      "g2_s4_u3": { unitName: "第十四单元：环保大家做", lessons: [
+        { id: "g2_s4_u3_l1", name: "（一）垃圾山消失了", characters: ["丑", "图", "原", "厂", "反"] },
+        { id: "g2_s4_u3_l2", name: "（二）家有环保大使", characters: ["帕", "惯", "或", "练", "费", "孙"] }
+      ]},
+      "g2_s4_u4": { unitName: "第十五单元：谢谢你们", lessons: [
+        { id: "g2_s4_u4_l1", name: "（一）一行有一行的气味", characters: ["散", "司", "制", "及", "夫", "情"] },
+        { id: "g2_s4_u4_l2", name: "（二）猜一猜", characters: ["母", "豆", "蔬", "将", "商", "医"] }
+      ]},
+      "g2_s4_u5": { unitName: "第十六单元：小故事，大道理", lessons: [
+        { id: "g2_s4_u5_l1", name: "（一）黄鼠狼卖药", characters: ["篮", "药", "雀", "胸", "除", "句"] },
+        { id: "g2_s4_u5_l2", name: "（二）鼠鹿和鳄鱼", characters: ["凶", "敢", "守", "喝", "冷", "越", "涂"] }
+      ]},
+      "g2_s5_u1": { unitName: "识字五：分秒必争勤学习", lessons: [
+        { id: "g2_s5_u1_l1", name: "习写生字", characters: ["巧", "碗", "碟", "争", "必", "刻"] }
+      ]},
+      "g2_s5_u2": { unitName: "第十七单元：珍惜时间", lessons: [
+        { id: "g2_s5_u2_l1", name: "（一）奇奇借时间", characters: ["业", "止", "街", "行", "局", "傲"] }
+      ]},
+      "g2_s5_u3": { unitName: "第十八单元：想和做", lessons: [
+        { id: "g2_s5_u3_l1", name: "（一）好事情", characters: ["功", "血", "厨", "乖", "井", "脑", "贝"] }
+      ]},
+      "g2_s5_u4": { unitName: "第十九单元：走走看看", lessons: [
+        { id: "g2_s5_u4_l1", name: "（一）美丽的夜市", characters: ["铃", "顾", "品", "鼓", "敲", "建"] }
+      ]},
+      "g2_s5_u5": { unitName: "第二十单元：生活处处有学问", lessons: [
+        { id: "g2_s5_u5_l1", name: "（一）会说话的灯", characters: ["广", "化", "改", "经", "言"] }
+      ]},
+      "g2_s5_u6": { unitName: "第二十一单元：知识的力量", lessons: [
+        { id: "g2_s5_u6_l1", name: "（一）回家的脚印", characters: ["冬", "印", "互", "兽", "忽"] }
+      ]},
+      "g2_s5_u7": { unitName: "第二十二单元：小小心愿", lessons: [
+        { id: "g2_s5_u7_l1", name: "（一）百宝箱", characters: ["参", "益", "营", "偷", "健", "岁", "孝"] }
+      ]}
+    },
+    lessonsData: {}
+  },
+  grade3: {
+    name: "三年级",
+    semesters: [
+      { name: "第一套课本", units: [
+        { id: "g3_b1_u1", name: "单元一：蜕变之旅" },
+        { id: "g3_b1_u2", name: "单元二：和谐之旅" },
+        { id: "g3_b1_u3", name: "单元三：知性之旅" },
+        { id: "g3_b1_u4", name: "单元四：永恒之旅" }
+      ]},
+      { name: "第二套课本", units: [
+        { id: "g3_b2_u1", name: "单元一：奋飞之旅" },
+        { id: "g3_b2_u2", name: "单元二：拥抱自然" },
+        { id: "g3_b2_u3", name: "单元三：赏心悦目" },
+        { id: "g3_b2_u4", name: "单元四：放眼看世界" }
+      ]}
+    ],
+    unitsData: {
+      "g3_b1_u1": { unitName: "单元一：蜕变之旅", lessons: [
+        { id: "g3_b1_u1_l1", name: "1 实力会说话", characters: ["肖", "渺", "辨", "控", "昼", "丧"] },
+        { id: "g3_b1_u1_l2", name: "2 风中的树苗", characters: ["窃", "兜", "岔", "闯", "饶", "垂"] },
+        { id: "g3_b1_u1_l3", name: "3 告别网络游戏的汤姆", characters: ["遣", "斩", "盐", "惹", "痴", "质"] },
+        { id: "g3_b1_u1_l4", name: "4 我诚实我守信", characters: ["峦", "仰", "徒", "惑", "普", "忠"] },
+        { id: "g3_b1_u1_l5", name: "5 英雄有泪", characters: ["眶", "彻", "绷", "弃", "憾", "缘"] }
+      ]},
+      "g3_b1_u2": { unitName: "单元二：和谐之旅", lessons: [
+        { id: "g3_b1_u2_l1", name: "6 小老鼠与乌鸦", characters: ["蹈", "逊", "酬", "辜", "碧", "帚"] },
+        { id: "g3_b1_u2_l2", name: "7 向牵牛花学习", characters: ["茎", "霞", "堡", "塌", "奈", "蓬"] },
+        { id: "g3_b1_u2_l3", name: "8 雨后的线索", characters: ["添", "糟", "透", "策", "踩", "凹"] },
+        { id: "g3_b1_u2_l4", name: "9 笑谈端午", characters: ["糯", "污", "凭", "盔", "脉", "躬"] },
+        { id: "g3_b1_u2_l5", name: "10 无声合唱团", characters: ["笛", "键", "灵", "萌", "嗓", "洞"] }
+      ]},
+      "g3_b1_u3": { unitName: "单元三：知性之旅", lessons: [
+        { id: "g3_b1_u3_l1", name: "11 诗情画意的世界", characters: ["悬", "幽", "宇", "躁", "荫", "纯"] },
+        { id: "g3_b1_u3_l2", name: "12 走入传统马来屋", characters: ["掠", "罕", "削", "痕", "属", "型"] },
+        { id: "g3_b1_u3_l3", name: "13 鸡场街里的年轻梦", characters: ["聚", "梦", "摊", "滔", "赐", "核"] },
+        { id: "g3_b1_u3_l4", name: "14 太空旅人", characters: ["弛", "编", "虚", "甚", "务", "闻"] },
+        { id: "g3_b1_u3_l5", name: "15 探索生态公园", characters: ["绵", "僻", "瞪", "溜", "嬉", "寂"] }
+      ]},
+      "g3_b1_u4": { unitName: "单元四：永恒之旅", lessons: [
+        { id: "g3_b1_u4_l1", name: "16 生命中的烙印", characters: ["牺", "偿", "略", "闷", "册", "悼"] },
+        { id: "g3_b1_u4_l2", name: "17 永不磨灭的幸福", characters: ["驰", "谅", "柔", "炭", "酱", "孕"] },
+        { id: "g3_b1_u4_l3", name: "18 棋盘里的智慧", characters: ["挺", "怠", "宵", "督", "骇", "庞"] },
+        { id: "g3_b1_u4_l4", name: "19 巨石载船", characters: ["葱", "展", "谨", "慎", "屡", "衡"] },
+        { id: "g3_b1_u4_l5", name: "20 勇于抗战的斗士", characters: ["疫", "纳", "痊", "岗", "抑", "辅"] }
+      ]},
+      "g3_b2_u1": { unitName: "单元一：奋飞之旅", lessons: [
+        { id: "g3_b2_u1_l1", name: "1 期待展翅", characters: ["鹰", "蔼", "纠", "惩", "敏", "捷"] },
+        { id: "g3_b2_u1_l2", name: "2 门槛", characters: ["跨", "槛", "趴", "怨", "屈", "眶"] },
+        { id: "g3_b2_u1_l3", name: "3 你的阻力，你的助力", characters: ["阻", "魔", "措", "罢", "辅", "聊"] },
+        { id: "g3_b2_u1_l4", name: "4 鸟儿的隐蔽所", characters: ["蔽", "藤", "霸", "挽", "摧", "毁"] },
+        { id: "g3_b2_u1_l5", name: "5 维也纳的森林", characters: ["昔", "汇", "旋", "律", "赐", "眸"] }
+      ]},
+      "g3_b2_u2": { unitName: "单元二：拥抱自然", lessons: [
+        { id: "g3_b2_u2_l1", name: "6 找不到理想的砖头", characters: ["滥", "伐", "凄", "荒", "漠", "迁"] },
+        { id: "g3_b2_u2_l2", name: "7 满树的木瓜", characters: ["勃", "秃", "脆", "堪", "枯", "寂"] },
+        { id: "g3_b2_u2_l3", name: "8 把森林画成一座大剧院", characters: ["键", "奏", "弦", "琴", "啼", "悦"] },
+        { id: "g3_b2_u2_l4", name: "9 树皮里的绝密", characters: ["剥", "揭", "痕", "录", "辨", "奥"] },
+        { id: "g3_b2_u2_l5", name: "10 冰川的告急信", characters: ["罕", "崩", "塌", "淹", "灾", "患"] }
+      ]},
+      "g3_b2_u3": { unitName: "单元三：赏心悦目", lessons: [
+        { id: "g3_b2_u3_l1", name: "11 走进《清明上河图》", characters: ["汴", "贩", "轿", "摊", "涉", "惹"] },
+        { id: "g3_b2_u3_l2", name: "12 走入百合谷", characters: ["峭", "兜", "壁", "隙", "苞"] },
+        { id: "g3_b2_u3_l3", name: "13 树之歌", characters: ["梭", "梢", "斑", "斓", "吟", "谱"] },
+        { id: "g3_b2_u3_l4", name: "14 只要多看一眼", characters: ["瞥", "掠", "暇", "悠", "拐", "杖"] },
+        { id: "g3_b2_u3_l5", name: "15 巧借春风", characters: ["慨", "殊", "寡", "凛", "御", "裹"] }
+      ]},
+      "g3_b2_u4": { unitName: "单元四：放眼看世界", lessons: [
+        { id: "g3_b2_u4_l1", name: "16 探索吴哥窟", characters: ["窟", "雕", "殿", "遗", "辉", "煌"] },
+        { id: "g3_b2_u4_l2", name: "17 走进中国最大的内陆湖", characters: ["览", "湛", "融", "泊", "牧", "盐"] },
+        { id: "g3_b2_u4_l3", name: "18 揭开玛雅文明的神秘面纱", characters: ["葬", "鼎", "绘", "祭", "献", "酷"] },
+        { id: "g3_b2_u4_l4", name: "19 尼罗河畔的古埃及", characters: ["畔", "旱", "涝", "坝", "耕", "垦"] },
+        { id: "g3_b2_u4_l5", name: "20 尼亚洞的古人类", characters: ["攀", "崖", "坠", "燕", "窿", "歇"] }
+      ]}
+    },
+    lessonsData: {}
+  },
+  grade4: {
+    name: "四年级",
+    semesters: [
+      { name: "全年课程", units: [
+        { id: "g4_u1", name: "单元一：成长之旅" },
+        { id: "g4_u2", name: "单元二：生活之旅" },
+        { id: "g4_u3", name: "单元三：探秘之旅" },
+        { id: "g4_u4", name: "单元四：生命之旅" }
+      ]}
+    ],
+    unitsData: {
+      "g4_u1": { unitName: "单元一：成长之旅", lessons: [
+        { id: "g4_u1_l1", name: "1 踏上学习的征途", characters: ["劲", "跃", "奋", "迁", "沟"] },
+        { id: "g4_u1_l2", name: "2 棋王的心事", characters: ["杂", "艺", "协", "拒", "匀"] },
+        { id: "g4_u1_l3", name: "3 颂赞温情", characters: ["厉", "滋", "盼", "仓", "库"] },
+        { id: "g4_u1_l4", name: "4 桃园结义", characters: ["肝", "战", "誓", "历", "迹"] },
+        { id: "g4_u1_l5", name: "5 蚊帐大使", characters: ["均", "誉", "户", "榜", "献"] }
+      ]},
+      "g4_u2": { unitName: "单元二：生活之旅", lessons: [
+        { id: "g4_u2_l1", name: "6 亲近传统游戏", characters: ["肢", "统", "催", "促", "伙"] },
+        { id: "g4_u2_l2", name: "7 数学王子", characters: ["敏", "揽", "震", "烂", "联"] },
+        { id: "g4_u2_l3", name: "8 牵动人心的椰子", characters: ["稀", "扣", "赤", "径", "沿"] },
+        { id: "g4_u2_l4", name: "9 表弟来了", characters: ["程", "夺", "抗", "挡", "狠"] },
+        { id: "g4_u2_l5", name: "10 宽大为怀", characters: ["倾", "窄", "疗", "疾", "幕"] }
+      ]},
+      "g4_u3": { unitName: "单元三：探秘之旅", lessons: [
+        { id: "g4_u3_l1", name: "11 卑微里的大力量", characters: ["岩", "梢", "卑", "埋", "驯", "降"] },
+        { id: "g4_u3_l2", name: "12 伽利略的落体实验", characters: ["革", "吊", "毕", "贡", "塔", "判"] },
+        { id: "g4_u3_l3", name: "13 街头魔术师", characters: ["患", "琴", "侄", "逐", "勉", "铺"] },
+        { id: "g4_u3_l4", name: "14 最美丽的风景", characters: ["陋", "泣", "异", "劫", "祈", "舍"] },
+        { id: "g4_u3_l5", name: "15 人工智能汽车", characters: ["驶", "虑", "络", "旦", "固", "施"] }
+      ]},
+      "g4_u4": { unitName: "单元四：生命之旅", lessons: [
+        { id: "g4_u4_l1", name: "16 国庆日记", characters: ["奏", "播", "式", "混", "帜", "饶"] },
+        { id: "g4_u4_l2", name: "17 盲目的强大", characters: ["臣", "疯", "恭", "监", "殿", "暴"] },
+        { id: "g4_u4_l3", name: "18 框住美景", characters: ["巷", "潮", "幻", "尘", "框", "佳"] },
+        { id: "g4_u4_l4", name: "19 稻香", characters: ["股", "搜", "引", "眠", "浏", "览"] },
+        { id: "g4_u4_l5", name: "20 鼓声的召唤", characters: ["摄", "唤", "辞", "际", "荒", "衫"] }
+      ]}
+    },
+    lessonsData: {}
+  },
+  grade5: {
+    name: "五年级",
+    semesters: [
+      { name: "全年课程", units: [
+        { id: "g5_u1", name: "单元一：蜕变之旅" },
+        { id: "g5_u2", name: "单元二：和谐之旅" },
+        { id: "g5_u3", name: "单元三：知性之旅" },
+        { id: "g5_u4", name: "单元四：永恒之旅" }
+      ]}
+    ],
+    unitsData: {
+      "g5_u1": { unitName: "单元一：蜕变之旅", lessons: [
+        { id: "g5_u1_l1", name: "1 实力会说话", characters: ["肖", "渺", "辨", "控", "昼", "丧"] },
+        { id: "g5_u1_l2", name: "2 风中的树苗", characters: ["窃", "兜", "岔", "闯", "饶", "垂"] },
+        { id: "g5_u1_l3", name: "3 告别网络游戏的汤姆", characters: ["遣", "斩", "盐", "惹", "痴", "质"] },
+        { id: "g5_u1_l4", name: "4 我诚实我守信", characters: ["峦", "仰", "徒", "惑", "普", "忠"] },
+        { id: "g5_u1_l5", name: "5 英雄有泪", characters: ["眶", "彻", "绷", "弃", "憾", "缘"] }
+      ]},
+      "g5_u2": { unitName: "单元二：和谐之旅", lessons: [
+        { id: "g5_u2_l1", name: "6 小老鼠与乌鸦", characters: ["蹈", "逊", "酬", "辜", "碧", "帚"] },
+        { id: "g5_u2_l2", name: "7 向牵牛花学习", characters: ["茎", "霞", "堡", "塌", "奈", "蓬"] },
+        { id: "g5_u2_l3", name: "8 雨后的线索", characters: ["添", "糟", "透", "策", "踩", "凹"] },
+        { id: "g5_u2_l4", name: "9 笑谈端午", characters: ["糯", "污", "凭", "盔", "脉", "躬"] },
+        { id: "g5_u2_l5", name: "10 无声合唱团", characters: ["笛", "键", "灵", "萌", "嗓", "洞"] }
+      ]},
+      "g5_u3": { unitName: "单元三：知性之旅", lessons: [
+        { id: "g5_u3_l1", name: "11 诗情画意的世界", characters: ["悬", "幽", "宇", "躁", "荫", "纯"] },
+        { id: "g5_u3_l2", name: "12 走入传统马来屋", characters: ["掠", "罕", "削", "痕", "属", "型"] },
+        { id: "g5_u3_l3", name: "13 鸡场街里的年轻梦", characters: ["聚", "梦", "摊", "滔", "赐", "核"] },
+        { id: "g5_u3_l4", name: "14 太空旅人", characters: ["弛", "编", "虚", "甚", "务", "闻"] },
+        { id: "g5_u3_l5", name: "15 探索生态公园", characters: ["绵", "僻", "瞪", "溜", "嬉", "寂"] }
+      ]},
+      "g5_u4": { unitName: "单元四：永恒之旅", lessons: [
+        { id: "g5_u4_l1", name: "16 生命中的烙印", characters: ["牺", "偿", "略", "闷", "册", "悼"] },
+        { id: "g5_u4_l2", name: "17 永不磨灭的幸福", characters: ["驰", "谅", "柔", "炭", "酱", "孕"] },
+        { id: "g5_u4_l3", name: "18 棋盘里的智慧", characters: ["挺", "怠", "宵", "督", "骇", "庞"] },
+        { id: "g5_u4_l4", name: "19 巨石载船", characters: ["葱", "展", "谨", "慎", "屡", "衡"] },
+        { id: "g5_u4_l5", name: "20 勇于抗战的斗士", characters: ["疫", "纳", "痊", "岗", "抑", "辅"] }
+      ]}
+    },
+    lessonsData: {}
+  },
+  grade6: {
+    name: "六年级",
+    semesters: [
+      { name: "全年课程", units: [
+        { id: "g6_u1", name: "单元一：奋飞之旅" },
+        { id: "g6_u2", name: "单元二：拥抱自然" },
+        { id: "g6_u3", name: "单元三：赏心悦目" },
+        { id: "g6_u4", name: "单元四：放眼看世界" }
+      ]}
+    ],
+    unitsData: {
+      "g6_u1": { unitName: "单元一：奋飞之旅", lessons: [
+        { id: "g6_u1_l1", name: "1 期待展翅", characters: ["鹰", "蔼", "纠", "惩", "敏", "捷"] },
+        { id: "g6_u1_l2", name: "2 门槛", characters: ["跨", "槛", "趴", "怨", "屈", "眶"] },
+        { id: "g6_u1_l3", name: "3 你的阻力，你的助力", characters: ["阻", "魔", "措", "罢", "辅", "聊"] },
+        { id: "g6_u1_l4", name: "4 鸟儿的隐蔽所", characters: ["蔽", "藤", "霸", "挽", "摧", "毁"] },
+        { id: "g6_u1_l5", name: "5 维也纳的森林", characters: ["昔", "汇", "旋", "律", "赐", "眸"] }
+      ]},
+      "g6_u2": { unitName: "单元二：拥抱自然", lessons: [
+        { id: "g6_u2_l1", name: "6 找不到理想的砖头", characters: ["滥", "伐", "凄", "荒", "漠", "迁"] },
+        { id: "g6_u2_l2", name: "7 满树的木瓜", characters: ["勃", "秃", "脆", "堪", "枯", "寂"] },
+        { id: "g6_u2_l3", name: "8 把森林画成一座大剧院", characters: ["键", "奏", "弦", "琴", "啼", "悦"] },
+        { id: "g6_u2_l4", name: "9 树皮里的绝密", characters: ["剥", "揭", "痕", "录", "辨", "奥"] },
+        { id: "g6_u2_l5", name: "10 冰川的告急信", characters: ["罕", "崩", "塌", "淹", "灾", "患"] }
+      ]},
+      "g6_u3": { unitName: "单元三：赏心悦目", lessons: [
+        { id: "g6_u3_l1", name: "11 走进《清明上河图》", characters: ["汴", "贩", "轿", "摊", "涉", "惹"] },
+        { id: "g6_u3_l2", name: "12 走入百合谷", characters: ["峭", "兜", "壁", "隙", "苞"] },
+        { id: "g6_u3_l3", name: "13 树之歌", characters: ["梭", "梢", "斑", "斓", "吟", "谱"] },
+        { id: "g6_u3_l4", name: "14 只要多看一眼", characters: ["瞥", "掠", "暇", "悠", "拐", "杖"] },
+        { id: "g6_u3_l5", name: "15 巧借春风", characters: ["慨", "殊", "寡", "凛", "御", "裹"] }
+      ]},
+      "g6_u4": { unitName: "单元四：放眼看世界", lessons: [
+        { id: "g6_u4_l1", name: "16 探索吴哥窟", characters: ["窟", "雕", "殿", "遗", "辉", "煌"] },
+        { id: "g6_u4_l2", name: "17 走进中国最大的内陆湖", characters: ["览", "湛", "融", "泊", "牧", "盐"] },
+        { id: "g6_u4_l3", name: "18 揭开玛雅文明的神秘面纱", characters: ["葬", "鼎", "绘", "祭", "献", "酷"] },
+        { id: "g6_u4_l4", name: "19 尼罗河畔的古埃及", characters: ["畔", "旱", "涝", "坝", "耕", "垦"] },
+        { id: "g6_u4_l5", name: "20 尼亚洞的古人类", characters: ["攀", "崖", "坠", "燕", "窿", "歇"] }
+      ]}
+    },
+    lessonsData: {}
+  }
+};
+
+// 动态生成 lessonsData，并让词库默认只显示当前课要学的字
+(function buildLessonsData() {
+  Object.keys(AppData)
+    .filter(key => /^grade\d+$/.test(key))
+    .forEach(key => {
+      const gradeData = AppData[key];
+      const units = gradeData.unitsData || {};
+      gradeData.lessonsData = {};
+      for (let uid in units) {
+        const unit = units[uid];
+        unit.lessons.forEach(lesson => {
+          const lessonWords = [...lesson.characters];
+          const chars = lesson.characters.map(c => ({
+            char: c,
+            pinyin: pinyinPro.pinyin(c, { toneType: 'symbol' }),
+            meaning: '本课生字',
+            words: lessonWords
+          }));
+          gradeData.lessonsData[lesson.id] = { lessonName: lesson.name, characters: chars };
+        });
+      }
+    });
+})();
+
+// 多音字映射
+const MULTI_TONE_MAP = {
+  '长': [
+    { py: 'cháng', meaning: '长度', words: ['长江', '长短'] },
+    { py: 'zhǎng', meaning: '生长', words: ['长大', '校长'] }
+  ],
+  '乐': [
+    { py: 'lè', meaning: '快乐', words: ['快乐', '欢乐'] },
+    { py: 'yuè', meaning: '音乐', words: ['音乐'] }
+  ],
+  '重': [
+    { py: 'zhòng', meaning: '重量', words: ['重要', '重量'] },
+    { py: 'chóng', meaning: '重复', words: ['重新', '重复'] }
+  ],
+  '都': [
+    { py: 'dōu', meaning: '全部', words: ['都是'] },
+    { py: 'dū', meaning: '首都', words: ['首都'] }
+  ],
+  '的': [
+    { py: 'de', meaning: '助词', words: ['我的'] },
+    { py: 'dí', meaning: '确实', words: ['的确'] },
+    { py: 'dì', meaning: '目标', words: ['目的'] }
+  ],
+  '着': [
+    { py: 'zhe', meaning: '状态持续', words: ['看着'] },
+    { py: 'zháo', meaning: '接触、达到', words: ['着急'] }
+  ],
+  '干': [
+    { py: 'gān', meaning: '干净、干燥', words: ['干净'] },
+    { py: 'gàn', meaning: '做事', words: ['干活'] }
+  ],
+  '几': [
+    { py: 'jǐ', meaning: '多少', words: ['几个'] },
+    { py: 'jī', meaning: '小桌', words: ['茶几'] }
+  ],
+  '发': [
+    { py: 'fā', meaning: '发出', words: ['发现'] },
+    { py: 'fà', meaning: '头发', words: ['理发'] }
+  ]
+};
+Object.assign(MULTI_TONE_MAP, {
+  '了': [
+    { py: 'le', meaning: '助词，表示动作完成或变化', words: ['好了', '走了'] },
+    { py: 'liǎo', meaning: '明白、结束、完结', words: ['了解', '了结'] }
+  ],
+  '只': [
+    { py: 'zhī', meaning: '量词，用于动物或成对物的一边', words: ['一只', '只身'] },
+    { py: 'zhǐ', meaning: '仅仅、唯有', words: ['只有', '只是'] }
+  ],
+  '少': [
+    { py: 'shǎo', meaning: '数量不多', words: ['多少', '很少'] },
+    { py: 'shào', meaning: '年纪轻', words: ['少年', '少先队'] }
+  ],
+  '中': [
+    { py: 'zhōng', meaning: '中间、里面', words: ['中间', '中国'] },
+    { py: 'zhòng', meaning: '命中、受到', words: ['中奖', '中计'] }
+  ],
+  '为': [
+    { py: 'wéi', meaning: '作为、成为', words: ['成为', '以为'] },
+    { py: 'wèi', meaning: '替、给、因为', words: ['为了', '因为'] }
+  ],
+  '地': [
+    { py: 'dì', meaning: '土地、地方', words: ['土地', '地方'] },
+    { py: 'de', meaning: '助词，用在状语后', words: ['慢慢地', '高兴地'] }
+  ],
+  '得': [
+    { py: 'dé', meaning: '得到、获得', words: ['得到', '得分'] },
+    { py: 'de', meaning: '助词，表示补语', words: ['跑得快', '写得好'] },
+    { py: 'děi', meaning: '需要、必须', words: ['得去', '得做'] }
+  ],
+  '和': [
+    { py: 'hé', meaning: '连词，表示并列', words: ['我和你', '和平'] },
+    { py: 'hè', meaning: '跟着唱或应和', words: ['应和', '唱和'] },
+    { py: 'huó', meaning: '搅拌、揉合', words: ['和面'] }
+  ],
+  '要': [
+    { py: 'yào', meaning: '需要、想要', words: ['需要', '要是'] },
+    { py: 'yāo', meaning: '要求、约请', words: ['要求', '要挟'] }
+  ],
+  '没': [
+    { py: 'méi', meaning: '没有', words: ['没有', '没事'] },
+    { py: 'mò', meaning: '沉下、漫过', words: ['淹没', '没顶'] }
+  ],
+  '处': [
+    { py: 'chù', meaning: '地方、场所', words: ['到处', '住处'] },
+    { py: 'chǔ', meaning: '处理、相处', words: ['处理', '相处'] }
+  ],
+  '兴': [
+    { py: 'xīng', meaning: '兴盛、兴起', words: ['兴起', '兴旺'] },
+    { py: 'xìng', meaning: '兴致、兴趣', words: ['高兴', '兴趣'] }
+  ],
+  '行': [
+    { py: 'xíng', meaning: '行走、可以', words: ['行走', '不行'] },
+    { py: 'háng', meaning: '行业、行列', words: ['银行', '一行'] }
+  ],
+  '载': [
+    { py: 'zài', meaning: '装载、承载', words: ['载货', '载客'] },
+    { py: 'zǎi', meaning: '年、记载', words: ['一年半载', '记载'] }
+  ],
+  '藏': [
+    { py: 'cáng', meaning: '隐藏、收藏', words: ['藏起来', '收藏'] },
+    { py: 'zàng', meaning: '宝藏、西藏等专名读音', words: ['宝藏', '西藏'] }
+  ],
+  '假': [
+    { py: 'jiǎ', meaning: '不真实', words: ['真假', '假如'] },
+    { py: 'jià', meaning: '休息的日子', words: ['放假', '假期'] }
+  ],
+  '壳': [
+    { py: 'ké', meaning: '外皮、硬壳', words: ['贝壳', '蛋壳'] },
+    { py: 'qiào', meaning: '坚硬外壳，多用于书面语', words: ['地壳', '甲壳'] }
+  ],
+  '切': [
+    { py: 'qiē', meaning: '用刀分开', words: ['切开', '切菜'] },
+    { py: 'qiè', meaning: '贴近、急切', words: ['亲切', '急切'] }
+  ],
+  '冠': [
+    { py: 'guān', meaning: '帽子、形状像帽子的东西', words: ['衣冠', '鸡冠'] },
+    { py: 'guàn', meaning: '第一名、冠军', words: ['冠军', '夺冠'] }
+  ],
+  '散': [
+    { py: 'sàn', meaning: '分开、散开', words: ['散步', '分散'] },
+    { py: 'sǎn', meaning: '不集中、零碎', words: ['散文', '散装'] }
+  ],
+  '将': [
+    { py: 'jiāng', meaning: '将要、把', words: ['将来', '将军'] },
+    { py: 'jiàng', meaning: '将领', words: ['大将', '将士'] }
+  ],
+  '参': [
+    { py: 'cān', meaning: '加入、参与', words: ['参加', '参观'] },
+    { py: 'shēn', meaning: '人参等读音', words: ['人参', '海参'] },
+    { py: 'cēn', meaning: '长短不齐', words: ['参差'] }
+  ],
+  '肖': [
+    { py: 'xiào', meaning: '相似、姓氏读音', words: ['肖像', '生肖'] },
+    { py: 'xiāo', meaning: '姓氏或较少用读音', words: ['肖氏'] }
+  ],
+  '丧': [
+    { py: 'sàng', meaning: '失去、情绪低落', words: ['丧失', '沮丧'] },
+    { py: 'sāng', meaning: '跟丧事有关', words: ['丧事', '治丧'] }
+  ],
+  '脉': [
+    { py: 'mài', meaning: '血脉、脉搏', words: ['脉搏', '山脉'] },
+    { py: 'mò', meaning: '含情凝视的样子', words: ['脉脉'] }
+  ],
+  '属': [
+    { py: 'shǔ', meaning: '类别、归属', words: ['属于', '金属'] },
+    { py: 'zhǔ', meaning: '连缀、嘱托通用读音', words: ['属文'] }
+  ],
+  '闷': [
+    { py: 'mèn', meaning: '心情不舒畅', words: ['郁闷', '闷闷不乐'] },
+    { py: 'mēn', meaning: '空气不流通或声音低沉', words: ['闷热', '闷声'] }
+  ],
+  '降': [
+    { py: 'jiàng', meaning: '下降、降落', words: ['降低', '降落'] },
+    { py: 'xiáng', meaning: '投降、降服', words: ['投降', '降服'] }
+  ],
+  '铺': [
+    { py: 'pū', meaning: '展开、铺设', words: ['铺路', '铺开'] },
+    { py: 'pù', meaning: '店铺、床铺', words: ['店铺', '床铺'] }
+  ],
+  '舍': [
+    { py: 'shě', meaning: '放弃、施舍', words: ['舍得', '舍弃'] },
+    { py: 'shè', meaning: '房屋、宿舍', words: ['宿舍', '校舍'] }
+  ],
+  '混': [
+    { py: 'hùn', meaning: '掺杂、蒙混', words: ['混合', '混乱'] },
+    { py: 'hún', meaning: '糊涂、不清楚', words: ['混水摸鱼'] }
+  ],
+  '劲': [
+    { py: 'jìn', meaning: '力气、精神', words: ['使劲', '干劲'] },
+    { py: 'jìng', meaning: '坚强有力', words: ['劲敌', '刚劲'] }
+  ],
+  '剥': [
+    { py: 'bāo', meaning: '去掉外皮，多用于口语', words: ['剥皮', '剥花生'] },
+    { py: 'bō', meaning: '去掉外层，多用于书面语', words: ['剥削', '剥离'] }
+  ],
+  '泊': [
+    { py: 'bó', meaning: '停船、停留', words: ['停泊', '漂泊'] },
+    { py: 'pō', meaning: '湖泊', words: ['湖泊', '水泊'] }
+  ],
+  '燕': [
+    { py: 'yàn', meaning: '燕子', words: ['燕子', '飞燕'] },
+    { py: 'yān', meaning: '地名或姓氏读音', words: ['燕山', '燕国'] }
+  ],
+  '暴': [
+    { py: 'bào', meaning: '猛烈、突然', words: ['暴雨', '暴力'] },
+    { py: 'pù', meaning: '同“曝”，晒', words: ['一暴十寒'] }
+  ]
+});
+const DICT = {};
+const EXTRA_WORD_MAP = {};
+
+function getCharsForGrade(gr){
+  const gradeData = getGradeData(gr);
+  const chars = [];
+  Object.values(gradeData.lessonsData || {}).forEach(l => {
+    l.characters.forEach(c => {
+      if (!chars.includes(c.char)) chars.push(c.char);
+    });
+  });
+  return chars;
+}
+
+// 当前课文生字数组
+let currentLessonChars = [];
+
+const MEANING_FIX_MAP = {
+  '天':'天空；自然界；一天的时间。例：天空、今天。',
+  '太':'表示程度很高；也可指太阳相关。例：太好、太阳。',
+  '阳':'太阳；明亮；山南水北的一面。例：阳光、太阳。',
+  '上':'位置在高处；也表示前往、开始。例：上学、上面。',
+  '学':'学习；学校；知识。例：学生、学校。',
+  '了':'多音多义字：le 表示动作完成；liǎo 表示明白、结束。',
+  '一':'数目一；相同、整个。例：一个、一起。',
+  '走':'行走；离开；移动。例：走路、走开。',
+  '门':'门口；出入口；类别。例：大门、门口。',
+  '口':'嘴巴；出入口；量词。例：人口、出口。',
+  '小':'体积、年龄或数量不大。例：小鸟、大小。',
+  '鸟':'鸟类，能飞的动物。例：小鸟、飞鸟。',
+  '早':'时间靠前；早晨。例：早上、早来。',
+  '来':'从别处到这里；发生。例：回来、来到。',
+  '去':'离开所在地方；前往。例：出去、回去。',
+  '书':'书本；写字；文字记录。例：看书、书本。',
+  '儿':'孩子；年轻人；后缀。例：儿童、儿子。',
+  '习':'练习；学习。例：学习、练习。',
+  '长':'多音多义字：cháng 表示长度；zhǎng 表示生长、年长。',
+  '知':'知道；知识；了解。例：知道、知识。',
+  '写':'书写；描写。例：写字、书写。',
+  '手':'人体上肢末端；做事的人。例：双手、手心。',
+  '心':'心脏；思想感情；中心。例：爱心、心里。',
+  '也':'表示同样、并列。例：也是、也许。',
+  '不':'否定词。例：不是、不要。',
+  '行':'多音多义字：xíng 表示行走、可以；háng 表示行业、行列。',
+  '载':'多音多义字：zài 表示装载；zǎi 表示年或记载。',
+  '藏':'多音多义字：cáng 表示隐藏、收藏；zàng 用于宝藏、西藏等。',
+  '假':'多音多义字：jiǎ 表示不真实；jià 表示假期。',
+  '壳':'多音多义字：ké 表示外壳；qiào 多用于地壳、甲壳。',
+  '切':'多音多义字：qiē 表示切开；qiè 表示亲切、急切。',
+  '冠':'多音多义字：guān 表示帽子；guàn 表示冠军、第一。',
+  '散':'多音多义字：sàn 表示分散；sǎn 表示零散、不集中。',
+  '将':'多音多义字：jiāng 表示将要、把；jiàng 表示将领。',
+  '参':'多音多义字：cān 表示参加；shēn 表示人参；cēn 用于参差。',
+  '降':'多音多义字：jiàng 表示下降；xiáng 表示投降、降服。',
+  '铺':'多音多义字：pū 表示铺开；pù 表示店铺、床铺。',
+  '舍':'多音多义字：shě 表示舍弃；shè 表示宿舍、房舍。',
+  '劲':'多音多义字：jìn 表示力气；jìng 表示强劲、刚劲。',
+  '泊':'多音多义字：bó 表示停泊；pō 表示湖泊。',
+  '燕':'多音多义字：yàn 表示燕子；yān 用于燕山、燕国等。',
+  '暴':'多音多义字：bào 表示猛烈；pù 通“曝”，表示晒。'
+};
+
+const CHAR_MEANING_FIX_MAP = {
+  '核':'果实中心坚硬的部分；也指事物的中心、关键，或原子核。',
+  '惠':'给人好处；恩惠；也指价格较便宜、方便别人。',
+  '肖':'相似、像；也常用于姓名。',
+  '渺':'微小、遥远，看不清楚。',
+  '辨':'分别、判断清楚。',
+  '控':'掌握、控制；也指控告。',
+  '昼':'白天。',
+  '丧':'失去；情绪低落；也和丧事有关。',
+  '窃':'偷取；也表示私下、暗中。',
+  '岔':'道路分开；话题或方向转开。',
+  '闯':'猛冲进去；也指经历、闯荡。',
+  '饶':'宽恕；丰富、多。',
+  '垂':'东西一端向下；也表示接近。',
+  '盐':'咸味调料，也指化学中的盐类。',
+  '惹':'引起、招来，多用于麻烦或注意。',
+  '质':'本质、性质；也指询问、抵押。',
+  '仰':'抬头向上看；敬慕、依靠。',
+  '惑':'疑惑、不明白；也指迷乱。',
+  '忠':'诚心尽力，不背离。',
+  '缘':'原因、关系；也指边缘。',
+  '蹈':'踩、踏；也指遵循。',
+  '逊':'谦让；不如、差一些。',
+  '碧':'青绿色、清澈的绿色。',
+  '茎':'植物连接根和叶的部分。',
+  '塌':'倒下、陷下去。',
+  '糟':'不好、坏；也指酒糟。',
+  '透':'穿过；彻底、清楚。',
+  '策':'办法、计谋；也指鞭策。',
+  '踩':'用脚踏在上面。',
+  '糯':'黏性的米或食物。',
+  '脉':'血管；也指山水走向或事物线索。',
+  '躬':'弯下身体；亲自。',
+  '悬':'挂着；距离远；也指危险未定。',
+  '幽':'深远、安静；也指昏暗。',
+  '掠':'轻轻擦过；夺取。',
+  '罕':'少见、稀少。',
+  '痕':'留下的印迹。',
+  '型':'类型、样式、模型。',
+  '聚':'集合在一起。',
+  '摊':'展开摆放；也指售卖的小摊。',
+  '赐':'给予，多用于上对下或敬辞。',
+  '虚':'空、不真实；也指谦虚。',
+  '绵':'连续不断；柔软。',
+  '僻':'偏远；不常见。',
+  '嬉':'玩耍。',
+  '寂':'安静、冷清。',
+  '牺':'古代祭祀用的牲畜；常见于牺牲。',
+  '偿':'归还、补足。',
+  '悼':'悲伤地怀念逝者。',
+  '驰':'快速奔跑；传播得远。',
+  '谅':'理解、宽恕。',
+  '骇':'非常吃惊、害怕。',
+  '衡':'平稳；比较、判断。',
+  '疫':'流行性疾病。',
+  '辅':'帮助、辅助。',
+  '鹰':'一种目光锐利、善飞的猛禽。',
+  '蔼':'态度温和、亲切。',
+  '纠':'纠缠；也指改正错误。',
+  '惩':'处罚，使人警戒。',
+  '捷':'快；也指胜利。',
+  '槛':'门下的横木；也比喻条件或难关。',
+  '阻':'阻挡，使不能前进。',
+  '蔽':'遮住、隐藏。',
+  '藤':'会攀爬或缠绕的植物茎。',
+  '毁':'破坏、损坏。',
+  '昔':'从前、过去。',
+  '旋':'转动；也指返回、很快。',
+  '律':'规则、规律；也指音乐节奏。',
+  '眸':'眼睛。',
+  '滥':'过度、不加节制；也指水漫出来。',
+  '伐':'砍；也指征讨。',
+  '漠':'沙漠；也指冷淡、不关心。',
+  '勃':'旺盛、有活力。',
+  '堪':'能够承受；可以。',
+  '弦':'乐器上的线；也指弧形的边。',
+  '剥':'去掉外皮或外层。',
+  '奥':'深、不容易懂；也指秘密。',
+  '崩':'倒塌、裂开。',
+  '患':'灾祸、忧虑；也指生病。',
+  '汴':'古地名，也指汴河、汴京。',
+  '贩':'买进卖出货物。',
+  '轿':'轿子；也指轿车。',
+  '涉':'经过水；也指涉及、关联。',
+  '峭':'山势高而陡。',
+  '苞':'花未开放时包着的部分。',
+  '梭':'织布工具；也指来回快速移动。',
+  '斑':'斑点、花纹。',
+  '斓':'色彩灿烂。',
+  '谱':'记录音乐或事物系统的表。',
+  '瞥':'很快地看一眼。',
+  '暇':'空闲时间。',
+  '慨':'情绪激动而感叹；也指大方。',
+  '凛':'寒冷；也指严肃、令人敬畏。',
+  '窟':'洞穴。',
+  '殿':'高大的房屋；宫殿。',
+  '辉':'光彩、光亮。',
+  '煌':'明亮、盛大。',
+  '湛':'深而清澈。',
+  '融':'融化；合在一起。',
+  '牧':'放养牲畜。',
+  '葬':'安葬。',
+  '鼎':'古代器物；也比喻兴盛或重要。',
+  '祭':'用仪式敬奉祖先或神灵。',
+  '酷':'程度深；也指残忍或很有个性。',
+  '畔':'边、旁边，多指水边。',
+  '涝':'雨水过多造成灾害。',
+  '垦':'开辟荒地，使它能耕种。',
+  '攀':'抓住东西向上爬。',
+  '崖':'高而陡的山边。',
+  '坠':'掉落、落下。',
+  '窿':'洞。',
+  '歇':'休息；停止一会儿。'
+};
+
+function isUsefulMeaning(value) {
+  return typeof value === 'string' && value.trim() && value.trim() !== '本课生字' && !containsLegacyMojibake(value);
+}
+
+function getLessonWordsForChar(c, words) {
+  const source = Array.isArray(words) && words.length ? words : currentLessonChars;
+  const clean = [...new Set((source || []).filter(Boolean))];
+  return clean.length ? clean : [c];
+}
+
+function getMeaningForChar(c, providedMeaning, words) {
+  if (currentToneData && currentToneData.meaning) {
+    const toneWords = currentToneData.words?.length ? `例：${currentToneData.words.join('、')}。` : '';
+    return `<b>多音多义：</b>${currentToneData.meaning}。${toneWords}`;
+  }
+  if (MEANING_FIX_MAP[c]) return MEANING_FIX_MAP[c];
+  if (isUsefulMeaning(providedMeaning)) return providedMeaning;
+  const entries = (WORD_ENTRY_FIX_MAP[c] || []).slice(0, 3).map(item => item.word);
+  const lessonWords = getLessonWordsForChar(c, words).filter(item => item && item.length > 1);
+  const stru = getChineseStructure(c);
+  const poly = MULTI_TONE_MAP[c] ? `这是多音多义字，可在拼音旁下拉选择：${MULTI_TONE_MAP[c].map(x=>x.py).join(' / ')}。` : '';
+  const baseMeaning = CHAR_MEANING_FIX_MAP[c] || `${c}：这是本课要掌握的习写生字，可先从字形和常用词理解它。`;
+  const examples = entries.length ? entries : lessonWords.slice(0, 3);
+  const exampleText = examples.length ? `常用词：${examples.join('、')}。` : '';
+  return `${poly}${c}：${baseMeaning}${exampleText}书写时重点观察${stru}结构、重心和各部分比例。`;
+}
+
+const WORD_ENTRY_FIX_MAP = {
+  '天': [{word:'天空', meaning:'头顶广阔的空间'}, {word:'今天', meaning:'现在这一天'}],
+  '太': [{word:'太阳', meaning:'发光发热的星体'}, {word:'太好', meaning:'非常好'}],
+  '阳': [{word:'阳光', meaning:'太阳发出的光'}, {word:'太阳', meaning:'给地球光和热'}],
+  '上': [{word:'上学', meaning:'到学校学习'}, {word:'上面', meaning:'位置较高的地方'}],
+  '学': [{word:'学生', meaning:'在学校学习的人'}, {word:'学校', meaning:'学习的地方'}],
+  '了': [{word:'好了', meaning:'完成或变好了'}, {word:'了解', meaning:'知道、明白'}],
+  '一': [{word:'一个', meaning:'数量为一'}, {word:'一起', meaning:'一同、共同'}],
+  '走': [{word:'走路', meaning:'用脚行走'}, {word:'走开', meaning:'离开这里'}],
+  '门': [{word:'门口', meaning:'门的出入口'}, {word:'大门', meaning:'较大的门'}],
+  '口': [{word:'人口', meaning:'人的数量'}, {word:'出口', meaning:'出去的地方'}],
+  '小': [{word:'小鸟', meaning:'体形小的鸟'}, {word:'大小', meaning:'尺寸或程度'}],
+  '鸟': [{word:'小鸟', meaning:'鸟类小动物'}, {word:'飞鸟', meaning:'会飞的鸟'}],
+  '早': [{word:'早上', meaning:'一天开始的时候'}, {word:'早来', meaning:'来得比较早'}],
+  '来': [{word:'回来', meaning:'回到原来的地方'}, {word:'来到', meaning:'到某个地方'}],
+  '去': [{word:'出去', meaning:'从里面到外面'}, {word:'回去', meaning:'回到原处'}],
+  '书': [{word:'看书', meaning:'阅读书本'}, {word:'书本', meaning:'学习或阅读用的书'}],
+  '儿': [{word:'儿子', meaning:'男孩子'}, {word:'儿童', meaning:'年纪小的孩子'}],
+  '习': [{word:'学习', meaning:'获得知识本领'}, {word:'练习', meaning:'反复训练'}],
+  '长': [{word:'长大', meaning:'年龄或身体增长'}, {word:'长江', meaning:'中国大河名'}],
+  '知': [{word:'知道', meaning:'明白、了解'}, {word:'知识', meaning:'学到的内容'}],
+  '写': [{word:'写字', meaning:'书写汉字'}, {word:'书写', meaning:'用笔写'}],
+  '手': [{word:'双手', meaning:'两只手'}, {word:'手心', meaning:'手掌中心'}],
+  '心': [{word:'爱心', meaning:'关爱的心'}, {word:'心里', meaning:'内心'}],
+  '也': [{word:'也是', meaning:'同样是'}, {word:'也许', meaning:'可能'}],
+  '不': [{word:'不是', meaning:'表示否定'}, {word:'不要', meaning:'表示不需要'}],
+  '中': [{word:'中间', meaning:'中部位置'}, {word:'中国', meaning:'国家名'}],
+  '乐': [{word:'快乐', meaning:'高兴愉快'}, {word:'音乐', meaning:'有节奏旋律的声音'}],
+  '重': [{word:'重要', meaning:'很关键'}, {word:'重新', meaning:'再一次'}],
+  '的': [{word:'我的', meaning:'表示所属关系'}, {word:'的确', meaning:'确实'}],
+  '地': [{word:'土地', meaning:'地面或田地'}, {word:'地方', meaning:'某一处'}],
+  '得': [{word:'得到', meaning:'获得'}, {word:'写得好', meaning:'补充说明写的结果'}],
+  '行': [{word:'行走', meaning:'走路'}, {word:'银行', meaning:'办理金融业务的机构'}],
+  '和': [{word:'和平', meaning:'没有战争冲突'}, {word:'和好', meaning:'恢复友好'}],
+  '要': [{word:'需要', meaning:'必须有'}, {word:'要求', meaning:'提出希望或条件'}],
+  '没': [{word:'没有', meaning:'不存在或未拥有'}, {word:'淹没', meaning:'被水盖过'}],
+  '处': [{word:'到处', meaning:'各个地方'}, {word:'处理', meaning:'解决事情'}],
+  '兴': [{word:'高兴', meaning:'愉快开心'}, {word:'兴起', meaning:'开始出现或发展'}],
+  '发': [{word:'发现', meaning:'看到或找到新情况'}, {word:'头发', meaning:'长在头上的毛发'}],
+  '为': [{word:'因为', meaning:'表示原因'}, {word:'为了', meaning:'表示目的'}],
+  '着': [{word:'看着', meaning:'动作持续'}, {word:'着急', meaning:'心里焦急'}],
+  '干': [{word:'干净', meaning:'没有脏东西'}, {word:'干活', meaning:'做事情'}],
+  '载': [{word:'载货', meaning:'装运货物'}, {word:'记载', meaning:'写下来保存'}],
+  '藏': [{word:'收藏', meaning:'收起来保存'}, {word:'宝藏', meaning:'珍贵的东西'}],
+  '假': [{word:'真假', meaning:'真的和假的'}, {word:'假期', meaning:'放假的时间'}],
+  '切': [{word:'切开', meaning:'用刀分开'}, {word:'亲切', meaning:'亲近和善'}],
+  '散': [{word:'散步', meaning:'慢慢走动'}, {word:'散文', meaning:'一种文章体裁'}],
+  '将': [{word:'将来', meaning:'未来'}, {word:'大将', meaning:'高级将领'}],
+  '参': [{word:'参加', meaning:'加入活动'}, {word:'人参', meaning:'一种药用植物'}],
+  '降': [{word:'降落', meaning:'从高处下来'}, {word:'投降', meaning:'停止抵抗'}],
+  '铺': [{word:'铺路', meaning:'修铺道路'}, {word:'店铺', meaning:'商店'}],
+  '舍': [{word:'舍得', meaning:'愿意放弃'}, {word:'宿舍', meaning:'住宿的房间'}],
+  '劲': [{word:'使劲', meaning:'用力'}, {word:'刚劲', meaning:'坚强有力'}],
+  '泊': [{word:'停泊', meaning:'船停靠'}, {word:'湖泊', meaning:'湖的总称'}],
+  '燕': [{word:'燕子', meaning:'一种鸟'}, {word:'燕山', meaning:'地名'}],
+  '暴': [{word:'暴雨', meaning:'猛烈的大雨'}, {word:'暴晒', meaning:'强烈日光照晒'}]
+};
+
+const WORD_MEANING_FIX_MAP = {
+  '校园':'学校里的地方', '朋友':'关系亲近的人', '家庭':'家里成员组成的生活单位', '动物':'能活动、有生命的生物',
+  '学习':'获得知识和本领', '练字':'练习写字', '结构':'字形部件的安排', '笔画':'组成汉字的线条',
+  '部首':'查字和认字用的偏旁', '楷体':'端正规范的汉字字体'
+};
+
+Object.assign(WORD_ENTRY_FIX_MAP, {
+  '惠': [{word:'优惠', meaning:'价格较低或给好处'}, {word:'恩惠', meaning:'别人给予的好处'}, {word:'惠民政策', meaning:'让人民得到好处的政策'}, {word:'小店有优惠', meaning:'常用短句：商店给折扣'}],
+  '肖': [{word:'肖像', meaning:'人物画像或照片'}, {word:'生肖', meaning:'十二属相'}, {word:'他的肖像很传神', meaning:'常用短句：画像很像本人'}],
+  '渺': [{word:'渺小', meaning:'非常微小'}, {word:'渺茫', meaning:'希望不大'}, {word:'个人力量很渺小', meaning:'常用短句：力量有限'}],
+  '辨': [{word:'辨认', meaning:'分辨并认出'}, {word:'分辨', meaning:'区别不同事物'}, {word:'仔细辨认方向', meaning:'常用短句：认真判断方向'}],
+  '控': [{word:'控制', meaning:'掌握、限制'}, {word:'遥控', meaning:'远距离操控'}, {word:'控制情绪', meaning:'常用短句：管理自己的心情'}],
+  '昼': [{word:'白昼', meaning:'白天'}, {word:'昼夜', meaning:'白天和黑夜'}, {word:'昼夜不停', meaning:'常用短语：一直持续'}],
+  '丧': [{word:'丧失', meaning:'失去'}, {word:'沮丧', meaning:'灰心失望'}, {word:'不要丧失信心', meaning:'常用短句：保持信心'}],
+  '窃': [{word:'偷窃', meaning:'偷偷拿走'}, {word:'窃听', meaning:'暗中偷听'}, {word:'不可偷窃', meaning:'常用短句：不能偷东西'}],
+  '兜': [{word:'衣兜', meaning:'衣服上的口袋'}, {word:'兜风', meaning:'坐车游玩'}, {word:'把钥匙放进衣兜', meaning:'常用短句：放进口袋'}],
+  '岔': [{word:'岔路', meaning:'分开的路'}, {word:'打岔', meaning:'插话打断'}, {word:'前面有岔路', meaning:'常用短句：路分开了'}],
+  '闯': [{word:'闯入', meaning:'突然进入'}, {word:'闯祸', meaning:'惹出麻烦'}, {word:'不要乱闯马路', meaning:'常用短句：注意安全'}],
+  '饶': [{word:'饶恕', meaning:'原谅'}, {word:'求饶', meaning:'请求放过'}, {word:'请你饶恕他', meaning:'常用短句：请求原谅'}],
+  '垂': [{word:'垂下', meaning:'向下挂'}, {word:'垂柳', meaning:'枝条下垂的柳树'}, {word:'柳枝垂下来', meaning:'常用短句：向下挂着'}],
+  '遣': [{word:'派遣', meaning:'派人去做事'}, {word:'消遣', meaning:'休闲解闷'}, {word:'阅读可以消遣', meaning:'常用短句：用来休闲'}],
+  '斩': [{word:'斩断', meaning:'砍断'}, {word:'斩钉截铁', meaning:'说话坚定'}, {word:'他说得斩钉截铁', meaning:'常用短句：语气很坚定'}],
+  '盐': [{word:'食盐', meaning:'做菜用的盐'}, {word:'盐水', meaning:'含盐的水'}, {word:'汤里放一点盐', meaning:'常用短句：加盐调味'}],
+  '惹': [{word:'惹事', meaning:'引起麻烦'}, {word:'招惹', meaning:'引起、冒犯'}, {word:'不要惹事', meaning:'常用短句：别制造麻烦'}],
+  '痴': [{word:'痴迷', meaning:'非常着迷'}, {word:'痴心', meaning:'执着的心'}, {word:'他痴迷阅读', meaning:'常用短句：很喜欢阅读'}],
+  '质': [{word:'质量', meaning:'东西好坏程度'}, {word:'本质', meaning:'根本性质'}, {word:'产品质量很好', meaning:'常用短句：东西做得好'}],
+  '峦': [{word:'山峦', meaning:'连绵的山'}, {word:'层峦叠嶂', meaning:'山峰重重叠叠'}, {word:'远处山峦起伏', meaning:'常用短句：山连着山'}],
+  '仰': [{word:'仰望', meaning:'抬头看'}, {word:'敬仰', meaning:'尊敬佩服'}, {word:'仰望星空', meaning:'常用短句：抬头看天空'}],
+  '惑': [{word:'疑惑', meaning:'不明白'}, {word:'迷惑', meaning:'分辨不清'}, {word:'我心中有疑惑', meaning:'常用短句：有问题不懂'}],
+  '忠': [{word:'忠诚', meaning:'真心尽力'}, {word:'忠心', meaning:'诚心诚意'}, {word:'他忠诚可靠', meaning:'常用短句：值得信任'}],
+  '眶': [{word:'眼眶', meaning:'眼睛周围'}, {word:'热泪盈眶', meaning:'感动得眼里含泪'}, {word:'眼眶湿润了', meaning:'常用短句：快要流泪'}],
+  '彻': [{word:'彻底', meaning:'完全'}, {word:'贯彻', meaning:'实行到底'}, {word:'问题彻底解决', meaning:'常用短句：完全解决'}],
+  '憾': [{word:'遗憾', meaning:'可惜、不满意'}, {word:'震撼', meaning:'强烈触动'}, {word:'这件事很遗憾', meaning:'常用短句：觉得可惜'}],
+  '缘': [{word:'缘分', meaning:'人与人相遇的机会'}, {word:'边缘', meaning:'靠边的地方'}, {word:'我们很有缘分', meaning:'常用短句：相遇不容易'}],
+  '蹈': [{word:'舞蹈', meaning:'跳舞艺术'}, {word:'赴汤蹈火', meaning:'不怕危险'}, {word:'她喜欢舞蹈', meaning:'常用短句：喜欢跳舞'}],
+  '逊': [{word:'谦逊', meaning:'谦虚有礼'}, {word:'逊色', meaning:'比较差'}, {word:'态度谦逊有礼', meaning:'常用短句：很谦虚'}],
+  '酬': [{word:'报酬', meaning:'劳动所得'}, {word:'应酬', meaning:'交际往来'}, {word:'努力终有回酬', meaning:'常用短句：努力有收获'}],
+  '辜': [{word:'无辜', meaning:'没有过错'}, {word:'辜负', meaning:'对不起别人的期望'}, {word:'不要辜负期望', meaning:'常用短句：别让人失望'}],
+  '碧': [{word:'碧绿', meaning:'青绿色'}, {word:'碧空', meaning:'晴朗的天空'}, {word:'湖水碧绿', meaning:'常用短句：水很绿'}],
+  '茎': [{word:'花茎', meaning:'植物支撑花叶的部分'}, {word:'根茎', meaning:'植物的根和茎'}, {word:'花茎挺直', meaning:'常用短句：花的茎很直'}],
+  '塌': [{word:'倒塌', meaning:'倒下来'}, {word:'塌陷', meaning:'向下陷'}, {word:'墙壁倒塌了', meaning:'常用短句：墙倒下'}],
+  '糟': [{word:'糟糕', meaning:'情况不好'}, {word:'乱糟糟', meaning:'很乱'}, {word:'情况很糟糕', meaning:'常用短句：情况不好'}],
+  '透': [{word:'透明', meaning:'能看穿'}, {word:'透过', meaning:'穿过'}, {word:'阳光透过窗户', meaning:'常用短句：光穿过窗'}],
+  '策': [{word:'策略', meaning:'办法和计划'}, {word:'政策', meaning:'政府规定办法'}, {word:'制定学习策略', meaning:'常用短句：安排学习方法'}],
+  '踩': [{word:'踩踏', meaning:'用脚踏'}, {word:'踩水', meaning:'在水中踏动'}, {word:'不要踩草地', meaning:'常用短句：保护草地'}],
+  '糯': [{word:'糯米', meaning:'黏性的米'}, {word:'糯米饭', meaning:'用糯米做的饭'}, {word:'粽子用糯米做', meaning:'常用短句：说明材料'}],
+  '盔': [{word:'头盔', meaning:'保护头部的帽子'}, {word:'盔甲', meaning:'古代护身装备'}, {word:'骑车要戴头盔', meaning:'常用短句：注意安全'}],
+  '脉': [{word:'脉搏', meaning:'血管跳动'}, {word:'山脉', meaning:'连绵的山'}, {word:'医生检查脉搏', meaning:'常用短句：检查身体'}],
+  '躬': [{word:'鞠躬', meaning:'弯身行礼'}, {word:'躬身', meaning:'弯下身子'}, {word:'向老师鞠躬', meaning:'常用短句：表示礼貌'}],
+  '悬': [{word:'悬挂', meaning:'挂在空中'}, {word:'悬崖', meaning:'高而陡的山崖'}, {word:'灯笼悬挂门前', meaning:'常用短句：挂在门前'}],
+  '幽': [{word:'幽静', meaning:'安静清幽'}, {word:'幽默', meaning:'有趣好笑'}, {word:'小路十分幽静', meaning:'常用短句：环境安静'}],
+  '躁': [{word:'急躁', meaning:'着急不耐烦'}, {word:'烦躁', meaning:'心情不安'}, {word:'做事不要急躁', meaning:'常用短句：要有耐心'}],
+  '掠': [{word:'掠过', meaning:'轻轻擦过或飞过'}, {word:'掠夺', meaning:'抢夺'}, {word:'小鸟掠过水面', meaning:'常用短句：飞过水面'}],
+  '罕': [{word:'罕见', meaning:'很少见'}, {word:'稀罕', meaning:'少见而珍贵'}, {word:'这种现象很罕见', meaning:'常用短句：很少发生'}],
+  '痕': [{word:'痕迹', meaning:'留下的印子'}, {word:'伤痕', meaning:'受伤后的印子'}, {word:'地上有痕迹', meaning:'常用短句：留下印子'}],
+  '型': [{word:'模型', meaning:'按样子做成的物体'}, {word:'类型', meaning:'类别'}, {word:'这是新的类型', meaning:'常用短句：说明类别'}],
+  '聚': [{word:'聚集', meaning:'集合在一起'}, {word:'团聚', meaning:'亲人相聚'}, {word:'大家聚在一起', meaning:'常用短句：集合起来'}],
+  '摊': [{word:'摊位', meaning:'摆卖东西的小位置'}, {word:'小摊', meaning:'小卖摊'}, {word:'夜市有很多摊位', meaning:'常用短句：夜市很多摊'}],
+  '赐': [{word:'赏赐', meaning:'给予奖赏'}, {word:'赐予', meaning:'给予'}, {word:'大自然赐予资源', meaning:'常用短句：自然给予'}],
+  '核': [{word:'核心', meaning:'中心、关键'}, {word:'果核', meaning:'水果里的硬核'}, {word:'这是问题核心', meaning:'常用短句：重点所在'}],
+  '虚': [{word:'虚心', meaning:'不自满'}, {word:'虚弱', meaning:'身体无力'}, {word:'我们要虚心学习', meaning:'常用短句：谦虚学习'}],
+  '绵': [{word:'绵羊', meaning:'一种羊'}, {word:'连绵', meaning:'连续不断'}, {word:'山路连绵不断', meaning:'常用短句：一直延伸'}],
+  '僻': [{word:'偏僻', meaning:'离中心远'}, {word:'僻静', meaning:'偏远安静'}, {word:'村子很偏僻', meaning:'常用短句：地方很远'}],
+  '嬉': [{word:'嬉戏', meaning:'玩耍'}, {word:'嬉笑', meaning:'笑着玩闹'}, {word:'孩子们嬉戏玩耍', meaning:'常用短句：开心玩'}],
+  '寂': [{word:'寂静', meaning:'没有声音'}, {word:'寂寞', meaning:'孤单'}, {word:'夜晚十分寂静', meaning:'常用短句：夜里很安静'}],
+  '牺': [{word:'牺牲', meaning:'为别人或事业付出'}, {word:'牺牲精神', meaning:'愿意付出的精神'}, {word:'英雄勇于牺牲', meaning:'常用短句：勇敢付出'}],
+  '偿': [{word:'补偿', meaning:'弥补损失'}, {word:'偿还', meaning:'归还'}, {word:'努力终有回偿', meaning:'常用短句：努力有回报'}],
+  '悼': [{word:'哀悼', meaning:'悲伤地怀念死者'}, {word:'悼念', meaning:'怀念逝者'}, {word:'人们深切悼念英雄', meaning:'常用短句：怀念英雄'}],
+  '驰': [{word:'奔驰', meaning:'快速奔跑'}, {word:'驰名', meaning:'名声传播很远'}, {word:'骏马奔驰草原', meaning:'常用短句：马跑得快'}],
+  '谅': [{word:'原谅', meaning:'宽恕别人'}, {word:'谅解', meaning:'理解并宽容'}, {word:'请你原谅我', meaning:'常用短句：请求宽恕'}],
+  '骇': [{word:'惊骇', meaning:'非常吃惊'}, {word:'骇人听闻', meaning:'让人震惊'}, {word:'消息令人惊骇', meaning:'常用短句：非常震惊'}],
+  '衡': [{word:'平衡', meaning:'保持稳定'}, {word:'衡量', meaning:'比较判断'}, {word:'保持身体平衡', meaning:'常用短句：站得稳'}],
+  '疫': [{word:'疫情', meaning:'疾病流行情况'}, {word:'防疫', meaning:'预防传染病'}, {word:'大家一起防疫', meaning:'常用短句：共同预防疾病'}],
+  '辅': [{word:'辅助', meaning:'帮助'}, {word:'辅导', meaning:'帮助学习'}, {word:'老师辅导学生', meaning:'常用短句：帮助学习'}],
+  '鹰': [{word:'老鹰', meaning:'猛禽'}, {word:'雄鹰', meaning:'强壮的鹰'}, {word:'雄鹰展翅飞翔', meaning:'常用短句：鹰张开翅膀飞'}],
+  '蔼': [{word:'和蔼', meaning:'态度温和'}, {word:'和蔼可亲', meaning:'温和容易亲近'}, {word:'老师和蔼可亲', meaning:'常用短句：老师很亲切'}],
+  '纠': [{word:'纠正', meaning:'改正错误'}, {word:'纠纷', meaning:'争执'}, {word:'及时纠正错误', meaning:'常用短句：马上改错'}],
+  '惩': [{word:'惩罚', meaning:'处罚'}, {word:'惩戒', meaning:'处罚警戒'}, {word:'错误需要惩罚', meaning:'常用短句：犯错有后果'}],
+  '捷': [{word:'敏捷', meaning:'动作快'}, {word:'捷径', meaning:'近路'}, {word:'动作十分敏捷', meaning:'常用短句：动作很快'}],
+  '槛': [{word:'门槛', meaning:'门下横木或条件'}, {word:'跨过门槛', meaning:'越过门口'}, {word:'他跨过门槛', meaning:'常用短句：走过门口'}],
+  '阻': [{word:'阻力', meaning:'阻碍前进的力量'}, {word:'阻止', meaning:'拦住不让做'}, {word:'困难不能阻止我', meaning:'常用短句：不怕困难'}],
+  '蔽': [{word:'隐蔽', meaning:'隐藏遮住'}, {word:'遮蔽', meaning:'遮挡'}, {word:'树叶遮蔽阳光', meaning:'常用短句：挡住阳光'}],
+  '藤': [{word:'藤蔓', meaning:'会攀爬的植物茎'}, {word:'瓜藤', meaning:'瓜类植物的藤'}, {word:'藤蔓爬上墙', meaning:'常用短句：藤往上爬'}],
+  '毁': [{word:'毁坏', meaning:'破坏'}, {word:'摧毁', meaning:'彻底破坏'}, {word:'不要毁坏公物', meaning:'常用短句：爱护物品'}],
+  '昔': [{word:'昔日', meaning:'从前'}, {word:'今昔', meaning:'现在和过去'}, {word:'昔日的小路变宽了', meaning:'常用短句：从前的路变了'}],
+  '旋': [{word:'旋律', meaning:'音乐的曲调'}, {word:'旋转', meaning:'转动'}, {word:'风车不停旋转', meaning:'常用短句：一直转动'}],
+  '律': [{word:'规律', meaning:'事物变化的规则'}, {word:'纪律', meaning:'大家要遵守的规则'}, {word:'遵守课堂纪律', meaning:'常用短句：守规矩'}],
+  '眸': [{word:'眼眸', meaning:'眼睛'}, {word:'明眸', meaning:'明亮的眼睛'}, {word:'她有明亮的眼眸', meaning:'常用短句：眼睛明亮'}],
+  '滥': [{word:'滥用', meaning:'过度或不恰当地使用'}, {word:'泛滥', meaning:'水满外流或过多'}, {word:'不可滥用资源', meaning:'常用短句：不要浪费资源'}],
+  '伐': [{word:'砍伐', meaning:'砍倒树木'}, {word:'伐木', meaning:'砍树'}, {word:'禁止乱砍滥伐', meaning:'常用短句：保护森林'}],
+  '漠': [{word:'沙漠', meaning:'干旱少植物的地方'}, {word:'冷漠', meaning:'不关心'}, {word:'沙漠天气炎热', meaning:'常用短句：沙漠很热'}],
+  '勃': [{word:'蓬勃', meaning:'旺盛发展'}, {word:'生机勃勃', meaning:'充满生命力'}, {word:'校园生机勃勃', meaning:'常用短句：很有活力'}],
+  '堪': [{word:'不堪', meaning:'不能承受'}, {word:'堪称', meaning:'可以称作'}, {word:'这景色堪称美丽', meaning:'常用短句：可以说很美'}],
+  '弦': [{word:'琴弦', meaning:'乐器上的线'}, {word:'弦乐', meaning:'用弦发声的音乐'}, {word:'琴弦发出声音', meaning:'常用短句：琴响了'}],
+  '剥': [{word:'剥皮', meaning:'去掉外皮'}, {word:'剥离', meaning:'分开脱落'}, {word:'剥开橘子皮', meaning:'常用短句：去掉果皮'}],
+  '奥': [{word:'奥秘', meaning:'深奥的秘密'}, {word:'奥妙', meaning:'难懂而有趣的道理'}, {word:'探索自然奥秘', meaning:'常用短句：研究自然秘密'}],
+  '崩': [{word:'崩塌', meaning:'倒塌'}, {word:'雪崩', meaning:'大量雪滑落'}, {word:'山坡突然崩塌', meaning:'常用短句：山体倒下'}],
+  '患': [{word:'灾患', meaning:'灾难祸患'}, {word:'患者', meaning:'生病的人'}, {word:'及时消除隐患', meaning:'常用短句：去掉危险'}],
+  '汴': [{word:'汴京', meaning:'古地名'}, {word:'汴河', meaning:'河流名'}, {word:'汴京十分繁华', meaning:'常用短句：古城很热闹'}],
+  '贩': [{word:'商贩', meaning:'做小买卖的人'}, {word:'贩卖', meaning:'买进卖出'}, {word:'市场有许多商贩', meaning:'常用短句：市场很多卖家'}],
+  '轿': [{word:'轿车', meaning:'小型汽车'}, {word:'花轿', meaning:'旧时婚礼用轿'}, {word:'他坐上轿车', meaning:'常用短句：坐车出发'}],
+  '涉': [{word:'涉及', meaning:'关联到'}, {word:'跋涉', meaning:'长途艰难行走'}, {word:'问题涉及安全', meaning:'常用短句：和安全有关'}],
+  '峭': [{word:'陡峭', meaning:'又高又直'}, {word:'峭壁', meaning:'陡直的山壁'}, {word:'山壁十分陡峭', meaning:'常用短句：山很陡'}],
+  '苞': [{word:'花苞', meaning:'未开放的花'}, {word:'含苞待放', meaning:'花快要开放'}, {word:'花苞快开放了', meaning:'常用短句：花要开了'}],
+  '梭': [{word:'穿梭', meaning:'来回快速移动'}, {word:'梭子', meaning:'织布工具'}, {word:'车辆来回穿梭', meaning:'常用短句：车来回移动'}],
+  '斑': [{word:'斑点', meaning:'点状花纹'}, {word:'斑马', meaning:'有条纹的动物'}, {word:'叶子上有斑点', meaning:'常用短句：有小点'}],
+  '斓': [{word:'斑斓', meaning:'颜色灿烂'}, {word:'色彩斑斓', meaning:'颜色丰富'}, {word:'晚霞色彩斑斓', meaning:'常用短句：颜色很多'}],
+  '谱': [{word:'乐谱', meaning:'记录音乐的符号'}, {word:'谱写', meaning:'写成乐曲或篇章'}, {word:'他照着乐谱弹琴', meaning:'常用短句：看谱演奏'}],
+  '瞥': [{word:'一瞥', meaning:'很快看一眼'}, {word:'瞥见', meaning:'偶然看到'}, {word:'我瞥见一只鸟', meaning:'常用短句：看到一眼'}],
+  '暇': [{word:'闲暇', meaning:'空闲时间'}, {word:'无暇', meaning:'没有空'}, {word:'闲暇时读书', meaning:'常用短句：有空读书'}],
+  '慨': [{word:'感慨', meaning:'有所触动而叹息'}, {word:'慷慨', meaning:'大方不吝啬'}, {word:'他慷慨帮助别人', meaning:'常用短句：大方帮人'}],
+  '凛': [{word:'凛冽', meaning:'寒冷刺骨'}, {word:'威风凛凛', meaning:'气势威严'}, {word:'寒风凛冽', meaning:'常用短句：风很冷'}],
+  '窟': [{word:'石窟', meaning:'岩石中的洞窟'}, {word:'洞窟', meaning:'洞穴'}, {word:'山里有洞窟', meaning:'常用短句：山中有洞'}],
+  '殿': [{word:'宫殿', meaning:'宏伟的建筑'}, {word:'殿堂', meaning:'高大的厅堂'}, {word:'古老宫殿很壮观', meaning:'常用短句：建筑宏伟'}],
+  '辉': [{word:'光辉', meaning:'明亮的光'}, {word:'辉煌', meaning:'光彩灿烂'}, {word:'灯火辉煌', meaning:'常用短语：灯光明亮'}],
+  '煌': [{word:'辉煌', meaning:'光彩灿烂'}, {word:'金碧辉煌', meaning:'建筑华丽明亮'}, {word:'大厅金碧辉煌', meaning:'常用短句：大厅很华丽'}],
+  '湛': [{word:'湛蓝', meaning:'深蓝而清澈'}, {word:'精湛', meaning:'技艺高超'}, {word:'天空湛蓝明亮', meaning:'常用短句：天空很蓝'}],
+  '融': [{word:'融化', meaning:'变成液体'}, {word:'融合', meaning:'合在一起'}, {word:'冰雪开始融化', meaning:'常用短句：冰雪变水'}],
+  '牧': [{word:'牧场', meaning:'放牧牲畜的地方'}, {word:'牧羊', meaning:'放养羊群'}, {word:'牧民在草原放羊', meaning:'常用短句：草原放羊'}],
+  '葬': [{word:'埋葬', meaning:'安葬死者'}, {word:'葬礼', meaning:'安葬仪式'}, {word:'古人举行葬礼', meaning:'常用短句：举行仪式'}],
+  '鼎': [{word:'古鼎', meaning:'古代器物'}, {word:'鼎盛', meaning:'最兴盛'}, {word:'文化进入鼎盛时期', meaning:'常用短句：发展到高峰'}],
+  '祭': [{word:'祭祀', meaning:'举行仪式敬神祖'}, {word:'祭品', meaning:'祭祀用物'}, {word:'古人举行祭祀', meaning:'常用短句：举行仪式'}],
+  '酷': [{word:'残酷', meaning:'狠毒无情'}, {word:'酷热', meaning:'非常热'}, {word:'天气十分酷热', meaning:'常用短句：天气很热'}],
+  '畔': [{word:'河畔', meaning:'河边'}, {word:'湖畔', meaning:'湖边'}, {word:'孩子在河畔散步', meaning:'常用短句：在河边走'}],
+  '涝': [{word:'洪涝', meaning:'雨水过多成灾'}, {word:'防涝', meaning:'防止水灾'}, {word:'雨季要防涝', meaning:'常用短句：防止水灾'}],
+  '垦': [{word:'开垦', meaning:'把荒地变农田'}, {word:'垦荒', meaning:'开辟荒地'}, {word:'人们开垦土地', meaning:'常用短句：开发土地'}],
+  '攀': [{word:'攀登', meaning:'向上爬'}, {word:'攀岩', meaning:'爬岩壁运动'}, {word:'他努力攀登高山', meaning:'常用短句：向山上爬'}],
+  '崖': [{word:'山崖', meaning:'陡峭的山边'}, {word:'悬崖', meaning:'高而陡的崖'}, {word:'悬崖边很危险', meaning:'常用短句：崖边危险'}],
+  '坠': [{word:'坠落', meaning:'掉下来'}, {word:'下坠', meaning:'向下落'}, {word:'石块从山上坠落', meaning:'常用短句：石头掉下'}],
+  '窿': [{word:'窟窿', meaning:'洞'}, {word:'小窿', meaning:'小洞'}, {word:'墙上有个窟窿', meaning:'常用短句：墙上有洞'}],
+  '歇': [{word:'歇息', meaning:'休息'}, {word:'停歇', meaning:'停止休息'}, {word:'走累了就歇一歇', meaning:'常用短句：累了休息'}]
+});
+
+let decodedLegacyWordMap = null;
+function containsLegacyMojibake(value) {
+  return typeof value === 'string' && /[\u00e5\u00e6\u00e7]/.test(value);
+}
+function repairMojibakeText(value) {
+  if (typeof value !== 'string' || !containsLegacyMojibake(value)) return value;
+  try {
+    const bytes = Array.from(value, ch => ch.charCodeAt(0));
+    if (bytes.some(code => code > 255)) return value;
+    return decodeURIComponent(bytes.map(code => `%${code.toString(16).padStart(2,'0')}`).join(''));
+  } catch {
+    return value;
+  }
+}
+function getDecodedLegacyWords(c) {
+  if (!decodedLegacyWordMap) {
+    decodedLegacyWordMap = {};
+    Object.entries(EXTRA_WORD_MAP || {}).forEach(([key, value]) => {
+      const cleanKey = repairMojibakeText(key);
+      const cleanWords = (Array.isArray(value) ? value : [value]).map(repairMojibakeText).filter(Boolean);
+      if (/^[\u4e00-\u9fff]$/.test(cleanKey) && cleanWords.length) decodedLegacyWordMap[cleanKey] = cleanWords;
+    });
+  }
+  return decodedLegacyWordMap[c] || [];
+}
+function shortCharMeaning(c) {
+  const tone = currentToneData?.meaning;
+  const raw = tone || MEANING_FIX_MAP[c] || `${c}：本课习写生字`;
+  return String(raw).replace(/<[^>]+>/g,'').split(/[。；;]/)[0].replace(/^多音多义字：/,'');
+}
+function getWordMeaning(word, anchor) {
+  if (WORD_MEANING_FIX_MAP[word]) return WORD_MEANING_FIX_MAP[word];
+  const fixed = WORD_ENTRY_FIX_MAP[anchor]?.find(item => item.word === word);
+  if (fixed?.meaning) return fixed.meaning;
+  const tone = MULTI_TONE_MAP[anchor]?.find(item => item.words?.includes(word));
+  if (tone?.meaning) return tone.meaning;
+  if (word === anchor) return shortCharMeaning(anchor);
+  return `含「${anchor}」的配词，帮助理解：${shortCharMeaning(anchor)}`;
+}
+function getFallbackWordEntries(c) {
+  const meaning = shortCharMeaning(c);
+  return [
+    { word: `生活中遇见「${c}」`, meaning: `常用短句：把字义放进生活情境` },
+    { word: `把「${c}」写端正`, meaning: `常用短句：观察结构、重心和比例` },
+    { word: `用「${c}」说一句话`, meaning: `学习短句：尝试找常用搭配` }
+  ].map(item => ({ ...item, meaning: item.meaning || meaning }));
+}
+function getWordEntriesForChar(c, words) {
+  const entries = [];
+  const add = (word, meaning) => {
+    const cleanWord = repairMojibakeText(word);
+    if (!cleanWord || entries.some(item => item.word === cleanWord)) return;
+    entries.push({ word: cleanWord, meaning: meaning || getWordMeaning(cleanWord, c) });
+  };
+  (WORD_ENTRY_FIX_MAP[c] || []).forEach(item => add(item.word, item.meaning));
+  (MULTI_TONE_MAP[c] || []).forEach(tone => (tone.words || []).forEach(word => add(word, tone.meaning)));
+  getDecodedLegacyWords(c).forEach(word => add(word));
+  (Array.isArray(words) ? words : []).filter(word => typeof word === 'string' && word.length > 1).forEach(word => add(word));
+  if (entries.length < 2) getFallbackWordEntries(c).forEach(item => add(item.word, item.meaning));
+  return { entries: entries.slice(0, 8) };
+}
+
+// ========== 核心功能：部首、结构、评分、圈画、语音 ==========
+const RADICAL_MANUAL = {};
+const RADICAL_FIX_MAP = {
+  '天':'大','太':'大','阳':'阝','上':'一','学':'子','了':'乙','一':'一','走':'走','门':'门','口':'口','小':'小','鸟':'鸟','早':'日','来':'一','去':'厶',
+  '书':'乛','儿':'儿','习':'乙','长':'长','知':'矢','写':'冖','手':'手','心':'心','也':'乙','不':'一','回':'囗','妈':'女','爸':'父','姐':'女','妹':'女',
+  '校':'木','问':'门','这':'辶','那':'阝','都':'阝','行':'彳','载':'车','藏':'艹','假':'亻','壳':'士','切':'刀','冠':'冖','散':'攵','将':'寸','参':'厶',
+  '肖':'⺼','丧':'十','脉':'月','属':'尸','闷':'门','降':'阝','铺':'钅','舍':'舌','混':'氵','劲':'力','剥':'刂','泊':'氵','燕':'灬','暴':'日'
+};
+const RADICAL_NAME_MAP = {
+  '一':'横部','乙':'乙部','乛':'横折部','十':'十字旁','冖':'秃宝盖','冫':'两点水','刀':'刀部','刂':'立刀旁','力':'力字旁','又':'又字旁','厶':'私字旁',
+  '口':'口字旁','囗':'国字框','土':'提土旁','士':'士字头','大':'大字头','女':'女字旁','子':'子字旁','宀':'宝盖头','小':'小字头','尸':'尸字头','山':'山字旁','广':'广字旁','彡':'三撇','彳':'双人旁',
+  '心':'心字底','忄':'竖心旁','手':'手部','扌':'提手旁','攵':'反文旁','文':'文字旁','斤':'斤字旁','方':'方字旁','日':'日字旁','月':'月字旁','⺼':'月字旁','木':'木字旁','欠':'欠字旁','止':'止字旁','毛':'毛部','氏':'氏部','气':'气字头','水':'水部','氵':'三点水','火':'火字旁','灬':'四点底','父':'父字头','片':'片字旁','牙':'牙字旁','牛':'牛字旁','犭':'反犬旁',
+  '王':'王字旁','田':'田字旁','疒':'病字旁','白':'白字旁','皮':'皮字旁','皿':'皿字底','目':'目字旁','矛':'矛部','矢':'矢字旁','石':'石字旁','礻':'示字旁','禾':'禾木旁','穴':'穴宝盖','立':'立字旁',
+  '竹':'竹字头','⺮':'竹字头','米':'米字旁','纟':'绞丝旁','糹':'绞丝旁','罒':'四字头','羊':'羊字头','羽':'羽字旁','耳':'耳字旁','肉':'肉部','臣':'臣部','自':'自部','舌':'舌字旁','舟':'舟字旁','艹':'草字头','虫':'虫字旁','血':'血字旁','行':'行字旁','衤':'衣字旁','西':'西字头',
+  '见':'见字旁','角':'角字旁','言':'言字旁','讠':'言字旁','谷':'谷部','豆':'豆字旁','贝':'贝字旁','赤':'赤部','走':'走字旁','足':'足字旁','身':'身字旁','车':'车字旁','辛':'辛字旁','辶':'走之旁','阝':'双耳旁','酉':'酉字旁','里':'里字旁','金':'金字旁','钅':'金字旁','长':'长部','门':'门字框','隹':'隹字旁','雨':'雨字头','青':'青字旁','非':'非部','革':'革字旁','音':'音字旁','页':'页字旁','风':'风字旁','飞':'飞部','食':'食字旁','饣':'食字旁','马':'马字旁','骨':'骨字旁','高':'高部','鬼':'鬼字旁','鱼':'鱼字旁','鸟':'鸟字旁','鹿':'鹿部','麻':'麻字头','黄':'黄部','黑':'黑字旁','鼎':'鼎部','鼓':'鼓部','鼠':'鼠部','鼻':'鼻部','齐':'齐部','齿':'齿字旁','龙':'龙字旁'
+};
+function getRadicalName(rad) {
+  if (!rad || rad === '—') return '部首暂未识别';
+  return RADICAL_NAME_MAP[rad] || `${rad}部`;
+}
+const STRUCTURE_FIX_MAP = {
+  '天':'独体','太':'独体','上':'独体','一':'独体','了':'独体','口':'独体','小':'独体','鸟':'独体','来':'独体','去':'上下','书':'独体','儿':'独体',
+  '学':'上下','阳':'左右','走':'上下','门':'独体','早':'上下','写':'上下','知':'左右','回':'全包围','问':'半包围','这':'半包围','那':'左右',
+  '行':'左右','载':'半包围','藏':'上下','假':'左右','壳':'上下','切':'左右','冠':'上下','散':'左右','将':'左右','参':'上下','肖':'上下',
+  '丧':'上下','脉':'左右','属':'半包围','闷':'半包围','降':'左右','铺':'左右','舍':'上下','混':'左右','劲':'左右','剥':'左右','泊':'左右','燕':'上中下','暴':'上下'
+};
+Object.assign(RADICAL_FIX_MAP, {
+  '渺':'氵','辨':'辛','控':'扌','昼':'日','窃':'穴','兜':'儿','岔':'山','闯':'门','饶':'饣','垂':'土','遣':'辶','斩':'斤','盐':'皿','惹':'心','痴':'疒','质':'贝','峦':'山','仰':'亻','徒':'彳','惑':'心','普':'日','忠':'心','眶':'目','彻':'彳','绷':'纟','弃':'廾','憾':'忄','缘':'纟',
+  '蹈':'足','逊':'辶','酬':'酉','辜':'辛','碧':'石','帚':'巾','茎':'艹','霞':'雨','堡':'土','塌':'土','奈':'大','蓬':'艹','添':'氵','糟':'米','透':'辶','策':'竹','踩':'足','凹':'凵','糯':'米','污':'氵','凭':'几','盔':'皿','躬':'身','笛':'竹','键':'钅','灵':'火','萌':'艹','嗓':'口','洞':'氵',
+  '悬':'心','幽':'幺','宇':'宀','躁':'足','荫':'艹','纯':'纟','掠':'扌','罕':'冖','削':'刂','痕':'疒','型':'土','聚':'耳','梦':'木','摊':'扌','滔':'氵','赐':'贝','核':'木','弛':'弓','编':'纟','虚':'虍','甚':'甘','务':'力','闻':'门','绵':'纟','僻':'亻','瞪':'目','溜':'氵','嬉':'女','寂':'宀',
+  '牺':'牜','偿':'亻','略':'田','册':'冂','悼':'忄','驰':'马','谅':'讠','柔':'木','炭':'火','酱':'酉','孕':'子','挺':'扌','怠':'心','宵':'宀','督':'目','骇':'马','庞':'广','葱':'艹','展':'尸','谨':'讠','慎':'忄','屡':'尸','衡':'彳','疫':'疒','纳':'纟','痊':'疒','岗':'山','抑':'扌','辅':'车',
+  '鹰':'广','蔼':'艹','纠':'纟','惩':'心','敏':'攵','捷':'扌','跨':'足','槛':'木','趴':'足','怨':'心','屈':'尸','阻':'阝','魔':'鬼','措':'扌','罢':'罒','聊':'耳','蔽':'艹','藤':'艹','霸':'雨','挽':'扌','摧':'扌','毁':'殳','昔':'日','汇':'氵','旋':'方','律':'彳','眸':'目','滥':'氵','伐':'亻','凄':'冫','荒':'艹','漠':'氵','迁':'辶',
+  '勃':'力','秃':'禾','脆':'月','堪':'土','枯':'木','奏':'大','弦':'弓','琴':'王','啼':'口','悦':'忄','揭':'扌','录':'彐','奥':'大','崩':'山','淹':'氵','灾':'火','患':'心','汴':'氵','贩':'贝','轿':'车','涉':'氵','峭':'山','壁':'土','隙':'阝','苞':'艹','梭':'木','梢':'木','斑':'文','斓':'文','吟':'口','谱':'讠','瞥':'目','暇':'日','悠':'心','拐':'扌','杖':'木','慨':'忄','殊':'歹','寡':'宀','凛':'冫','御':'彳','裹':'衣','窟':'穴','雕':'隹','殿':'殳','遗':'辶','辉':'光','煌':'火','览':'见','湛':'氵','融':'虫','牧':'牜','葬':'艹','鼎':'鼎','绘':'纟','祭':'示','献':'犬','酷':'酉','畔':'田','旱':'日','涝':'氵','坝':'土','耕':'耒','垦':'土','攀':'手','崖':'山','坠':'土','窿':'穴','歇':'欠',
+  '跃':'足','奋':'大','沟':'氵','杂':'木','艺':'艹','协':'十','拒':'扌','匀':'勹','厉':'厂','滋':'氵','盼':'目','仓':'人','库':'广','肝':'月','战':'戈','誓':'言','历':'厂','迹':'辶','均':'土','誉':'言','户':'户','榜':'木','肢':'月','统':'纟','催':'亻','促':'亻','伙':'亻','揽':'扌','震':'雨','烂':'火','联':'耳','稀':'禾','扣':'扌','赤':'赤','径':'彳','沿':'氵','程':'禾','夺':'大','抗':'扌','挡':'扌','狠':'犭','倾':'亻','窄':'穴','疗':'疒','疾':'疒','幕':'巾','岩':'山','卑':'十','埋':'土','驯':'马','革':'革','吊':'口','毕':'比','贡':'贝','塔':'土','判':'刂','侄':'亻','逐':'辶','勉':'力','陋':'阝','泣':'氵','异':'廾','劫':'力','祈':'礻','驶':'马','虑':'虍','络':'纟','旦':'日','固':'囗','施':'方','播':'扌','式':'弋','帜':'巾','臣':'臣','疯':'疒','恭':'心','监':'皿','巷':'巳','潮':'氵','幻':'幺','尘':'小','框':'木','佳':'亻','股':'月','搜':'扌','引':'弓','眠':'目','浏':'氵','摄':'扌','唤':'口','辞':'辛','际':'阝','衫':'衤'
+});
+Object.assign(STRUCTURE_FIX_MAP, {
+  '肖':'上下','渺':'左右','辨':'左中右','控':'左右','昼':'上下','窃':'上下','兜':'上下','岔':'上下','闯':'半包围','饶':'左右','遣':'半包围','斩':'左右','盐':'上下','惹':'上下','痴':'半包围','质':'半包围','峦':'上下','仰':'左右','徒':'左右','惑':'上下','普':'上下','忠':'上下','眶':'左右','彻':'左右','绷':'左右','憾':'左右','缘':'左右',
+  '蹈':'左右','逊':'半包围','酬':'左右','辜':'上下','碧':'上下','帚':'上下','茎':'上下','霞':'上下','堡':'上下','塌':'左右','蓬':'上下','添':'左右','糟':'左右','透':'半包围','策':'上下','踩':'左右','糯':'左右','污':'左右','凭':'上下','盔':'上下','躬':'左右','笛':'上下','键':'左右','萌':'上下','嗓':'左右','洞':'左右',
+  '悬':'上下','宇':'上下','躁':'左右','荫':'上下','纯':'左右','掠':'左右','罕':'上下','削':'左右','痕':'半包围','型':'上下','聚':'上下','梦':'上下','摊':'左右','滔':'左右','赐':'左右','核':'左右','弛':'左右','编':'左右','虚':'半包围','务':'上下','闻':'半包围','绵':'左右','僻':'左右','瞪':'左右','溜':'左右','嬉':'左右','寂':'上下',
+  '牺':'左右','偿':'左右','略':'左右','册':'独体','悼':'左右','驰':'左右','谅':'左右','炭':'上下','酱':'上下','孕':'上下','挺':'左右','怠':'上下','宵':'上下','督':'上下','骇':'左右','庞':'半包围','葱':'上下','展':'半包围','谨':'左右','慎':'左右','屡':'半包围','衡':'左中右','疫':'半包围','纳':'左右','痊':'半包围','岗':'上下','抑':'左右','辅':'左右',
+  '鹰':'半包围','蔼':'上下','纠':'左右','惩':'上下','敏':'左右','捷':'左右','跨':'左右','槛':'左右','趴':'左右','怨':'上下','屈':'半包围','阻':'左右','魔':'半包围','措':'左右','罢':'上下','聊':'左右','蔽':'上下','藤':'上下','霸':'上下','挽':'左右','摧':'左右','毁':'左右','昔':'上下','汇':'左右','旋':'左右','律':'左右','眸':'左右','滥':'左右','伐':'左右','凄':'左右','荒':'上下','漠':'左右','迁':'半包围',
+  '勃':'左右','秃':'上下','脆':'左右','堪':'左右','枯':'左右','奏':'上下','弦':'左右','琴':'上下','啼':'左右','悦':'左右','揭':'左右','奥':'上下','崩':'上下','淹':'左右','灾':'上下','患':'上下','汴':'左右','贩':'左右','轿':'左右','涉':'左右','峭':'左右','壁':'上下','隙':'左右','苞':'上下','梭':'左右','梢':'左右','斑':'左中右','斓':'左右','吟':'左右','谱':'左右','瞥':'上下','暇':'左右','悠':'上下','拐':'左右','杖':'左右','慨':'左右','殊':'左右','寡':'上下','凛':'左右','御':'左中右','裹':'上中下','窟':'上下','雕':'左右','殿':'左右','遗':'半包围','煌':'左右','览':'上下','湛':'左右','融':'左右','牧':'左右','葬':'上下','绘':'左右','酷':'左右','畔':'左右','涝':'左右','坝':'左右','耕':'左右','垦':'上下','攀':'上下','崖':'上下','坠':'上下','窿':'上下','歇':'左右',
+  '跃':'左右','奋':'上下','沟':'左右','杂':'上下','艺':'上下','协':'左右','拒':'左右','厉':'半包围','滋':'左右','盼':'左右','仓':'上下','库':'半包围','肝':'左右','战':'左右','誓':'上下','迹':'半包围','均':'左右','誉':'上下','榜':'左右','肢':'左右','统':'左右','催':'左右','促':'左右','伙':'左右','揽':'左右','震':'上下','烂':'左右','联':'左右','稀':'左右','扣':'左右','径':'左右','沿':'左右','程':'左右','夺':'上下','抗':'左右','挡':'左右','狠':'左右','倾':'左右','窄':'上下','疗':'半包围','疾':'半包围','幕':'上下','岩':'上下','卑':'独体','埋':'左右','驯':'左右','吊':'上下','毕':'上下','贡':'上下','塔':'左右','判':'左右','侄':'左右','逐':'半包围','勉':'半包围','陋':'左右','泣':'左右','异':'上下','劫':'左右','祈':'左右','驶':'左右','虑':'半包围','络':'左右','固':'全包围','施':'左右','播':'左右','帜':'左右','疯':'半包围','恭':'上下','监':'上下','巷':'上下','潮':'左右','幻':'左右','框':'左右','佳':'左右','股':'左右','搜':'左右','眠':'左右','浏':'左右','摄':'左右','唤':'左右','辞':'左右','际':'左右','衫':'左右'
+});
+const STRUCTURE_MAP = { 'left-right':'左右','up-down':'上下','left-mid-right':'左中右','up-mid-down':'上中下','full-surround':'全包围','half-surround':'半包围','single':'独体' };
+const STRUCTURE_PATTERNS = [
+  { label: '左中右', patterns: ['left-mid-right', '左中右'] },
+  { label: '上中下', patterns: ['up-mid-down', '上中下'] },
+  { label: '全包围', patterns: ['full-surround', '全包围'] },
+  { label: '半包围', patterns: ['half-surround', '半包围', '左上包围', '右上包围', '左下包围', '上三包围', '下三包围'] },
+  { label: '左右', patterns: ['left-right', '左右'] },
+  { label: '上下', patterns: ['up-down', '上下'] },
+  { label: '独体', patterns: ['single', '独体', '单一', '单体'] }
+];
+const CHARACTER_ANALYSIS_CACHE = new Map();
+
+function normalizeStructureLabel(rawValue) {
+  if (Array.isArray(rawValue)) {
+    for (const item of rawValue) {
+      const normalized = normalizeStructureLabel(item);
+      if (normalized) return normalized;
+    }
+    return '';
+  }
+  if (rawValue && typeof rawValue === 'object') {
+    const candidates = [
+      rawValue.structure,
+      rawValue.type,
+      rawValue.name,
+      rawValue.value,
+      rawValue.mode,
+      rawValue.label,
+      rawValue[0]
+    ];
+    for (const item of candidates) {
+      const normalized = normalizeStructureLabel(item);
+      if (normalized) return normalized;
+    }
+    return '';
+  }
+  const raw = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+  if (typeof raw !== 'string') return '';
+  const text = raw.trim();
+  if (!text) return '';
+  const lower = text.toLowerCase();
+  for (const item of STRUCTURE_PATTERNS) {
+    if (item.patterns.some(pattern => text.includes(pattern) || lower.includes(String(pattern).toLowerCase()))) {
+      return item.label;
+    }
+  }
+  if (text.includes('包围')) return text.includes('全') ? '全包围' : '半包围';
+  if (text.includes('左') && text.includes('右') && text.includes('中')) return '左中右';
+  if (text.includes('上') && text.includes('下') && text.includes('中')) return '上中下';
+  if (text.includes('左') && text.includes('右')) return '左右';
+  if (text.includes('上') && text.includes('下')) return '上下';
+  return /^[\u4e00-\u9fa5]+$/.test(text) ? text : '';
+}
+
+function isCleanChineseValue(value) {
+  return typeof value === 'string' && /^[\u2e80-\u2fff\u3400-\u9fff⺀-⿕]+$/.test(value.trim());
+}
+function getLibraryStructure(c) {
+  try {
+    return normalizeStructureLabel(cnchar.structure(c)) || '—';
+  } catch {
+    return '—';
+  }
+}
+function guessStructureByRadical(c) {
+  const rad = getCleanRadical(c);
+  if ('氵冫亻彳忄扌木女口日月目讠言钅纟糹犭阝礻衤虫足车马王土火禾米饣食刂力攵页贝'.includes(rad)) return '左右';
+  if ('艹竹宀穴雨⺮罒⺌冖父大士立羊'.includes(rad)) return '上下';
+  if ('辶廴门囗匚凵广厂尸户病疒走'.includes(rad)) return rad === '囗' ? '全包围' : '半包围';
+  return '独体';
+}
+function getCleanRadical(c){
+  if (RADICAL_FIX_MAP[c]) return RADICAL_FIX_MAP[c];
+  const manual = RADICAL_MANUAL[c];
+  if (isCleanChineseValue(manual)) return manual;
+  try {
+    let r = cnchar.radical(c);
+    if (Array.isArray(r)) r = r[0]?.radical || r[0];
+    if (typeof r === 'object' && r) r = r.radical || r.name || r.value;
+    return isCleanChineseValue(r) ? r : '—';
+  } catch {
+    return '—';
+  }
+}
+function getChineseStructure(c){
+  if (STRUCTURE_FIX_MAP[c]) return STRUCTURE_FIX_MAP[c];
+  const libraryStructure = getLibraryStructure(c);
+  if (libraryStructure && libraryStructure !== '—') return libraryStructure;
+  const cached = CHARACTER_ANALYSIS_CACHE.get(`${c}:meta`);
+  if (cached?.structure) return cached.structure;
+  return guessStructureByRadical(c);
+}
+function getStrokeCount(c){ try{ return cnchar.stroke(c); }catch{ return '—'; } }
+
+function getBoundingBox(mask, w, h) {
+  let minX = w, minY = h, maxX = -1, maxY = -1, count = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!mask[y * w + x]) continue;
+      count++;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+  if (!count) return null;
+  return { minX, minY, maxX, maxY, width: maxX - minX + 1, height: maxY - minY + 1, count };
+}
+
+function getFrameBalanceMetrics(box, w, h) {
+  if (!box) return null;
+  const left = box.minX / Math.max(1, w);
+  const right = (w - 1 - box.maxX) / Math.max(1, w);
+  const top = box.minY / Math.max(1, h);
+  const bottom = (h - 1 - box.maxY) / Math.max(1, h);
+  return {
+    left,
+    right,
+    top,
+    bottom,
+    lrMarginDiff: Math.abs(left - right),
+    tbMarginDiff: Math.abs(top - bottom),
+    fillW: box.width / Math.max(1, w),
+    fillH: box.height / Math.max(1, h),
+    centerX: (box.minX + box.maxX) / 2 / Math.max(1, w),
+    centerY: (box.minY + box.maxY) / 2 / Math.max(1, h)
+  };
+}
+
+function imageDataToMask(imageData) {
+  const { data, width, height } = imageData;
+  const mask = new Uint8Array(width * height);
+  for (let i = 0; i < data.length; i += 4) {
+    const alpha = data[i + 3];
+    const gray = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    mask[i / 4] = alpha > 20 && gray < 245 ? 1 : 0;
+  }
+  return mask;
+}
+
+function buildProjection(mask, w, h, box) {
+  const cols = Array(box.width).fill(0);
+  const rows = Array(box.height).fill(0);
+  for (let y = box.minY; y <= box.maxY; y++) {
+    for (let x = box.minX; x <= box.maxX; x++) {
+      const v = mask[y * w + x];
+      if (!v) continue;
+      cols[x - box.minX] += v;
+      rows[y - box.minY] += v;
+    }
+  }
+  return { cols, rows };
+}
+
+function findProjectionValleys(values) {
+  if (!values.length) return [];
+  const max = Math.max(...values, 1);
+  const threshold = max * 0.14;
+  const valleys = [];
+  let start = -1;
+  for (let i = 0; i < values.length; i++) {
+    const inCore = i > values.length * 0.15 && i < values.length * 0.85;
+    if (inCore && values[i] <= threshold) {
+      if (start < 0) start = i;
+    } else if (start >= 0) {
+      valleys.push({ start, end: i - 1, width: i - start });
+      start = -1;
+    }
+  }
+  if (start >= 0) valleys.push({ start, end: values.length - 1, width: values.length - start });
+  return valleys.filter(v => v.width >= Math.max(2, Math.floor(values.length * 0.05)));
+}
+
+function getBandDensity(mask, w, h, x0, y0, x1, y1) {
+  let count = 0;
+  let area = 0;
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
+      area++;
+      if (mask[y * w + x]) count++;
+    }
+  }
+  return area ? count / area : 0;
+}
+
+function inferStructureFromMask(mask, w, h) {
+  const box = getBoundingBox(mask, w, h);
+  if (!box) return '独体';
+  const { cols, rows } = buildProjection(mask, w, h, box);
+  const vValleys = findProjectionValleys(cols);
+  const hValleys = findProjectionValleys(rows);
+  const thickX = Math.max(2, Math.floor(box.width * 0.16));
+  const thickY = Math.max(2, Math.floor(box.height * 0.16));
+  const left = getBandDensity(mask, w, h, box.minX, box.minY, box.minX + thickX, box.maxY + 1);
+  const right = getBandDensity(mask, w, h, box.maxX - thickX + 1, box.minY, box.maxX + 1, box.maxY + 1);
+  const top = getBandDensity(mask, w, h, box.minX, box.minY, box.maxX + 1, box.minY + thickY);
+  const bottom = getBandDensity(mask, w, h, box.minX, box.maxY - thickY + 1, box.maxX + 1, box.maxY + 1);
+  const center = getBandDensity(
+    mask,
+    w,
+    h,
+    box.minX + Math.floor(box.width * 0.3),
+    box.minY + Math.floor(box.height * 0.3),
+    box.minX + Math.ceil(box.width * 0.7),
+    box.minY + Math.ceil(box.height * 0.7)
+  );
+  if (Math.min(left, right, top, bottom) > 0.12 && center < 0.1) return '全包围';
+  if (
+    (left > 0.12 && top > 0.12 && bottom > 0.12 && right < 0.09) ||
+    (right > 0.12 && top > 0.12 && bottom > 0.12 && left < 0.09) ||
+    (left > 0.12 && right > 0.12 && top > 0.12 && bottom < 0.09)
+  ) return '半包围';
+  if (vValleys.length >= 2) return '左中右';
+  if (hValleys.length >= 2) return '上中下';
+  const vGap = vValleys[0]?.width || 0;
+  const hGap = hValleys[0]?.width || 0;
+  if (vGap > hGap * 1.15 && vGap >= Math.max(2, Math.floor(box.width * 0.08))) return '左右';
+  if (hGap > vGap * 1.15 && hGap >= Math.max(2, Math.floor(box.height * 0.08))) return '上下';
+  return '独体';
+}
+
+async function getReferenceAnalysis(ch, size = 256) {
+  const cacheKey = `${ch}:${size}`;
+  if (CHARACTER_ANALYSIS_CACHE.has(cacheKey)) return CHARACTER_ANALYSIS_CACHE.get(cacheKey);
+  const off = document.createElement('div');
+  off.style.cssText = 'position:absolute;left:-9999px;top:-9999px;';
+  off.style.width = `${size}px`;
+  off.style.height = `${size}px`;
+  document.body.appendChild(off);
+  const writer = HanziWriter.create(off, ch, { width: size, height: size, padding: 15, showOutline: true, outlineColor: '#7a838a', strokeColor: '#000' });
+  await new Promise(r => setTimeout(r, 80));
+  writer.hideCharacter();
+  writer.showOutline();
+  await new Promise(r => setTimeout(r, 60));
+  const svg = off.querySelector('svg');
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  if (svg) {
+    const data = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([data], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    await new Promise(resolve => {
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      img.src = url;
+    });
+  }
+  document.body.removeChild(off);
+  const imageData = ctx.getImageData(0, 0, size, size);
+  const mask = imageDataToMask(imageData);
+  const structure = getChineseStructure(ch);
+  const analysis = {
+    width: size,
+    height: size,
+    mask,
+    box: getBoundingBox(mask, size, size),
+    structure: structure && structure !== '—' ? structure : inferStructureFromMask(mask, size, size)
+  };
+  CHARACTER_ANALYSIS_CACHE.set(cacheKey, analysis);
+  CHARACTER_ANALYSIS_CACHE.set(`${ch}:meta`, { structure: analysis.structure });
+  return analysis;
+}
+
+async function refreshStructureHint(c, rad, stk) {
+  try {
+    const analysis = await getReferenceAnalysis(c, 256);
+    if (currentChar !== c) return;
+    document.getElementById('radicalInfo').textContent = `部首: ${rad}（${getRadicalName(rad)}） | 结构: ${getChineseStructure(c) || analysis.structure || '—'} | 笔画: ${stk}`;
+  } catch {}
+}
+
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+function beep(f,t='sine',d=0.08){ if(audioCtx.state==='suspended') audioCtx.resume(); const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.type=t; o.frequency.value=f; g.gain.value=0.1; g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d); }
+const SFX = { ok:()=>beep(800), bad:()=>{beep(180,'sawtooth');setTimeout(()=>beep(120,'sawtooth'),80);}, win:()=>{beep(500,'square');setTimeout(()=>beep(700,'square'),100);}, click:()=>beep(420,'sine',0.05) };
+const FROG_COMMENTS = {
+  idle: [
+    '青蛙老师：先看结构，再下笔，字会稳很多！',
+    '青蛙老师：写慢一点没关系，重心稳最重要。',
+    '青蛙老师：点一下🔊，我陪你把读音听清楚。',
+    '青蛙老师：写完可以交卷，我会帮你看大小、结构和匀称。',
+    '青蛙老师：描红时可以多人一起写，记得不要挤出格子哦。'
+  ],
+  start: [
+    '青蛙老师：选好年级啦，我们开始练漂亮字！',
+    '青蛙老师：今天也要把字写得端端正正。',
+    '青蛙老师：先选课文，再一个字一个字练。'
+  ],
+  lesson: [
+    '青蛙老师：这一课只显示本课生字，专心练就好。',
+    '青蛙老师：先观察字形，再开始写，会进步更快。',
+    '青蛙老师：遇到多音字，记得看拼音旁边的选择。'
+  ],
+  strokeGood: [
+    '青蛙老师：这笔顺很顺，继续保持！',
+    '青蛙老师：很好，这一笔走得很稳。',
+    '青蛙老师：呱，笔顺正确！'
+  ],
+  strokeTry: [
+    '青蛙老师：别急，先看清楚下一笔从哪里开始。',
+    '青蛙老师：这一笔可以再试一次，慢慢来。',
+    '青蛙老师：观察示范，再跟着写一遍。'
+  ]
+};
+const GRADE_STANDARD_DATA = {
+  1: {
+    learning: '学生能够：3.1.1 应用铅笔在田字格上书写基本笔画和正楷，感受汉字的形体美。要求执笔和运笔正确，坐姿端正，做到笔画和笔顺正确，字的间架结构匀称，字体端正整洁。',
+    rubric: [
+      ['1 尚未掌握', '未能以正确的坐姿或执笔法书写，尚未认识基本笔画、运笔的规律，笔顺多错误，字体难辨认，卷面欠整洁。'],
+      ['2 有待改进', '未能以正确的坐姿或执笔法书写，初步认识笔画、运笔的规律，笔顺稍有错误，字体尚可辨认，卷面尚整洁。'],
+      ['3 基本掌握', '能以正确的坐姿和执笔法书写，初步认识笔画和笔顺，字体可辨认，卷面尚整洁。'],
+      ['4 满意', '能以正确的坐姿和执笔法书写，初步掌握笔画和笔顺的规律，字体端正，卷面整洁。'],
+      ['5 良好', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正，字的间架结构尚匀称，卷面整洁。'],
+      ['6 优良', '能以正确的坐姿和执笔法熟练地书写，掌握笔画和笔顺的规律，字体端正，字的间架结构匀称，卷面整洁。']
+    ]
+  },
+  2: {
+    learning: '学生能够：3.1.1 应用铅笔在田字格上书写正楷，感受汉字的形体美。要求执笔和运笔正确，坐姿端正，做到笔画和笔顺正确，字的间架结构匀称，字体端正整洁。',
+    rubric: [
+      ['1 尚未掌握', '未能以正确的坐姿或执笔法书写，初步认识笔画、运笔的规律，笔顺多错误，字体尚可辨认，卷面尚整洁。'],
+      ['2 有待改进', '能以正确的坐姿和执笔法书写，初步认识笔画、运笔的规律，笔顺稍有错误，字体可辨认，卷面尚整洁。'],
+      ['3 基本掌握', '能以正确的坐姿和执笔法书写，初步掌握笔画和笔顺的规律，字体端正，卷面整洁。'],
+      ['4 满意', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正，字的间架结构尚匀称，卷面整洁。'],
+      ['5 良好', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正，字的间架结构匀称，卷面整洁。'],
+      ['6 优良', '能以正确的坐姿和执笔法熟练地书写，掌握笔画和笔顺的规律，字体端正，字的间架结构匀称，卷面整洁。']
+    ]
+  },
+  3: {
+    learning: '学生能够：3.1.1 应用铅笔在田字格上书写正楷，感受汉字的形体美。要求执笔和运笔正确，坐姿端正，做到笔画和笔顺正确，字的间架结构匀称，字体端正整洁。',
+    rubric: [
+      ['1 尚未掌握', '未能以正确的坐姿或执笔法书写，初步认识笔画、运笔的规律，笔顺多错误，字体尚可辨认，卷面尚整洁。'],
+      ['2 有待改进', '能以正确的坐姿和执笔法书写，初步认识笔画、运笔的规律，笔顺稍有错误，字体可辨认，卷面尚整洁。'],
+      ['3 基本掌握', '能以正确的坐姿和执笔法书写，初步掌握笔画和笔顺的规律，字体端正，卷面整洁。'],
+      ['4 满意', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正，字的间架结构尚匀称，卷面整洁。'],
+      ['5 良好', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正，字的间架结构匀称，卷面整洁。'],
+      ['6 优良', '能以正确的坐姿和执笔法熟练地书写，掌握笔画和笔顺的规律，字体端正，字的间架结构匀称，卷面整洁。']
+    ]
+  },
+  4: {
+    learning: '学生能够：3.1.1 应用铅笔书写正楷，感受汉字的形体美。做到字体规范，端正整洁，有一定的书写速度，并养成良好的写字习惯。',
+    rubric: [
+      ['1 尚未掌握', '稍能以正确的坐姿和执笔法书写，初步掌握正确的笔画、运笔的规律，笔顺错误少，字体尚可辨认，卷面尚整洁。'],
+      ['2 有待改进', '能以正确的坐姿和执笔法书写，初步掌握正确的笔画、运笔的规律，笔顺错误少，字体稍可辨认，卷面尚整洁。'],
+      ['3 基本掌握', '能以正确的坐姿和执笔法书写，掌握正确的笔画、运笔的规律，笔顺错误极少，字体端正，卷面整洁。'],
+      ['4 满意', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正、尚规范，字的间架结构稍匀称，卷面整洁。'],
+      ['5 良好', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正、规范，字的间架结构匀称，卷面整洁。'],
+      ['6 优良', '能以正确的坐姿和执笔法熟练地书写，掌握笔画和笔顺的规律，整体字体端正、规范，字的间架结构匀称，卷面整洁。']
+    ]
+  },
+  5: {
+    learning: '学生能够：3.1.1 应用铅笔书写楷书，感受汉字的形体美。注意手写体楷中带行、点画牵连的特点，以提高书写速度。做到字体规范，并养成良好的写字习惯。',
+    rubric: [
+      ['1 尚未掌握', '能以正确的坐姿和执笔法书写，掌握正确的笔画、运笔的规律，笔顺错误少，字体稍可辨认，卷面尚整洁。'],
+      ['2 有待改进', '能以正确的坐姿和执笔法书写，初步掌握正确的笔画、运笔的规律，笔顺错误极少，字体尚可辨认，卷面尚整洁。'],
+      ['3 基本掌握', '能以正确的坐姿和执笔法书写，掌握正确的笔画、运笔的规律，笔顺尚正确，字体端正，卷面整洁。'],
+      ['4 满意', '能以正确的坐姿和执笔法书写，掌握笔画和笔顺的规律，字体端正、规范，字的间架结构匀称，卷面整洁。'],
+      ['5 良好', '能以正确的坐姿和执笔法书写自如，掌握笔画和笔顺的规律，整体字体端正、规范，字的间架结构匀称，卷面整洁。'],
+      ['6 优良', '能以正确的坐姿和执笔法书写自如，掌握笔画和笔顺的规律，整体字体端正、规范、工整，字的间架结构匀称，卷面整洁，有一定的速度。']
+    ]
+  },
+  6: {
+    learning: '学生能够：3.1.1 应用铅笔书写楷书，感受汉字的形体美。注意手写体楷书中带行、点画牵连的特点，以提高书写速度。做到字体规范，并养成良好的写字习惯。',
+    rubric: [
+      ['1 尚未掌握', '能以正确的坐姿和执笔法书写，掌握正确的笔画、运笔的规律，笔顺错误较少，字体尚可辨认，卷面尚整洁。'],
+      ['2 有待改进', '能以正确的坐姿和执笔法书写，掌握正确的笔画、运笔的规律，笔顺尚正确，字体尚可辨认，卷面尚整洁。'],
+      ['3 基本掌握', '能以正确的坐姿和执笔法书写，掌握正确的笔画、运笔的规律，笔顺正确，字体可辨认，卷面整洁。'],
+      ['4 满意', '能以正确的坐姿和执笔法熟练地书写，掌握笔画和笔顺的规律，字体端正、规范，字的间架结构匀称，卷面整洁。'],
+      ['5 良好', '能以正确的坐姿和执笔法书写自如，掌握笔画和笔顺的规律，整体字体端正、规范、工整，字的间架结构匀称，卷面整洁，有一定的速度。'],
+      ['6 优良', '能以正确的坐姿和执笔法书写自如，掌握笔画和笔顺的规律，整体字体端正、规范、工整，字的间架结构匀称，卷面整洁，有一定的速度，喜爱书写。']
+    ]
+  }
+};
+function getPerformanceLevel(score) {
+  if (score >= 92) return { level: 6, label: '优良' };
+  if (score >= 84) return { level: 5, label: '良好' };
+  if (score >= 74) return { level: 4, label: '满意' };
+  if (score >= 62) return { level: 3, label: '基本掌握' };
+  if (score >= 45) return { level: 2, label: '有待改进' };
+  return { level: 1, label: '尚未掌握' };
+}
+function updateLearningStandardPanel() {
+  const data = GRADE_STANDARD_DATA[currentGrade || 1] || GRADE_STANDARD_DATA[1];
+  const standard = document.getElementById('learningStandardText');
+  const rubric = document.getElementById('performanceRubric');
+  if (standard) standard.textContent = data.learning;
+  if (rubric) {
+    rubric.innerHTML = data.rubric.map(item => `<div class="rubric-item"><b>${item[0]}</b><br>${item[1]}</div>`).join('');
+  }
+}
+const LOW_GRADE_ISSUE_MAP = {
+  '字形偏小': '字可以写大一点',
+  '字形偏大': '字可以写小一点',
+  '整体偏左': '字有点靠左',
+  '整体偏右': '字有点靠右',
+  '整体偏上': '字有点靠上',
+  '整体偏下': '字有点靠下',
+  '左右比例不匀称': '左右两边要更平均',
+  '上下比例不匀称': '上下两边要更平均',
+  '包围结构安排不稳': '里面和外面要放好',
+  '左右留白不均，楷体重心要居中': '字要放中间',
+  '上下留白不均，田字格占位要匀称': '字要放中间',
+  '楷体字形大小占格不稳': '大小要刚刚好',
+  '间架结构不稳': '部件位置再放好一点',
+  '字形比例失衡': '字不要太扁或太长',
+  '局部结构和范字差距较大': '这一部分再看范字',
+  '占格超出田字格': '不要写出格子',
+  '整体较规范': '写得不错'
+};
+const MID_GRADE_ISSUE_MAP = {
+  '左右留白不均，楷体重心要居中': '左右留白要更平均',
+  '上下留白不均，田字格占位要匀称': '上下占格要更平均',
+  '楷体字形大小占格不稳': '字的大小占格要更稳定',
+  '局部结构和范字差距较大': '局部位置再对照范字',
+  '占格超出田字格': '注意不要写出田字格'
+};
+function getStudentFriendlyIssues(issues) {
+  const grade = currentGrade || 1;
+  const map = grade <= 3 ? LOW_GRADE_ISSUE_MAP : grade <= 4 ? MID_GRADE_ISSUE_MAP : {};
+  const translated = (issues || []).map(item => map[item] || item);
+  return [...new Set(translated)];
+}
+function getPrimaryIssueText(issues) {
+  return getStudentFriendlyIssues(issues)[0] || (currentGrade <= 3 ? '字要写稳一点' : '结构');
+}
+function pickRandom(list){ return list[Math.floor(Math.random()*list.length)]; }
+function capySay(t){ const b=document.getElementById('capyMsg'); b.textContent=t; b.classList.add('show'); clearTimeout(capySay._t); capySay._t=setTimeout(()=>b.classList.remove('show'),4200); }
+function capyTalk(){ capySay(pickRandom(FROG_COMMENTS.idle)); }
+function frogScoreComment(score, issues=[]){
+  const firstIssue = getPrimaryIssueText(issues);
+  if((currentGrade || 1) <= 3){
+    if(score>=92) return '青蛙老师：太棒了！这个字写得很稳，很漂亮。';
+    if(score>=82) return `青蛙老师：写得不错！${firstIssue}，会更好看。`;
+    if(score>=70) return `青蛙老师：已经不错了。先改一改：${firstIssue}。`;
+    if(score>=55) return `青蛙老师：不要急，我们先练这个：${firstIssue}。`;
+    return '青蛙老师：没关系，看一次示范，再慢慢写一遍。';
+  }
+  if(score>=92) return '青蛙老师：太棒了！字形稳、结构也漂亮，可以当小老师了。';
+  if(score>=82) return `青蛙老师：写得不错！再注意${firstIssue||'细节'}，就更漂亮。`;
+  if(score>=70) return `青蛙老师：有进步空间，先改${firstIssue||'结构'}，再看重心。`;
+  if(score>=55) return `青蛙老师：别灰心，我们先把${firstIssue||'间架结构'}练稳，一步一步来。`;
+  return '青蛙老师：这次先不急着比分数，先看示范，重新慢慢写一遍。';
+}
+
+let currentChar='天',currentLesson=null,currentUnit=null,currentGrade=null,teacherWriter=null,teacherCtx=null,isTeacherWriteMode=false,currentToneData=null;
+const studentData={};
+let activeStudentId=1;
+function setActiveStudent(id){ activeStudentId=id; }
+function updateBreadcrumb(items){ const bc=document.getElementById('breadcrumb'); bc.innerHTML=`<a href="#" onclick="app.showHome()">🏠 首页</a>`; items.forEach((it,i)=>{ if(i===items.length-1) bc.innerHTML+=` &gt; <span>${it.text}</span>`; else bc.innerHTML+=` &gt; <a href="#" onclick="${it.action}">${it.text}</a>`; }); }
+function getCurrentViewName(){ const active=document.querySelector('.view.active'); return active ? active.id.replace(/^view/,'').toLowerCase() : 'home'; }
+function updateBackButton(){ const btn=document.getElementById('backBtn'); if(!btn) return; const view=getCurrentViewName(); btn.disabled=view==='home'; btn.style.visibility=view==='home'?'hidden':'visible'; }
+function showView(v){ if(v!=='practice') closeAllMarkupModes(false); document.querySelectorAll('.view').forEach(el=>el.classList.remove('active')); document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1)).classList.add('active'); updateBackButton(); if(v==='practice') setTimeout(()=>resizePracticeCanvases(),50); }
+function goBack(){ const view=getCurrentViewName(); if(view==='practice' && currentGrade && currentUnit){ const d=getGradeData(currentGrade); const u=d.unitsData[currentUnit]; showView('lesson'); document.getElementById('lessonUnitTitle').innerText=`${u.unitName} · 课文`; updateBreadcrumb([{text:`${currentGrade}年级`, action:`selectGrade(${currentGrade})`},{text:u.unitName, action:`selectUnit(${currentGrade},'${currentUnit}')`}]); renderLessons(currentGrade,currentUnit); capySay('青蛙老师：已回到课文选择。'); return; } if(view==='lesson' && currentGrade){ selectGrade(currentGrade); return; } if(view==='unit'){ app.showGradeSelect(); return; } if(view==='grade' || view==='manual'){ app.showHome(); return; } app.showHome(); }
+const app = { showHome(){ showView('home'); updateBreadcrumb([]); capySay('青蛙老师：欢迎回来，点“开始学习”就可以继续练字。'); }, showManual(){ showView('manual'); updateBreadcrumb([{text:'使用手册', action:'app.showManual()'}]); capySay('青蛙老师：这里有网站的简单使用方法。'); }, showGradeSelect(){ showView('grade'); updateBreadcrumb([{text:'选择年级', action:'app.showGradeSelect()'}]); renderGradeGrid(); capySay(pickRandom(FROG_COMMENTS.start)); }, showPractice(){ showView('practice'); } };
+window.app = app;
+function renderGradeGrid(){ const g=document.getElementById('gradeGrid'); g.innerHTML=''; AppData.grades.forEach(gr=>{ const c=document.createElement('div'); c.className='nav-card'; c.innerHTML=`<div class="emoji-big">📘</div><h3>${gr} 年级</h3><div class="desc">Tahun ${gr}</div>`; c.onclick=()=>selectGrade(gr); g.appendChild(c); }); }
+function getGradeData(gr){ return AppData['grade'+gr]||AppData.grade1; }
+function selectGrade(gr){ currentGrade=gr; currentLesson=null; currentLessonChars=[]; showView('unit'); document.getElementById('unitGradeTitle').innerText=`${gr}年级 · 单元`; updateBreadcrumb([{text:`${gr}年级`, action:`selectGrade(${gr})`}]); renderUnits(gr); updateLearningStandardPanel(); capySay(`青蛙老师：现在是${gr}年级，选一个单元开始吧！`); }
+function renderUnits(gr){ const d=getGradeData(gr); const tabs=document.getElementById('semesterTabs'), grid=document.getElementById('unitGrid'); tabs.innerHTML=''; grid.innerHTML=''; function renderSemester(idx){ const sem=d.semesters[idx]; grid.innerHTML=''; sem.units.forEach(u=>{ const card=document.createElement('div'); card.className='nav-card'; card.innerHTML=`<div class="emoji-big">📚</div><h3>${u.name}</h3>`; card.onclick=()=>selectUnit(gr,u.id); grid.appendChild(card); }); tabs.querySelectorAll('.semester-tab').forEach((t,i)=>t.classList.toggle('active',i===idx)); } d.semesters.forEach((sem,idx)=>{ const tab=document.createElement('button'); tab.className='semester-tab'+(idx===0?' active':''); tab.textContent=sem.name; tab.onclick=()=>renderSemester(idx); tabs.appendChild(tab); }); renderSemester(0); }
+function selectUnit(gr,uid){ const d=getGradeData(gr); currentUnit=uid; showView('lesson'); const u=d.unitsData[uid]; document.getElementById('lessonUnitTitle').innerText=`${u.unitName} · 课文`; updateBreadcrumb([{text:`${gr}年级`, action:`selectGrade(${gr})`},{text:u.unitName, action:`selectUnit(${gr},'${uid}')`}]); renderLessons(gr,uid); }
+function renderLessons(gr,uid){ const d=getGradeData(gr), u=d.unitsData[uid]; const grid=document.getElementById('lessonGrid'); grid.innerHTML=''; u.lessons.forEach(l=>{ const card=document.createElement('div'); card.className='nav-card'; card.innerHTML=`<div class="emoji-big">📖</div><h3>${l.name}</h3>`; card.onclick=()=>selectLesson(l.id); grid.appendChild(card); }); }
+function selectLesson(lid){ const d=getGradeData(currentGrade); const lesson=d.lessonsData[lid]; currentLesson=lid; currentLessonChars = lesson.characters.map(c=>c.char || c);
+  showView('practice'); document.getElementById('practiceTitle').innerText=`✍️ ${lesson.lessonName}`; updateLearningStandardPanel(); setTimeout(()=>resizePracticeCanvases(),60); loadLessonCharacters(lesson.characters); capySay(pickRandom(FROG_COMMENTS.lesson)); }
+function loadLessonCharacters(chars){ if(chars&&chars.length){ currentLessonChars = chars.map(c=>c.char || c); quickLoad(chars[0].char || chars[0]); } buildQuickTags(); }
+
+function buildToneSelector(c){ const m=MULTI_TONE_MAP[c]; const s=document.getElementById('multiToneSelector'), e=document.getElementById('toneSelect'); if(m&&m.length>1){ s.style.display='inline-block'; e.innerHTML=''; m.forEach((it,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${it.py} (${it.meaning.slice(0,6)}...)`; e.appendChild(o); }); e.value='0'; currentToneData=m[0]; return m[0]; } else { s.style.display='none'; currentToneData=null; return null; } }
+function onToneChange(){ const s=document.getElementById('toneSelect'); const i=s.value; const m=MULTI_TONE_MAP[currentChar]; if(m&&m[i]){ currentToneData=m[i]; document.getElementById('pinyinDisplay').textContent=currentToneData.py; document.getElementById('meaningContent').innerHTML=getMeaningForChar(currentChar, currentToneData.meaning, currentToneData.words); buildWordsList(currentToneData.words || findCharacterData(currentChar)?.words || [], currentChar); capySay(`读音：${currentToneData.py}`); updateTeacherTarget(currentChar); updateStudentTargets(currentChar); } }
+function loadCharacter(c,py,radical,stroke,meaning,words){ closeAllMarkupModes(true); currentChar=c; document.getElementById('charInput').value=c; const rad=getCleanRadical(c), stk=getStrokeCount(c), stru=getChineseStructure(c); const m=buildToneSelector(c); let fpy,fmean,fwords; if(m){ fpy=m.py; fwords=m.words?.length ? m.words : (words||[c]); fmean=getMeaningForChar(c,m.meaning,fwords); } else { fpy=py||pinyinPro.pinyin(c,{toneType:'symbol'}); fwords=words||[c]; fmean=getMeaningForChar(c,meaning,fwords); } document.getElementById('pinyinDisplay').textContent=fpy; document.getElementById('radicalInfo').textContent=`部首: ${rad}（${getRadicalName(rad)}） | 结构: ${stru} | 笔画: ${stk}`; document.getElementById('meaningContent').innerHTML=fmean; document.getElementById('dictLink').href=`https://baike.baidu.com/search/word?word=${encodeURIComponent(c)}`; buildWordsList(fwords,c); updateLessonProgress(); updateLearningStandardPanel(); updateTeacherTarget(c); updateStudentTargets(c); setTimeout(()=>resizePracticeCanvases(),60); refreshStructureHint(c, rad, stk); capySay(`青蛙老师：${c}，${fpy}，${stru}结构。按楷体写，重心放稳，左右上下要匀称。`); }
+function getPracticeCharList(){ if(currentLesson){ const lesson=getGradeData(currentGrade || 1).lessonsData?.[currentLesson]; if(lesson?.characters?.length) return lesson.characters.map(c=>c.char || c); } if(currentLessonChars.length) return currentLessonChars; return currentChar ? [currentChar] : []; }
+function buildQuickTags(){ const c=document.getElementById('quickTags'); c.innerHTML=''; const charsToShow = getPracticeCharList();
+  charsToShow.forEach(ch=>{ const b=document.createElement('button'); b.className='tag-btn'; b.innerText=ch; b.onclick=()=>quickLoad(ch); if(ch===currentChar) b.classList.add('active'); c.appendChild(b); }); updateLessonProgress(); }
+function quickLoad(ch){ const data=findCharacterData(ch); loadCharacter(ch, data?.pinyin, data?.radical, data?.stroke, data?.meaning, data?.words); }
+function findCharacterData(c){ const gradeData = getGradeData(currentGrade || 1); const current = currentLesson ? gradeData.lessonsData[currentLesson] : null; if(current){ const hit=current.characters.find(x=>x.char===c); if(hit) return hit; } const ls=Object.values(gradeData.lessonsData || {}); for(let l of ls){ const hit=l.characters.find(x=>x.char===c); if(hit) return hit; } return null; }
+function getCurrentCharList(){ return getPracticeCharList(); }
+function updateLessonProgress(){ const list=getCurrentCharList(); const index=Math.max(0,list.indexOf(currentChar)); const total=list.length || 1; const label=document.getElementById('lessonProgress'); if(label) label.textContent=`第 ${index+1} / ${total} 字：${currentChar}`; const prev=document.getElementById('prevCharBtn'), next=document.getElementById('nextCharBtn'); if(prev) prev.disabled=index<=0; if(next) next.disabled=index>=total-1; document.querySelectorAll('.tag-btn').forEach(btn=>btn.classList.toggle('active',btn.innerText===currentChar)); }
+function moveCharacter(step){ const list=getCurrentCharList(); if(!list.length) return; const index=list.indexOf(currentChar); const nextIndex=Math.max(0,Math.min(list.length-1,(index<0?0:index)+step)); if(list[nextIndex] && list[nextIndex]!==currentChar) quickLoad(list[nextIndex]); }
+function prevCharacter(){ moveCharacter(-1); }
+function nextCharacter(){ moveCharacter(1); }
+function playAudio() {
+  const p = document.getElementById('pinyinDisplay');
+  const text = currentChar || (p ? p.textContent.trim() : '');
+  if (!text) return;
+
+  // 检查浏览器支持
+  if (typeof window.speechSynthesis === 'undefined') {
+    capySay('⚠️ 浏览器不支持语音朗读');
+    beep(300, 'square');
+    return;
+  }
+
+  // 取消当前语音
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'zh-CN';
+  utterance.rate = 0.9;
+  utterance.volume = 1;
+
+  // 优先选择中文语音
+  const setChineseVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+    if (zhVoice) utterance.voice = zhVoice;
+  };
+  setChineseVoice();
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.addEventListener('voiceschanged', setChineseVoice, { once: true });
+  }
+
+  utterance.onstart = () => capySay(`🔊 朗读：${text}`);
+  utterance.onerror = (e) => {
+    console.warn('语音错误:', e);
+    capySay('⚠️ 朗读失败，请重试');
+    beep(400);
+  };
+
+  speechSynthesis.speak(utterance);
+}
+function playRadicalAudio() {
+  const rad = getCleanRadical(currentChar);
+  const name = getRadicalName(rad);
+  const text = rad && rad !== '—' ? `部首 ${rad}，${name}` : '部首暂未识别';
+  if (typeof window.speechSynthesis === 'undefined') {
+    capySay(text);
+    beep(300, 'square');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'zh-CN';
+  utterance.rate = 0.9;
+  utterance.volume = 1;
+  const setChineseVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+    if (zhVoice) utterance.voice = zhVoice;
+  };
+  setChineseVoice();
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.addEventListener('voiceschanged', setChineseVoice, { once: true });
+  }
+  utterance.onstart = () => capySay(`青蛙老师：${text}`);
+  utterance.onerror = () => capySay('青蛙老师：部首朗读失败，请再点一次。');
+  speechSynthesis.speak(utterance);
+}
+function buildWordsList(w, anchor=currentChar){ const l=document.getElementById('wordsList'); l.innerHTML=''; const {entries}=getWordEntriesForChar(anchor,w); entries.forEach(item=>{ const it=document.createElement('div'); it.className='word-card'; it.innerHTML=`<div class="word-pinyin">${pinyinPro.pinyin(item.word)}</div><div class="word-hanzi">${item.word}</div><div class="word-meaning">${item.meaning}</div>`; it.title=`${item.word}：${item.meaning}`; it.onclick=()=>{ try{ const u=new SpeechSynthesisUtterance(item.word); u.lang='zh-CN'; speechSynthesis.cancel(); speechSynthesis.speak(u); capySay(`配词：${item.word}。${item.meaning}`); }catch(e){ beep(500); } }; l.appendChild(it); }); }
+function enableMultiTouchTarget(el, id) {
+  if (!el) return;
+  el.style.touchAction = 'none';
+  el.style.msTouchAction = 'none';
+  el.querySelectorAll?.('svg, path, g').forEach(node => {
+    node.style.touchAction = 'none';
+    node.style.msTouchAction = 'none';
+  });
+  if (id && !el.dataset.multiTouchReady) {
+    el.dataset.multiTouchReady = '1';
+    el.addEventListener('pointerdown', () => setActiveStudent(id), { passive: true });
+    el.addEventListener('touchstart', () => setActiveStudent(id), { passive: false });
+  }
+}
+function updateTeacherTarget(ch){ const t=document.getElementById('teacherTarget'); t.innerHTML=''; const box=document.getElementById('teacherBox'); const sz=Math.max(320,Math.min(900,box.getBoundingClientRect().width||560)); teacherWriter=HanziWriter.create('teacherTarget',ch,{width:sz,height:sz,padding:12,showOutline:true,outlineColor:'#7a838a',strokeColor:'#0d47a1',strokeAnimationSpeed:1}); teacherWriter.hideCharacter(); teacherWriter.showOutline(); setTimeout(()=>enableMultiTouchTarget(t),0); }
+function animateTeacher(){ if(!teacherWriter) updateTeacherTarget(currentChar); teacherWriter.animateCharacter(); SFX.click(); }
+function toggleTeacherMode(){ isTeacherWriteMode=!isTeacherWriteMode; const box=document.getElementById('teacherBox'), btn=document.getElementById('teacherModeBtn'), st=document.getElementById('teacherStatus'); if(isTeacherWriteMode){ box.classList.remove('teacher-demo-mode'); box.classList.add('teacher-write-mode'); btn.textContent='👁️ 观看演示'; st.textContent='当前状态：教师写字'; clearTeacherCanvas(); } else { box.classList.remove('teacher-write-mode'); box.classList.add('teacher-demo-mode'); btn.textContent='✍️ 教师写字'; st.textContent='当前状态：观看演示'; clearTeacherCanvas(); } }
+function clearTeacherCanvas(){ if(!teacherCtx) return; teacherCtx.clearRect(0,0,teacherCtx.canvas.width,teacherCtx.canvas.height); }
+function toggleTeacherFullscreen(){ const box=document.getElementById('teacherBox'); if(!box) return; if(document.fullscreenElement){ document.exitFullscreen?.(); return; } box.requestFullscreen?.().then(()=>{ setTimeout(()=>updateTeacherTarget(currentChar),150); capySay('青蛙老师：大屏模式已开启，右上角可退出全屏。'); }).catch(()=>capySay('青蛙老师：这个浏览器暂时不能开启大屏。')); }
+function exitTeacherFullscreen(event){ event?.stopPropagation?.(); if(document.fullscreenElement) document.exitFullscreen?.(); }
+
+// 学生卡片及评分圈画
+function buildStudentCards(){ const g=document.getElementById('studentGrid'); g.innerHTML=''; for(let i=1;i<=5;i++){ const c=document.createElement('div'); c.className='card student-card'; c.id=`card${i}`; c.innerHTML=`<div class="current-badge" id="badge${i}">待评分</div><div class="score-container"><span class="score-box">👤 学生 ${i}</span><span class="score-box total-score">🏆 累积: <span id="total${i}">0</span></span></div><div class="switch-capsule"><div class="switch-opt active" onclick="setMode(${i}, 'stroke')">严格笔顺</div><div class="switch-opt" onclick="setMode(${i}, 'free')">描红临摹</div></div><div class="canvas-wrap mode-stroke" id="wrap${i}" onpointerdown="setActiveStudent(${i})"><div class="grid-lines"></div><div id="hanzi${i}" class="hanzi-layer"></div><canvas id="canvas${i}" class="draw-layer"></canvas><canvas id="markupCanvas${i}" class="markup-layer"></canvas></div><div class="feedback-text" id="fb${i}">准备就绪</div><div style="width:100%; display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;"><button id="undoBtn${i}" onclick="undoDraw(${i})" class="undo-btn" style="flex:1;">↩️ 撤销笔迹</button><button id="redoBtn${i}" onclick="redoDraw(${i})" class="redo-btn" style="flex:1;">↪️ 重做笔迹</button><button onclick="resetStudent(${i})" style="flex:1; background:#eceff1; border-radius:8px; padding:6px;">↺ 重置</button><button onclick="submitStudent(${i})" style="flex:1; background:var(--primary); color:white; border-radius:8px; padding:6px; font-weight:bold;">✅ 交卷</button><button onclick="toggleMarkupMode(${i})" class="btn-mark" style="flex:1; background:#8d6e63; color:white; border-radius:8px; padding:6px;">🖍️ 圈画</button></div>`; g.appendChild(c); } }
+function initStudentSuite(){ for(let i=1;i<=5;i++) studentData[i]={ mode:'stroke', total:0, markupActive:false, drawHistory:[], historyIndex:-1, markupHistory:[], markupHistoryIndex:-1 }; buildStudentCards(); for(let i=1;i<=5;i++){ initDrawHistory(i); initStudentCanvas(i); } installKeyboardShortcuts(); installMultitouchGuards(); }
+function initDrawHistory(id){ const data=studentData[id]; data.drawHistory=[]; data.historyIndex=-1; data.markupHistory=[]; data.markupHistoryIndex=-1; }
+function pushCanvasHistory(id){ pushHistorySnapshot(id,'draw'); }
+function pushMarkupHistory(id){ pushHistorySnapshot(id,'markup'); }
+function pushHistorySnapshot(id,type){ const canvas=document.getElementById(type==='markup'?`markupCanvas${id}`:`canvas${id}`); if(!canvas||!canvas.width) return; const img=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height); const data=studentData[id]; const key=type==='markup'?'markupHistory':'drawHistory'; const idxKey=type==='markup'?'markupHistoryIndex':'historyIndex'; if(data[idxKey] < data[key].length-1) data[key]=data[key].slice(0,data[idxKey]+1); data[key].push(img); if(data[key].length>40) data[key].shift(); data[idxKey]=data[key].length-1; updateUndoRedoButtons(id); }
+function resetDrawHistory(id){ const data=studentData[id]; data.drawHistory=[]; data.historyIndex=-1; pushCanvasHistory(id); }
+function resetMarkupHistory(id){ const data=studentData[id]; data.markupHistory=[]; data.markupHistoryIndex=-1; pushMarkupHistory(id); }
+function restoreCanvasHistory(id){ restoreHistorySnapshot(id,'draw'); }
+function restoreMarkupHistory(id){ restoreHistorySnapshot(id,'markup'); }
+function restoreHistorySnapshot(id,type){ const data=studentData[id], canvas=document.getElementById(type==='markup'?`markupCanvas${id}`:`canvas${id}`); if(!data||!canvas) return; const key=type==='markup'?'markupHistory':'drawHistory'; const idxKey=type==='markup'?'markupHistoryIndex':'historyIndex'; if(data[idxKey]<0) return; canvas.getContext('2d').putImageData(data[key][data[idxKey]],0,0); updateUndoRedoButtons(id); }
+function updateUndoRedoButtons(id){ const data=studentData[id]; if(!data) return; const undo=document.getElementById(`undoBtn${id}`), redo=document.getElementById(`redoBtn${id}`); if(!undo||!redo) return; const isMarkup=data.markupActive; const key=isMarkup?'markupHistory':'drawHistory'; const idxKey=isMarkup?'markupHistoryIndex':'historyIndex'; undo.textContent=isMarkup?'↩️ 撤销圈画':'↩️ 撤销笔迹'; redo.textContent=isMarkup?'↪️ 重做圈画':'↪️ 重做笔迹'; const canUndo=isMarkup ? data[idxKey]>0 : (data.mode==='free' ? data[idxKey]>0 : true); const canRedo=isMarkup ? data[idxKey] < data[key].length-1 : (data.mode==='free' && data[idxKey] < data[key].length-1); undo.disabled=!canUndo; redo.disabled=!canRedo; }
+function installKeyboardShortcuts(){ if(window.__studentUndoKeysInstalled) return; window.__studentUndoKeysInstalled=true; document.addEventListener('keydown',e=>{ const tag=(document.activeElement?.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea'||tag==='select') return; if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){ e.preventDefault(); if(e.shiftKey) redoDraw(activeStudentId); else undoDraw(activeStudentId); } if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){ e.preventDefault(); redoDraw(activeStudentId); } if(getCurrentViewName()==='practice' && !e.ctrlKey && !e.metaKey && !e.altKey){ if(e.key==='ArrowLeft'){ e.preventDefault(); prevCharacter(); } if(e.key==='ArrowRight'){ e.preventDefault(); nextCharacter(); } if(e.key==='Escape'){ e.preventDefault(); goBack(); } } }); }
+function installMultitouchGuards(){ if(window.__practiceTouchGuardsInstalled) return; window.__practiceTouchGuardsInstalled=true; const block=e=>{ if(getCurrentViewName()!=='practice') return; if(e.target?.closest?.('.canvas-wrap,.draw-layer,.markup-layer,.hanzi-layer')) e.preventDefault(); }; document.addEventListener('touchmove',block,{passive:false}); document.addEventListener('gesturestart',block,{passive:false}); document.addEventListener('gesturechange',block,{passive:false}); }
+function initStudentCanvas(id){ const can=document.getElementById(`canvas${id}`), ctx=can.getContext('2d'), m=document.getElementById(`markupCanvas${id}`), mCtx=m.getContext('2d'); studentData[id].drawCtx=ctx; studentData[id].markupCtx=mCtx; studentData[id].markupCanvas=m; const wrap=document.getElementById(`wrap${id}`); new ResizeObserver(()=>resizeStudentCanvas(id)).observe(wrap); setupPointer(can,ctx,id,()=>studentData[id].mode==='free','draw'); setupPointer(m,mCtx,id,()=>studentData[id].markupActive,'markup'); }
+function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+function getPointerPoint(e,can,last,count,historyType){ const r=can.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top, t=e.timeStamp||performance.now(); if(historyType!=='draw') return {x,y,t,width:5,count}; const dist=last?Math.hypot(x-last.x,y-last.y):0; const dt=Math.max(8,last?t-last.t:16); const speed=dist/dt; const pressure=e.pressure&&e.pressure>0?e.pressure:0.55; const base=clamp(7.8-speed*1.8+pressure*2.2,3.2,8.8); const ramp=clamp((count+1)/5,0.35,1); const width=last?last.width*0.55+base*ramp*0.45:base*0.35; return {x,y,t,width,count}; }
+function getTeacherBrushPoint(e,can,last,count){ const p=getPointerPoint(e,can,last,count,'draw'); return {...p,width:Math.min(17,p.width*1.8)}; }
+function drawBrushSegment(ctx,last,p,historyType){ const dist=Math.hypot(p.x-last.x,p.y-last.y); if(dist<0.45) return false; ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round'; if(historyType==='draw'){ ctx.strokeStyle='#1f2428'; ctx.lineWidth=(last.width+p.width)/2; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); } else { ctx.strokeStyle='#e53935'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); } ctx.restore(); return true; }
+function drawStrokeTip(ctx,p,historyType,end=false){ if(historyType!=='draw') return; ctx.save(); ctx.fillStyle='#1f2428'; ctx.globalAlpha=end?0.8:0.9; ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(1.2,p.width*(end?0.28:0.35)),0,Math.PI*2); ctx.fill(); ctx.restore(); }
+function finishTouchState(state,active,historyType,id){ if(!state) return false; drawStrokeTip(state.ctx,state.last,historyType,true); active.delete(state.key); return true; }
+function setupTouchFallback(can,ctx,id,enabled,historyType,commitHistory){ if(window.PointerEvent) return; const active=new Map(); const touchToPoint=(touch,last,count)=>getPointerPoint({clientX:touch.clientX,clientY:touch.clientY,timeStamp:performance.now(),pressure:touch.force||0.55},can,last,count,historyType); const start=e=>{ if(!enabled()) return; activeStudentId=id; Array.from(e.changedTouches||[]).forEach(touch=>{ const p=touchToPoint(touch,null,0); active.set(touch.identifier,{key:touch.identifier,last:p,count:0,ctx}); drawStrokeTip(ctx,p,historyType,false); }); e.preventDefault(); }; const move=e=>{ if(!enabled()) return; Array.from(e.changedTouches||[]).forEach(touch=>{ const state=active.get(touch.identifier); if(!state) return; const p=touchToPoint(touch,state.last,state.count); if(drawBrushSegment(ctx,state.last,p,historyType)) commitHistory.changed=true; state.last=p; state.count++; }); e.preventDefault(); }; const end=e=>{ Array.from(e.changedTouches||[]).forEach(touch=>finishTouchState(active.get(touch.identifier),active,historyType,id)); if(!active.size&&commitHistory.changed){ if(historyType==='draw') pushCanvasHistory(id); if(historyType==='markup') pushMarkupHistory(id); commitHistory.changed=false; } e.preventDefault(); }; can.addEventListener('touchstart',start,{passive:false}); can.addEventListener('touchmove',move,{passive:false}); can.addEventListener('touchend',end,{passive:false}); can.addEventListener('touchcancel',end,{passive:false}); }
+function setupPointer(can,ctx,id,enabled,historyType){ const active=new Map(); const commitHistory={changed:false}; can.style.touchAction='none'; can.style.msTouchAction='none'; can.style.userSelect='none'; const finish=e=>{ const state=active.get(e.pointerId); if(state){ drawStrokeTip(ctx,state.last,historyType,true); active.delete(e.pointerId); if(active.size===0&&commitHistory.changed){ if(historyType==='draw') pushCanvasHistory(id); if(historyType==='markup') pushMarkupHistory(id); commitHistory.changed=false; } } try{ can.releasePointerCapture(e.pointerId); }catch{} e.preventDefault(); }; const consume=e=>{ const state=active.get(e.pointerId); if(!state) return; if(!enabled()){ active.delete(e.pointerId); return; } const events=typeof e.getCoalescedEvents==='function'?e.getCoalescedEvents():[e]; for(const ev of events){ const p=getPointerPoint(ev,can,state.last,state.count,historyType); if(drawBrushSegment(ctx,state.last,p,historyType)) commitHistory.changed=true; state.last=p; state.count++; } e.preventDefault(); }; can.addEventListener('pointerdown',e=>{ if(!enabled()) return; activeStudentId=id; try{ can.setPointerCapture(e.pointerId); }catch{} const p=getPointerPoint(e,can,null,0,historyType); active.set(e.pointerId,{last:p,count:0}); drawStrokeTip(ctx,p,historyType,false); e.preventDefault(); }); can.addEventListener('pointermove',consume); can.addEventListener('pointerup',finish); can.addEventListener('pointercancel',finish); can.addEventListener('pointerleave',e=>{ if(active.has(e.pointerId)){ try{ can.setPointerCapture(e.pointerId); }catch{} } }); can.addEventListener('lostpointercapture',e=>{ if(active.has(e.pointerId)){ try{ can.setPointerCapture(e.pointerId); }catch{} } }); setupTouchFallback(can,ctx,id,enabled,historyType,commitHistory); }
+function drawDataUrlToCanvas(dataUrl, canvas, ctx){ if(!dataUrl) return; const img=new Image(); img.onload=()=>{ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(img,0,0,canvas.width,canvas.height); ctx.restore(); }; img.src=dataUrl; }
+function resizeStudentCanvas(id){ const can=document.getElementById(`canvas${id}`), m=document.getElementById(`markupCanvas${id}`), wrap=document.getElementById(`wrap${id}`); if(!wrap) return; const r=wrap.getBoundingClientRect(); if(!r.width) return; const oldDraw=can.width&&can.height?can.toDataURL():null; const oldMarkup=m.width&&m.height?m.toDataURL():null; const dpr=window.devicePixelRatio||1, side=Math.min(r.width,r.height); can.width=side*dpr; can.height=side*dpr; m.width=side*dpr; m.height=side*dpr; can.style.width=side+'px'; can.style.height=side+'px'; m.style.width=side+'px'; m.style.height=side+'px'; const ctx=can.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth=4; ctx.strokeStyle='#222'; ctx.lineCap='round'; ctx.lineJoin='round'; const mCtx=m.getContext('2d'); mCtx.setTransform(dpr,0,0,dpr,0,0); mCtx.lineWidth=5; mCtx.strokeStyle='#e53935'; mCtx.lineCap='round'; mCtx.lineJoin='round'; studentData[id].drawCtx=ctx; studentData[id].markupCtx=mCtx; drawStudentBackground(id); drawDataUrlToCanvas(oldDraw,can,ctx); drawDataUrlToCanvas(oldMarkup,m,mCtx); if(!studentData[id].drawHistory.length) setTimeout(()=>resetDrawHistory(id),0); if(!studentData[id].markupHistory.length) setTimeout(()=>resetMarkupHistory(id),0); updateUndoRedoButtons(id); }
+function drawStudentBackground(id){ const div=document.getElementById(`hanzi${id}`); div.innerHTML=''; const sz=div.getBoundingClientRect().width||240; const w=HanziWriter.create(`hanzi${id}`,currentChar,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); w.hideCharacter(); w.showOutline(); studentData[id].writer=w; setTimeout(()=>enableMultiTouchTarget(div,id),0); }
+function updateStudentTargets(ch){ closeAllMarkupModes(true); for(let i=1;i<=5;i++){ const t=document.getElementById(`hanzi${i}`); if(!t) continue; t.innerHTML=''; const sz=t.getBoundingClientRect().width||240; studentData[i].writer=HanziWriter.create(`hanzi${i}`,ch,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); studentData[i].writer.hideCharacter(); studentData[i].writer.showOutline(); enableMultiTouchTarget(t,i); clearCanvas(i,true); clearMarkup(i); } }
+function clearCanvas(id,resetHistory=false){ const c=document.getElementById(`canvas${id}`); c.getContext('2d').clearRect(0,0,c.width,c.height); if(resetHistory) resetDrawHistory(id); else updateUndoRedoButtons(id); }
+function clearMarkup(id,resetHistory=false){ const c=document.getElementById(`markupCanvas${id}`); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height); const wrap=document.getElementById(`wrap${id}`); if(wrap) wrap.classList.remove('score-mark-active'); if(resetHistory) resetMarkupHistory(id); else updateUndoRedoButtons(id); }
+function closeMarkupMode(id,clear=false,showFeedback=false){ const data=studentData[id]; if(!data) return; data.markupActive=false; const wrap=document.getElementById(`wrap${id}`); if(wrap) wrap.classList.remove('markup-active'); if(clear) clearMarkup(id,true); else updateUndoRedoButtons(id); if(showFeedback){ const fb=document.getElementById(`fb${id}`); if(fb) fb.textContent='圈画模式已关闭'; } }
+function closeAllMarkupModes(clear=false){ for(let i=1;i<=5;i++) closeMarkupMode(i,clear,false); }
+function setMode(id,mode){ activeStudentId=id; closeMarkupMode(id,true,false); studentData[id].mode=mode; const card=document.getElementById(`card${id}`); if(card) card.querySelectorAll('.switch-opt').forEach((opt,idx)=>opt.classList.toggle('active',idx===(mode==='stroke'?0:1))); const wrap=document.getElementById(`wrap${id}`); wrap.classList.toggle('mode-stroke',mode==='stroke'); wrap.classList.toggle('mode-free',mode==='free'); clearCanvas(id,true); clearMarkup(id,true); drawStudentBackground(id); const w=studentData[id].writer; if(mode==='stroke'){ w.cancelQuiz(); w.hideCharacter(); setTimeout(()=>enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id),0); w.quiz({ onMistake:()=>{ SFX.bad(); capySay(pickRandom(FROG_COMMENTS.strokeTry)); }, onCorrectStroke:()=>{ SFX.ok(); if(Math.random()<0.35) capySay(pickRandom(FROG_COMMENTS.strokeGood)); }, onComplete:()=>{ SFX.win(); capySay(`青蛙老师：学生${id} 笔顺完成！这次很专心。`); } }); } else { w.cancelQuiz(); w.showOutline(); enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id); } document.getElementById(`fb${id}`).textContent=mode==='free'?'可多指临摹 · 撤销/重做只管理笔迹':'严格笔顺可多人同时写 · 撤销会重开笔顺，重做不适用'; updateUndoRedoButtons(id); SFX.click(); }
+function undoDraw(id){ activeStudentId=id; const data=studentData[id]; if(data.markupActive){ if(data.markupHistoryIndex>0){ data.markupHistoryIndex--; restoreMarkupHistory(id); document.getElementById(`fb${id}`).textContent='已撤销一笔圈画'; } else { document.getElementById(`fb${id}`).textContent='没有可撤销的圈画'; updateUndoRedoButtons(id); } return; } if(data.mode!=='free'){ setMode(id,'stroke'); capySay(`学生${id} 笔顺已重开`); return; } if(data.historyIndex>0){ data.historyIndex--; restoreCanvasHistory(id); document.getElementById(`fb${id}`).textContent='已撤销一笔笔迹'; } else { document.getElementById(`fb${id}`).textContent='没有可撤销的笔迹'; updateUndoRedoButtons(id); } }
+function redoDraw(id){ activeStudentId=id; const data=studentData[id]; if(data.markupActive){ if(data.markupHistoryIndex < data.markupHistory.length-1){ data.markupHistoryIndex++; restoreMarkupHistory(id); document.getElementById(`fb${id}`).textContent='已重做一笔圈画'; } else { document.getElementById(`fb${id}`).textContent='没有可重做的圈画'; updateUndoRedoButtons(id); } return; } if(data.mode!=='free'){ document.getElementById(`fb${id}`).textContent='严格笔顺没有重做，请用撤销重开'; updateUndoRedoButtons(id); return; } if(data.historyIndex < data.drawHistory.length-1){ data.historyIndex++; restoreCanvasHistory(id); document.getElementById(`fb${id}`).textContent='已重做一笔笔迹'; } else { document.getElementById(`fb${id}`).textContent='没有可重做的笔迹'; updateUndoRedoButtons(id); } }
+function resetStudent(id){ closeMarkupMode(id,true,false); clearCanvas(id,true); clearMarkup(id,true); document.getElementById(`fb${id}`).textContent='准备就绪'; document.getElementById(`badge${id}`).textContent='待评分'; setMode(id,studentData[id].mode); }
+function resetAll(){ closeAllMarkupModes(true); for(let i=1;i<=5;i++) resetStudent(i); clearTeacherCanvas(); }
+function toggleMarkupMode(id){ activeStudentId=id; const w=document.getElementById(`wrap${id}`); const next=!studentData[id].markupActive; studentData[id].markupActive=next; w.classList.toggle('markup-active',next); if(next && !studentData[id].markupHistory.length) resetMarkupHistory(id); updateUndoRedoButtons(id); document.getElementById(`fb${id}`).textContent=next?'圈画模式已开启 · 撤销/重做现在只管理圈画':'圈画模式已关闭 · 撤销/重做回到笔迹'; }
+
+function findErrorClusters(mask,w,h,minP=10,maxC=6){ const vis=new Uint8Array(w*h); const cls=[]; const dir=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]]; for(let i=0;i<w*h;i++){ if(mask[i]&&!vis[i]){ const q=[i]; vis[i]=1; let sx=0,sy=0,cnt=0,minX=w,minY=h,maxX=0,maxY=0; while(q.length){ const idx=q.pop(); const x=idx%w, y=Math.floor(idx/w); sx+=x; sy+=y; cnt++; if(x<minX) minX=x; if(x>maxX) maxX=x; if(y<minY) minY=y; if(y>maxY) maxY=y; for(let d of dir){ const nx=x+d[0], ny=y+d[1]; if(nx>=0&&nx<w&&ny>=0&&ny<h){ const nid=ny*w+nx; if(mask[nid]&&!vis[nid]){ vis[nid]=1; q.push(nid); } } } } if(cnt>=minP) cls.push({cx:sx/cnt, cy:sy/cnt, size:cnt, radius:Math.min(34,Math.max(16,Math.sqrt(cnt)*1.35)), box:{minX,minY,maxX,maxY}}); } } cls.sort((a,b)=>b.size-a.size); return cls.slice(0,maxC); }
+
+function analyzeMaskMetrics(mask, w, h) {
+  const box = getBoundingBox(mask, w, h);
+  if (!box) return null;
+  let sumX = 0, sumY = 0;
+  for (let y = box.minY; y <= box.maxY; y++) {
+    for (let x = box.minX; x <= box.maxX; x++) {
+      if (!mask[y * w + x]) continue;
+      sumX += x;
+      sumY += y;
+    }
+  }
+  return {
+    box,
+    pixelCount: box.count,
+    centroidX: sumX / box.count,
+    centroidY: sumY / box.count,
+    aspect: box.width / Math.max(1, box.height)
+  };
+}
+
+function buildGridDensities(mask, w, h, box, gridSize = 3) {
+  const cells = [];
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
+      const x0 = Math.floor(box.minX + (box.width * col) / gridSize);
+      const x1 = Math.floor(box.minX + (box.width * (col + 1)) / gridSize);
+      const y0 = Math.floor(box.minY + (box.height * row) / gridSize);
+      const y1 = Math.floor(box.minY + (box.height * (row + 1)) / gridSize);
+      const density = getBandDensity(mask, w, h, x0, y0, Math.max(x0 + 1, x1), Math.max(y0 + 1, y1));
+      cells.push({
+        row, col, density,
+        cx: (x0 + Math.max(x0 + 1, x1)) / 2,
+        cy: (y0 + Math.max(y0 + 1, y1)) / 2,
+        radius: Math.max(16, Math.min(30, Math.min(Math.max(x0 + 1, x1) - x0, Math.max(y0 + 1, y1) - y0) * 0.38))
+      });
+    }
+  }
+  return cells;
+}
+
+function sumNormalizedGridRegion(grid, gridSize, colStart, colEnd, rowStart, rowEnd) {
+  let total = 0;
+  for (let row = rowStart; row < rowEnd; row++) {
+    for (let col = colStart; col < colEnd; col++) {
+      total += grid[row * gridSize + col];
+    }
+  }
+  return total;
+}
+
+function buildNormalizedDensityGrid(mask, w, h, box, gridSize = 24) {
+  const safeBox = box || { minX: 0, minY: 0, width: w, height: h, maxX: w - 1, maxY: h - 1 };
+  const grid = new Float32Array(gridSize * gridSize);
+  let totalMass = 0;
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
+      const x0 = Math.floor(safeBox.minX + (safeBox.width * col) / gridSize);
+      const x1 = Math.floor(safeBox.minX + (safeBox.width * (col + 1)) / gridSize);
+      const y0 = Math.floor(safeBox.minY + (safeBox.height * row) / gridSize);
+      const y1 = Math.floor(safeBox.minY + (safeBox.height * (row + 1)) / gridSize);
+      const density = getBandDensity(mask, w, h, x0, y0, Math.max(x0 + 1, x1), Math.max(y0 + 1, y1));
+      const boosted = Math.min(1, density * 4.2);
+      grid[row * gridSize + col] = boosted;
+      totalMass += boosted;
+    }
+  }
+  const half = Math.floor(gridSize / 2);
+  const third = Math.floor(gridSize / 3);
+  return {
+    grid,
+    gridSize,
+    totalMass,
+    leftShare: sumNormalizedGridRegion(grid, gridSize, 0, half, 0, gridSize) / Math.max(1e-6, totalMass),
+    topShare: sumNormalizedGridRegion(grid, gridSize, 0, gridSize, 0, half) / Math.max(1e-6, totalMass),
+    centerShare: sumNormalizedGridRegion(grid, gridSize, third, gridSize - third, third, gridSize - third) / Math.max(1e-6, totalMass),
+    aspect: safeBox.width / Math.max(1, safeBox.height)
+  };
+}
+
+function compareNormalizedShapes(studentNorm, refNorm) {
+  const { gridSize } = refNorm;
+  let overlap = 0;
+  let union = 0;
+  let missing = 0;
+  let extra = 0;
+  let densityDiff = 0;
+  const missingCells = [];
+  const extraCells = [];
+  for (let i = 0; i < refNorm.grid.length; i++) {
+    const r = refNorm.grid[i];
+    const s = studentNorm.grid[i];
+    overlap += Math.min(r, s);
+    union += Math.max(r, s);
+    densityDiff += Math.abs(r - s);
+    if (r - s > 0.12) missingCells.push({ index: i, weight: r - s });
+    if (s - r > 0.12) extraCells.push({ index: i, weight: s - r });
+    if (r > s) missing += r - s;
+    if (s > r) extra += s - r;
+  }
+  return {
+    gridSize,
+    overlapRatio: overlap / Math.max(1e-6, union),
+    missingRatio: missing / Math.max(1e-6, refNorm.totalMass),
+    extraRatio: extra / Math.max(1e-6, refNorm.totalMass),
+    densityDiff: densityDiff / Math.max(1, refNorm.grid.length),
+    lrBalanceDiff: Math.abs(studentNorm.leftShare - refNorm.leftShare),
+    tbBalanceDiff: Math.abs(studentNorm.topShare - refNorm.topShare),
+    centerDiff: Math.abs(studentNorm.centerShare - refNorm.centerShare),
+    missingCells,
+    extraCells
+  };
+}
+
+function clusterNormalizedDiffCells(cells, gridSize, minWeight = 0.12, maxCount = 6) {
+  const active = new Map();
+  cells.filter(cell => cell.weight >= minWeight).forEach(cell => active.set(cell.index, cell.weight));
+  const visited = new Set();
+  const clusters = [];
+  for (const [index] of active) {
+    if (visited.has(index)) continue;
+    const queue = [index];
+    visited.add(index);
+    let weightSum = 0;
+    let cx = 0;
+    let cy = 0;
+    let count = 0;
+    let minCol = gridSize, maxCol = 0, minRow = gridSize, maxRow = 0;
+    while (queue.length) {
+      const current = queue.pop();
+      const row = Math.floor(current / gridSize);
+      const col = current % gridSize;
+      const weight = active.get(current) || 0;
+      weightSum += weight;
+      cx += (col + 0.5) * weight;
+      cy += (row + 0.5) * weight;
+      count++;
+      if (col < minCol) minCol = col;
+      if (col > maxCol) maxCol = col;
+      if (row < minRow) minRow = row;
+      if (row > maxRow) maxRow = row;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const nr = row + dy;
+          const nc = col + dx;
+          if (nr < 0 || nr >= gridSize || nc < 0 || nc >= gridSize) continue;
+          const nextIndex = nr * gridSize + nc;
+          if (!active.has(nextIndex) || visited.has(nextIndex)) continue;
+          visited.add(nextIndex);
+          queue.push(nextIndex);
+        }
+      }
+    }
+    clusters.push({
+      cx: cx / Math.max(1e-6, weightSum),
+      cy: cy / Math.max(1e-6, weightSum),
+      weight: weightSum,
+      span: Math.max(maxCol - minCol + 1, maxRow - minRow + 1),
+      count
+    });
+  }
+  clusters.sort((a, b) => b.weight - a.weight);
+  return clusters.slice(0, maxCount);
+}
+
+function mapNormalizedClustersToCanvas(clusters, box, gridSize, color) {
+  return clusters.map(cluster => ({
+    cx: box.minX + (cluster.cx / gridSize) * box.width,
+    cy: box.minY + (cluster.cy / gridSize) * box.height,
+    radius: Math.max(16, Math.min(34, (Math.max(box.width, box.height) / gridSize) * (cluster.span + 1.2))),
+    weight: cluster.weight,
+    color
+  }));
+}
+
+function findNearestInkPoint(mask, w, h, cx, cy, maxRadius = 38) {
+  const sx = Math.max(0, Math.min(w - 1, Math.round(cx)));
+  const sy = Math.max(0, Math.min(h - 1, Math.round(cy)));
+  if (mask[sy * w + sx]) return { x: sx, y: sy, distance: 0 };
+  let best = null;
+  const limit = Math.max(6, Math.round(maxRadius));
+  for (let r = 2; r <= limit; r += 2) {
+    const minX = Math.max(0, sx - r), maxX = Math.min(w - 1, sx + r);
+    const minY = Math.max(0, sy - r), maxY = Math.min(h - 1, sy + r);
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        if (x !== minX && x !== maxX && y !== minY && y !== maxY) continue;
+        if (!mask[y * w + x]) continue;
+        const distance = Math.hypot(x - cx, y - cy);
+        if (!best || distance < best.distance) best = { x, y, distance };
+      }
+    }
+    if (best) return best;
+  }
+  return null;
+}
+
+function snapMarkersToStudentInk(markers, studentMask, w, h, maxCount = 6) {
+  const snapped = [];
+  for (const marker of markers) {
+    const nearest = findNearestInkPoint(studentMask, w, h, marker.cx, marker.cy, marker.radius || 34);
+    if (!nearest) continue;
+    snapped.push({
+      ...marker,
+      cx: nearest.x,
+      cy: nearest.y,
+      radius: Math.max(14, Math.min(marker.radius || 22, 32)),
+      weight: (marker.weight || 0.1) / (1 + nearest.distance * 0.02)
+    });
+  }
+  return mergeIssueMarkers(snapped, maxCount);
+}
+
+function mergeIssueMarkers(markers, maxCount = 6) {
+  const merged = [];
+  const sorted = [...markers]
+    .filter(marker => Number.isFinite(marker.cx) && Number.isFinite(marker.cy) && (marker.weight || marker.size || 0) > 0.035)
+    .sort((a, b) => (b.weight || b.size || 0) - (a.weight || a.size || 0));
+  for (const marker of sorted) {
+    const tooClose = merged.some(existing => {
+      const distance = Math.hypot(existing.cx - marker.cx, existing.cy - marker.cy);
+      const sameIssue = existing.label && marker.label && existing.label === marker.label;
+      const limit = sameIssue ? Math.max(existing.radius, marker.radius, 18) : Math.min(20, Math.max(existing.radius, marker.radius, 18) * 0.55);
+      return distance < limit;
+    });
+    if (!tooClose) merged.push(marker);
+    if (merged.length >= maxCount) break;
+  }
+  return merged.slice(0, maxCount);
+}
+
+function drawIssueMarkers(ctx, markers, w, h) {
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0, 0, w, h);
+  if (!markers.length) { ctx.restore(); return; }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 18px Microsoft YaHei';
+  markers.forEach((marker, idx) => {
+    ctx.beginPath();
+    ctx.strokeStyle = marker.color || '#e53935';
+    ctx.lineWidth = 5;
+    ctx.arc(marker.cx, marker.cy, marker.radius || 20, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = '#e53935';
+    ctx.beginPath();
+    ctx.arc(marker.cx, marker.cy, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(String(idx + 1), marker.cx, marker.cy + 1);
+  });
+  ctx.restore();
+}
+
+async function smartMarkAndScore(id,canvas){
+  const w=canvas.width, h=canvas.height;
+  if(w<10) return {score:0, summary:'未检测到书写', issues:[], markers:[]};
+  const reference = await getReferenceAnalysis(currentChar, Math.max(w, h));
+  const sCtx=canvas.getContext('2d');
+  const sImg=sCtx.getImageData(0,0,w,h);
+  const sMask=imageDataToMask(sImg);
+  const rMask=reference.mask;
+  const studentMetrics = analyzeMaskMetrics(sMask, w, h);
+  const refMetrics = analyzeMaskMetrics(rMask, w, h);
+  if(!studentMetrics || !refMetrics) return {score:0, summary:'未检测到书写', issues:['请先写字再交卷'], markers:[]};
+
+  const unionBox = {
+    minX: Math.max(0, Math.min(studentMetrics.box.minX, refMetrics.box.minX) - 6),
+    minY: Math.max(0, Math.min(studentMetrics.box.minY, refMetrics.box.minY) - 6),
+    maxX: Math.min(w - 1, Math.max(studentMetrics.box.maxX, refMetrics.box.maxX) + 6),
+    maxY: Math.min(h - 1, Math.max(studentMetrics.box.maxY, refMetrics.box.maxY) + 6)
+  };
+  unionBox.width = unionBox.maxX - unionBox.minX + 1;
+  unionBox.height = unionBox.maxY - unionBox.minY + 1;
+
+  const refNorm = buildNormalizedDensityGrid(rMask, w, h, refMetrics.box, 24);
+  const stuNorm = buildNormalizedDensityGrid(sMask, w, h, studentMetrics.box, 24);
+  const shapeCompare = compareNormalizedShapes(stuNorm, refNorm);
+  const missingClusters = mapNormalizedClustersToCanvas(
+    clusterNormalizedDiffCells(shapeCompare.missingCells, shapeCompare.gridSize, 0.14, 6),
+    unionBox,
+    shapeCompare.gridSize,
+    '#e53935'
+  );
+  const extraClusters = mapNormalizedClustersToCanvas(
+    clusterNormalizedDiffCells(shapeCompare.extraCells, shapeCompare.gridSize, 0.14, 6),
+    unionBox,
+    shapeCompare.gridSize,
+    '#fb8c00'
+  );
+
+  const areaRatio = studentMetrics.pixelCount / Math.max(1, refMetrics.pixelCount);
+  const dx = (studentMetrics.centroidX - refMetrics.centroidX) / Math.max(1, unionBox.width);
+  const dy = (studentMetrics.centroidY - refMetrics.centroidY) / Math.max(1, unionBox.height);
+  const centroidOffset = Math.hypot(dx, dy);
+  const aspectDiff = Math.abs(studentMetrics.aspect - refMetrics.aspect);
+  const overlapRatio = shapeCompare.overlapRatio;
+  const missingRatio = shapeCompare.missingRatio;
+  const extraRatio = shapeCompare.extraRatio;
+  const lrBalanceDiff = shapeCompare.lrBalanceDiff;
+  const tbBalanceDiff = shapeCompare.tbBalanceDiff;
+  const gridDifference = shapeCompare.densityDiff;
+  const outOfBounds = studentMetrics.box.minX < w * 0.12 || studentMetrics.box.maxX > w * 0.88 || studentMetrics.box.minY < h * 0.12 || studentMetrics.box.maxY > h * 0.88;
+  const structure = reference.structure || getChineseStructure(currentChar);
+  const studentStructure = inferStructureFromMask(sMask, w, h);
+  const studentFrame = getFrameBalanceMetrics(studentMetrics.box, w, h);
+  const refFrame = getFrameBalanceMetrics(refMetrics.box, w, h);
+  const lrMarginGap = Math.abs((studentFrame.left - studentFrame.right) - (refFrame.left - refFrame.right));
+  const tbMarginGap = Math.abs((studentFrame.top - studentFrame.bottom) - (refFrame.top - refFrame.bottom));
+  const fillWDiff = Math.abs(studentFrame.fillW - refFrame.fillW);
+  const fillHDiff = Math.abs(studentFrame.fillH - refFrame.fillH);
+
+  const sizePenalty = Math.min(15, Math.abs(areaRatio - 1) * 36);
+  const positionPenalty = Math.min(15, centroidOffset * 82);
+  const proportionPenalty = Math.min(14, aspectDiff * 28);
+  const kaiBalancePenalty = Math.min(12, lrMarginGap * 66 + tbMarginGap * 66 + fillWDiff * 15 + fillHDiff * 15);
+  let structurePenalty = Math.min(24, gridDifference * 145 + Math.max(0, 0.84 - overlapRatio) * 38);
+  if((structure === '左右' || structure === '左中右')) structurePenalty += Math.min(8, lrBalanceDiff * 70);
+  if((structure === '上下' || structure === '上中下')) structurePenalty += Math.min(8, tbBalanceDiff * 70);
+  if((structure === '全包围' || structure === '半包围')) structurePenalty += Math.min(8, shapeCompare.centerDiff * 75);
+  structurePenalty = Math.min(28, structurePenalty);
+  const boundsPenalty = outOfBounds ? 8 : 0;
+
+  const issueSignals = [];
+  const issueMarkers = [];
+  const addIssue = (text, weight, marker) => {
+    issueSignals.push({ text, weight });
+    if (marker) issueMarkers.push({ label: text, weight, ...marker });
+  };
+  const boxPoint = (rx, ry) => ({
+    cx: studentMetrics.box.minX + studentMetrics.box.width * rx,
+    cy: studentMetrics.box.minY + studentMetrics.box.height * ry
+  });
+  const edgeMarker = (side, text, weight, color = '#3949ab') => {
+    const points = {
+      left: boxPoint(0.18, 0.5),
+      right: boxPoint(0.82, 0.5),
+      top: boxPoint(0.5, 0.18),
+      bottom: boxPoint(0.5, 0.82),
+      center: { cx: studentMetrics.centroidX, cy: studentMetrics.centroidY }
+    };
+    return { ...(points[side] || points.center), radius: 20, color, weight, label: text };
+  };
+  const sizeMarker = (text, weight) => ({
+    cx: studentMetrics.centroidX,
+    cy: studentMetrics.centroidY,
+    radius: Math.max(18, Math.min(38, Math.max(studentMetrics.box.width, studentMetrics.box.height) * 0.26)),
+    color: '#1e88e5',
+    weight,
+    label: text
+  });
+
+  if(areaRatio < 0.72) addIssue('字形偏小', sizePenalty, sizeMarker('字形偏小', sizePenalty));
+  if(areaRatio > 1.28) addIssue('字形偏大', sizePenalty, sizeMarker('字形偏大', sizePenalty));
+  if(dx < -0.075) addIssue('整体偏左', positionPenalty, edgeMarker('left', '整体偏左', positionPenalty));
+  if(dx > 0.075) addIssue('整体偏右', positionPenalty, edgeMarker('right', '整体偏右', positionPenalty));
+  if(dy < -0.075) addIssue('整体偏上', positionPenalty, edgeMarker('top', '整体偏上', positionPenalty));
+  if(dy > 0.075) addIssue('整体偏下', positionPenalty, edgeMarker('bottom', '整体偏下', positionPenalty));
+  if((structure === '左右' || structure === '左中右') && lrBalanceDiff > 0.075) {
+    const side = stuNorm.leftShare > refNorm.leftShare ? 'left' : 'right';
+    addIssue('左右比例不匀称', lrBalanceDiff * 70, edgeMarker(side, '左右比例不匀称', lrBalanceDiff * 70, '#ef6c00'));
+  }
+  if((structure === '上下' || structure === '上中下') && tbBalanceDiff > 0.075) {
+    const side = stuNorm.topShare > refNorm.topShare ? 'top' : 'bottom';
+    addIssue('上下比例不匀称', tbBalanceDiff * 70, edgeMarker(side, '上下比例不匀称', tbBalanceDiff * 70, '#ef6c00'));
+  }
+  if((structure === '全包围' || structure === '半包围') && shapeCompare.centerDiff > 0.09) {
+    addIssue('包围结构安排不稳', shapeCompare.centerDiff * 75, edgeMarker('center', '包围结构安排不稳', shapeCompare.centerDiff * 75, '#8e24aa'));
+  }
+  if(lrMarginGap > 0.06) {
+    const side = studentFrame.left < studentFrame.right ? 'left' : 'right';
+    addIssue('左右留白不均，楷体重心要居中', kaiBalancePenalty, edgeMarker(side, '左右留白不均，楷体重心要居中', kaiBalancePenalty, '#00897b'));
+  }
+  if(tbMarginGap > 0.06) {
+    const side = studentFrame.top < studentFrame.bottom ? 'top' : 'bottom';
+    addIssue('上下留白不均，田字格占位要匀称', kaiBalancePenalty, edgeMarker(side, '上下留白不均，田字格占位要匀称', kaiBalancePenalty, '#00897b'));
+  }
+  if(fillWDiff > 0.16 || fillHDiff > 0.16) {
+    addIssue('楷体字形大小占格不稳', kaiBalancePenalty, sizeMarker('楷体字形大小占格不稳', kaiBalancePenalty));
+  }
+  if(gridDifference > 0.105 || overlapRatio < 0.76) {
+    const structureMarkerPool = [...extraClusters, ...missingClusters].map(marker => ({ ...marker, label: '间架结构不稳', color: '#8e24aa', weight: marker.weight + 0.08 }));
+    const fallback = edgeMarker('center', '间架结构不稳', structurePenalty, '#8e24aa');
+    addIssue('间架结构不稳', structurePenalty, structureMarkerPool[0] || fallback);
+    structureMarkerPool.slice(1, 4).forEach(marker => issueMarkers.push(marker));
+  }
+  if(aspectDiff > 0.22) {
+    const side = studentMetrics.aspect > refMetrics.aspect ? 'right' : 'bottom';
+    addIssue('字形比例失衡', proportionPenalty, edgeMarker(side, '字形比例失衡', proportionPenalty, '#6d4c41'));
+  }
+  if(missingRatio > 0.28 || extraRatio > 0.24) {
+    const localPool = [...extraClusters, ...missingClusters].map(marker => ({ ...marker, label: '局部结构和范字差距较大', weight: marker.weight + 0.06 }));
+    addIssue('局部结构和范字差距较大', Math.max(missingRatio, extraRatio) * 28, localPool[0] || edgeMarker('center', '局部结构和范字差距较大', Math.max(missingRatio, extraRatio) * 28, '#fb8c00'));
+    localPool.slice(1, 4).forEach(marker => issueMarkers.push(marker));
+  }
+  if(outOfBounds) {
+    const side = studentMetrics.box.minX < w * 0.12 ? 'left' : studentMetrics.box.maxX > w * 0.88 ? 'right' : studentMetrics.box.minY < h * 0.12 ? 'top' : 'bottom';
+    addIssue('占格超出田字格', boundsPenalty, edgeMarker(side, '占格超出田字格', boundsPenalty, '#d32f2f'));
+  }
+
+  const issues = issueSignals
+    .filter(item => item.weight >= 3.2)
+    .sort((a, b) => b.weight - a.weight)
+    .map(item => item.text)
+    .filter((text, index, arr) => arr.indexOf(text) === index);
+
+  let score = 100
+    - sizePenalty * 0.65
+    - positionPenalty * 0.75
+    - proportionPenalty * 0.75
+    - structurePenalty * 0.75
+    - kaiBalancePenalty * 0.85
+    - boundsPenalty * 0.6;
+  score = Math.max(0, Math.min(100, Math.round(score + 4)));
+  const hasRealIssues = issues.length > 0;
+  const maxMarkers = !hasRealIssues || score >= 94 ? 0 : score >= 84 ? Math.min(2, issues.length) : score >= 68 ? Math.min(4, Math.max(issues.length, 2)) : Math.min(6, Math.max(issues.length, 3));
+  const issueLabels = new Set(issues);
+  const orderedIssueMarkers = issueMarkers
+    .filter(marker => issueLabels.has(marker.label))
+    .sort((a, b) => (b.weight || 0) - (a.weight || 0));
+  const markers = maxMarkers ? snapMarkersToStudentInk(orderedIssueMarkers, sMask, w, h, maxMarkers) : [];
+  if(!hasRealIssues) issues.push('整体较规范');
+
+  const displayIssues = getStudentFriendlyIssues(issues);
+  const summary = displayIssues.slice(0, 4).join(' · ');
+  const mCtx = studentData[id].markupCtx;
+  drawIssueMarkers(mCtx, markers, w, h);
+  const wrap=document.getElementById(`wrap${id}`);
+  if(wrap) wrap.classList.toggle('score-mark-active', markers.length>0);
+  resetMarkupHistory(id);
+  return {score, summary, issues: displayIssues, rawIssues: issues, markers};
+}
+
+async function submitStudent(id){ const canvas=document.getElementById(`canvas${id}`); const fb=document.getElementById(`fb${id}`), badge=document.getElementById(`badge${id}`), card=document.getElementById(`card${id}`); fb.textContent='评分中...'; const {score,summary,issues}=await smartMarkAndScore(id,canvas); const perf=getPerformanceLevel(score); const frogComment=frogScoreComment(score,issues); badge.textContent=`表现${perf.level} · ${score}分`; badge.className='current-badge '+(score>=80?'high':'low'); studentData[id].total+=score; document.getElementById(`total${id}`).innerText=studentData[id].total; fb.textContent=`${perf.label} · ${score}分 · ${summary}`; capySay(`${frogComment} 这次约为表现${perf.level}：${perf.label}。`); if(card && score>=82){ card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); } if(score>=90){ SFX.win(); confetti({particleCount:70}); } else if(score>=75){ SFX.ok(); } else { SFX.bad(); } }
+
+function initTeacherCanvas(){
+  const canvas=document.getElementById('teacherCanvas'), cont=document.getElementById('teacherBox');
+  const resize=()=>{
+    const r=cont.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    const side=Math.min(r.width,r.height);
+    canvas.width=side*dpr;
+    canvas.height=side*dpr;
+    canvas.style.width=side+'px';
+    canvas.style.height=side+'px';
+    const ctx=canvas.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    ctx.strokeStyle='#1f2428';
+    teacherCtx=ctx;
+  };
+  resize();
+  new ResizeObserver(resize).observe(cont);
+  const active=new Map();
+  const finish=e=>{
+    const state=active.get(e.pointerId);
+    if(state){
+      drawStrokeTip(teacherCtx,state.last,'draw',true);
+      active.delete(e.pointerId);
+    }
+    try{ canvas.releasePointerCapture(e.pointerId); }catch{}
+    e.preventDefault();
+  };
+  const consume=e=>{
+    const state=active.get(e.pointerId);
+    if(!isTeacherWriteMode||!state) return;
+    const events=typeof e.getCoalescedEvents==='function'?e.getCoalescedEvents():[e];
+    for(const ev of events){
+      const p=getTeacherBrushPoint(ev,canvas,state.last,state.count);
+      drawBrushSegment(teacherCtx,state.last,p,'draw');
+      state.last=p;
+      state.count++;
+    }
+    e.preventDefault();
+  };
+  canvas.addEventListener('pointerdown',e=>{
+    if(!isTeacherWriteMode) return;
+    try{ canvas.setPointerCapture(e.pointerId); }catch{}
+    const p=getTeacherBrushPoint(e,canvas,null,0);
+    active.set(e.pointerId,{last:p,count:0});
+    drawStrokeTip(teacherCtx,p,'draw',false);
+    e.preventDefault();
+  });
+  canvas.addEventListener('pointermove',consume);
+  canvas.addEventListener('pointerup',finish);
+  canvas.addEventListener('pointercancel',finish);
+}
+function resizePracticeCanvases(){ for(let i=1;i<=5;i++) resizeStudentCanvas(i); }
+
+window.onload=()=>{ currentGrade=1; buildQuickTags(); initStudentSuite(); initTeacherCanvas(); document.getElementById('charInput').addEventListener('change',e=>{ const c=e.target.value.trim()[0]; if(c) quickLoad(c); }); loadCharacter('天','tiān','一',4,'本课生字',['天','太','阳','上','学']); app.showHome(); window.addEventListener('resize',()=>{ resizePracticeCanvases(); updateTeacherTarget(currentChar); }); document.addEventListener('fullscreenchange',()=>setTimeout(()=>updateTeacherTarget(currentChar),120)); window.addEventListener('pagehide',()=>closeAllMarkupModes(false)); document.addEventListener('visibilitychange',()=>{ if(document.hidden) closeAllMarkupModes(false); }); };
+window.selectGrade=selectGrade; window.selectUnit=selectUnit; window.selectLesson=selectLesson; window.quickLoad=quickLoad; window.playAudio=playAudio; window.playRadicalAudio=playRadicalAudio; window.setActiveStudent=setActiveStudent; window.goBack=goBack;
+window.animateTeacher=animateTeacher; window.toggleTeacherMode=toggleTeacherMode; window.clearTeacherCanvas=clearTeacherCanvas; window.setMode=setMode;
+window.undoDraw=undoDraw; window.redoDraw=redoDraw; window.resetStudent=resetStudent; window.submitStudent=submitStudent; window.toggleMarkupMode=toggleMarkupMode; window.resetAll=resetAll; window.prevCharacter=prevCharacter; window.nextCharacter=nextCharacter; window.toggleTeacherFullscreen=toggleTeacherFullscreen; window.exitTeacherFullscreen=exitTeacherFullscreen;
+window.capyTalk=capyTalk; window.onToneChange=onToneChange;
+</script>
+</body>
+</html>
+
+
