@@ -56,12 +56,17 @@
     .checkin-number { font-size: 28px; line-height: 1; font-weight: 950; color: #2e7d32; }
     .checkin-label { margin-top: 5px; color: #546e7a; font-size: 13px; font-weight: 850; }
     .checkin-note { margin-top: 10px; color: #607d8b; font-size: 13px; font-weight: 800; text-align: center; }
-    .reset-progress-btn { border: none; background: #eceff1; color: #546e7a; border-radius: 999px; padding: 7px 12px; font-weight: 850; cursor: pointer; }
-    .lesson-checkin-card { background: linear-gradient(135deg,#e3f2fd,#f1f8e9); border: 2px solid #c8e8f5; border-radius: 16px; padding: 10px 12px; display: grid; gap: 7px; }
-    .lesson-checkin-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; font-weight: 900; color: #2e7d32; }
+    .reset-progress-btn, .progress-action-btn { border: none; background: #eceff1; color: #546e7a; border-radius: 999px; padding: 7px 12px; font-weight: 850; cursor: pointer; transition: 0.18s; }
+    .progress-action-btn { background: #e3f2fd; color: var(--primary-dark); border: 1px solid #b3e5fc; }
+    .progress-action-btn.hot { background: #43a047; color: #fff; border-color: #43a047; }
+    .reset-progress-btn:hover, .progress-action-btn:hover { transform: translateY(-1px); filter: brightness(0.98); }
+    .lesson-checkin-card { background: #f7fcff; border: 2px solid #c8e8f5; border-radius: 16px; padding: 10px 12px; display: grid; gap: 7px; }
+    .lesson-checkin-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; font-weight: 900; color: var(--primary-dark); }
     .lesson-progress-track { height: 12px; background: rgba(255,255,255,0.85); border-radius: 999px; overflow: hidden; border: 1px solid #d7edf7; }
     .lesson-progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg,#43a047,#ffca28); transition: width 0.35s ease; }
     .lesson-checkin-sub { color: #607d8b; font-size: 12px; font-weight: 800; }
+    .lesson-checkin-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .lesson-checkin-actions .progress-action-btn { flex: 1; min-height: 34px; }
     .tag-btn.completed { background: #e8f5e9; border-color: #81c784; color: #2e7d32; position: relative; }
     .tag-btn.completed::after { content: "✓"; position: absolute; right: -5px; top: -7px; width: 19px; height: 19px; border-radius: 50%; background: #43a047; color: #fff; display: grid; place-items: center; font-size: 12px; font-family: "Microsoft YaHei", sans-serif; }
 
@@ -279,7 +284,7 @@
       <div class="checkin-dashboard" aria-live="polite">
         <div class="checkin-head">
           <div class="checkin-title">📅 今日打卡与完成进度</div>
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;"><span class="checkin-pill" id="homeCheckinStatus">今日未打卡</span><button class="reset-progress-btn" onclick="resetProgressData()" type="button">清除本机记录</button></div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;"><span class="checkin-pill" id="homeCheckinStatus">今日未打卡</span><button class="progress-action-btn hot" onclick="continuePractice()" type="button">继续练习</button><button class="progress-action-btn" onclick="copyProgressReport()" type="button">复制报告</button><button class="reset-progress-btn" onclick="resetProgressData()" type="button">清除本机记录</button></div>
         </div>
         <div class="checkin-stats">
           <div class="checkin-stat"><div class="checkin-number" id="homeStreak">0</div><div class="checkin-label">连续打卡</div></div>
@@ -435,9 +440,10 @@
           <div class="quick-tags" id="quickTags"></div>
           <div class="lesson-progress"><span id="lessonProgress">第 1 / 1 字</span><span id="shortcutHint">← → 可换字</span></div>
           <div class="lesson-checkin-card">
-            <div class="lesson-checkin-row"><span id="lessonCheckinStatus">今日未打卡</span><span id="lessonCompleteText">本课 0 / 0</span></div>
+            <div class="lesson-checkin-row"><span id="lessonCheckinStatus">本课练习进度</span><span id="lessonCompleteText">完成 0 / 0</span></div>
             <div class="lesson-progress-track"><div class="lesson-progress-fill" id="lessonCompleteFill"></div></div>
-            <div class="lesson-checkin-sub" id="lessonCheckinSub">交卷后会自动记录完成进度。</div>
+            <div class="lesson-checkin-sub" id="lessonCheckinSub">作用：帮助学生知道本课哪些字已经写完，换字时不会迷路。</div>
+            <div class="lesson-checkin-actions"><button class="progress-action-btn hot" onclick="continueUnfinished()" type="button">练下一个未完成字</button><button class="progress-action-btn" onclick="copyProgressReport()" type="button">复制给老师</button></div>
           </div>
           <div class="frog-tip-card" id="frogTipCard" onclick="repeatFrogTip()" title="点击让青蛙老师再说一次">🐸 <b>写字重点：</b><span id="frogTipText">先看结构，再下笔。</span></div>
           <details class="standard-section" id="standardBox">
@@ -1356,14 +1362,100 @@ const CHAR_MEANING_FIX_MAP = {
   '歇':'休息；停止一会儿。'
 };
 
+Object.assign(CHAR_MEANING_FIX_MAP, {
+  '安':'平安、安定；也表示安装、安排。', '岸':'水边高起的陆地。', '傲':'骄傲；也指有骨气、不屈服。', '八':'数字八。', '巴':'盼望、贴近；也常用于地名和称呼。',
+  '百':'数字百，表示很多。', '败':'失败；也指损坏、衰落。', '拜':'行礼；拜访；也指敬重。', '办':'处理、办理事情。', '半':'二分之一；不完整的一部分。',
+  '帮':'帮助；也指一群人。', '包':'包起来；也指包裹、书包。', '北':'方向名，和南相对。', '本':'书本；根本；量词。', '比':'比较；也指挨着、靠近。',
+  '必':'一定、必须。', '变':'改变，和原来不同。', '遍':'从头到尾一次；到处。', '别':'分别、不要；也指另外。', '饼':'圆形或扁圆形的食品。',
+  '捕':'捉拿、抓住。', '布':'布料；也指分布、宣布。', '才':'才能；刚刚；表示条件。', '采':'摘取；也指采集、神采。', '彩':'颜色；光彩。',
+  '餐':'饭食；吃饭。', '插':'放进、穿入。', '察':'仔细看、调查。', '拆':'分开、打开。', '常':'经常；普通、平常。',
+  '厂':'工厂；也指较大的生产场所。', '沉':'往下落；也指沉重、安静。', '晨':'早晨。', '成':'完成、成功；变成。', '乘':'乘坐；也指趁着、计算中的乘法。',
+  '吃':'把食物送入口中；也表示承受。', '迟':'慢、晚。', '尺':'量长度的工具；长度单位。', '翅':'翅膀，鸟虫飞行的器官。', '充':'充满；补足；担任。',
+  '丑':'不好看；也指地支之一。', '臭':'气味难闻；也可指名声不好。', '出':'从里面到外面；出现。', '除':'去掉；也指除法。', '厨':'厨房；做饭的人或地方。',
+  '春':'春天，一年四季之一。', '此':'这、这个。', '刺':'尖的东西扎入；也指讽刺。', '匆':'急忙、匆忙。', '从':'跟随；由某处开始。',
+  '存':'保存、存在。', '带':'携带；带子；引导。', '袋':'袋子，用来装东西。', '丹':'红色；也指丹药、真诚。', '单':'一个、简单；也指单据。',
+  '到':'到达；表示动作结果。', '盗':'偷窃；强盗。', '道':'道路；道理；说。', '灯':'照明用具。', '等':'等待；同类；等级。',
+  '底':'下面、底部；也指根底。', '弟':'弟弟，年纪较小的男性同辈。', '点':'小的痕迹；时间；点明。', '电':'电能；也指电器、电话。', '碟':'小盘子；也指光碟。',
+  '丁':'成年男子；也指小块、顺序符号。', '定':'安定；决定；确定。', '东':'方向名，和西相对。', '冬':'冬天，一年四季之一。', '动':'移动；行动；触动。',
+  '对':'正确；面对；一双或一组。', '朵':'花或云的量词。', '而':'连词，表示转折、承接或并列。', '二':'数字二。', '反':'相反；反对；翻转。',
+  '费':'花费；费用。', '分':'分开；部分；分数。', '丰':'丰富；丰满。', '夫':'成年男子；丈夫。', '复':'恢复；重复；回答。',
+  '改':'改变、修改。', '敢':'有勇气做。', '缸':'盛东西的大容器。', '鸽':'鸽子，一种鸟。', '个':'量词；单独的。',
+  '各':'每一个；不同的。', '更':'更加；也指更换。', '公':'公共；公正；男性长辈称呼。', '功':'功劳；本领；效果。', '共':'共同；总共。',
+  '古':'古代、从前。', '顾':'看、照顾；顾虑。', '乖':'听话；也指不正常、别扭。', '关':'关闭；关心；关口。', '馆':'接待、展示或学习的场所。',
+  '惯':'习惯；经常这样做。', '龟':'乌龟等爬行动物。', '滚':'翻转移动；水沸腾。', '果':'果实；结果。', '孩':'孩子。',
+  '海':'大海；也指很多。', '害':'伤害；坏处；害怕。', '号':'名称、标志；也指号码。', '喝':'把液体咽下；大声喊叫。', '合':'合在一起；适合。',
+  '很':'程度副词，表示非常。', '红':'红色；也指受欢迎。', '后':'后面；以后。', '呼':'呼吸；呼喊。', '忽':'忽然；不注意。',
+  '壶':'盛水或酒的器具。', '互':'互相、彼此。', '化':'变化；使改变。', '话':'说的话；语言。', '昏':'天色暗；头脑不清。',
+  '或':'或者；也许。', '及':'达到；以及；赶上。', '己':'自己。', '家':'家庭；住所；某类人。', '坚':'坚固；坚定。',
+  '建':'建立、建造。', '叫':'呼喊；称作。', '接':'连接；接受；迎接。', '街':'街道。', '节':'节日；段落；节省。',
+  '今':'现在；今天。', '紧':'不松；急迫。', '经':'经过；经常；经典。', '井':'水井；整齐的样子。', '景':'景色；情况。',
+  '净':'干净；没有多余。', '久':'时间长。', '局':'局面；机关；部分。', '句':'句子；量词。', '卡':'卡片；卡住。',
+  '看':'用眼睛观察；照看。', '康':'健康；安宁。', '考':'考试；思考；考察。', '可':'可以；值得；表示许可。', '刻':'雕刻；时间单位；深刻。',
+  '快':'速度快；快乐。', '宽':'横向距离大；宽容。', '阔':'宽广；富有。', '篮':'篮子；篮球。', '懒':'不愿做事；懒惰。',
+  '劳':'劳动；辛苦。', '老':'年纪大；时间久。', '冷':'温度低；冷淡。', '离':'离开；距离。', '丽':'美丽、好看。',
+  '脸':'面部。', '练':'练习；训练。', '两':'数字二，多用于量词前。', '列':'排列；列车；一行。', '临':'靠近；来到；面对。',
+  '铃':'铃铛；发声器具。', '六':'数字六。', '笼':'笼子；罩住。', '陆':'陆地；数字六的大写。', '乱':'没有秩序；混乱。',
+  '轮':'轮子；轮流。', '论':'议论；看法；理论。', '芒':'植物细刺；光芒。', '么':'疑问或语气用字。', '眉':'眉毛。',
+  '们':'表示人的复数。', '面':'脸；表面；方向。', '民':'人民、百姓。', '名':'名字；有名。', '母':'母亲；雌性的。',
+  '奶':'奶水；奶奶。', '男':'男性。', '脑':'脑子；思考器官。', '你':'第二人称代词。', '农':'农业；农民。',
+  '弄':'做、摆弄；造成。', '暖':'温暖。', '爬':'手脚并用向上或向前移动。', '帕':'手帕。', '旁':'旁边；侧面。',
+  '朋':'朋友；同伴。', '品':'物品；品格；品尝。', '平':'平坦；平安；普通。', '瓶':'瓶子。', '七':'数字七。',
+  '其':'他的、那、其中。', '乞':'请求、讨要。', '起':'起来；开始；发生。', '牵':'拉着、带动。', '浅':'不深；颜色淡。',
+  '敲':'打、叩。', '巧':'灵巧；巧妙。', '情':'感情；情况。', '求':'请求；追求。', '球':'圆形物；球类运动。',
+  '曲':'弯曲；歌曲。', '趣':'兴趣；有趣。', '雀':'小鸟；麻雀。', '群':'一群；许多聚在一起。', '然':'这样；也用于自然、然后。',
+  '人':'人类；别人。', '入':'进去；加入。', '三':'数字三。', '扫':'用扫帚清除；扫除。', '色':'颜色；脸色。',
+  '杀':'使失去生命；也指削弱。', '闪':'闪光；迅速避开。', '商':'商量；商人；商业。', '烧':'用火加热；发热。', '谁':'疑问代词，表示哪一个人。',
+  '什':'常用于“什么”。', '神':'精神；神奇；神灵。', '升':'向上；容量单位。', '生':'出生；生活；学生。', '绳':'绳子。',
+  '失':'失去；错误。', '诗':'诗歌。', '时':'时间；时候。', '示':'表示、给人看。', '世':'世界；时代。',
+  '是':'表示判断、肯定。', '守':'守护；遵守。', '兽':'野兽；动物。', '舒':'舒服；伸展。', '蔬':'蔬菜。',
+  '熟':'成熟；熟悉。', '顺':'顺利；方向一致。', '司':'主持、管理；也用于司机、公司。', '四':'数字四。', '随':'跟随；顺便。',
+  '岁':'年龄单位；年。', '孙':'孙子；后代。', '他':'第三人称男性或泛指别人。', '谈':'说话、讨论。', '汤':'热的液体食物。',
+  '替':'代替；替换。', '条':'长条形物；量词。', '跳':'跳跃。', '庭':'院子；家庭；法庭。', '偷':'偷窃；暗中做。',
+  '头':'头部；前端；量词。', '图':'图画；计划。', '涂':'涂抹；泥泞。', '吞':'不嚼就咽下。', '挖':'用工具或手把东西取出。',
+  '外':'外面；外国。', '玩':'玩耍；欣赏。', '顽':'顽皮；固执。', '晚':'晚上；时间迟。', '碗':'盛饭菜的器具。',
+  '危':'危险；不安全。', '微':'细小；轻微。', '围':'围住；周围。', '未':'没有；未来。', '窝':'巢穴；小住处。',
+  '我':'第一人称代词。', '乌':'乌黑；乌鸦。', '无':'没有。', '五':'数字五。', '午':'中午；午时。',
+  '物':'东西；事物。', '夕':'傍晚；日落时。', '希':'希望；少有。', '先':'在前；首先。', '乡':'乡村；家乡。',
+  '向':'朝着；方向；表示对着。', '象':'大象；形象；像。', '消':'消失；消除。', '孝':'孝顺父母长辈。', '笑':'高兴时露出笑容。',
+  '形':'形状；样子。', '凶':'凶恶；不吉利。', '兄':'哥哥；兄长。', '胸':'胸部；胸怀。', '雪':'雪花；白色冰晶。',
+  '炎':'炎热；火光上升。', '厌':'讨厌；满足。', '养':'照顾、饲养；培养。', '药':'治病的物品。', '椰':'椰子树或椰子。',
+  '爷':'爷爷；长辈称呼。', '业':'事业；学业；行业。', '衣':'衣服。', '姨':'姨母；女性亲属称呼。', '已':'已经；停止。',
+  '以':'用；凭借；认为。', '义':'正义；意义；情义。', '易':'容易；改变。', '益':'好处；更加。', '因':'原因；因为。',
+  '印':'印记；印刷；脚印。', '迎':'迎接；面对。', '营':'经营；营养；营地。', '勇':'勇敢。', '用':'使用；用途。',
+  '由':'从；原因；经由。', '幼':'年纪小。', '余':'剩下；多余。', '与':'和；给；参与。', '遇':'遇到；相逢。',
+  '员':'人员；成员。', '原':'原来；平原；原因。', '越':'超过；越过。', '栽':'种植；栽倒。', '再':'又一次；继续。',
+  '在':'存在；处于某处。', '摘':'取下、采下。', '张':'展开；姓；量词。', '找':'寻找。', '枕':'枕头；垫着头睡觉的东西。',
+  '争':'争夺；争论；努力取得。', '正':'端正；正确；正在。', '之':'的；代词；到。', '支':'支撑；量词；分支。', '制':'制造；制度；控制。',
+  '周':'周围；星期；周到。', '主':'主要；主人；主张。', '助':'帮助。', '专':'专门；集中。', '妆':'打扮；装饰。',
+  '装':'装扮；安装；装东西。', '壮':'强壮；壮大。', '状':'形状；情况。', '追':'追赶；追求。', '族':'民族；家族。',
+  '梦':'睡着时脑中出现的景象；也指心里盼望实现的愿望。', '最':'程度最高。', '作':'做；作品；写作。', '坐':'把身体放在椅子等上面。', '做':'进行、制作、当作。'
+});
+
 function isUsefulMeaning(value) {
-  return typeof value === 'string' && value.trim() && value.trim() !== '本课生字' && !containsLegacyMojibake(value);
+  if (typeof value !== 'string' || !value.trim() || containsLegacyMojibake(value)) return false;
+  const text = value.trim();
+  if (text === '本课生字') return false;
+  return !/(本课习写生字|本课同组生字|写字重点|观察.*结构|字形结构|间架比例|重心和.*比例)/.test(text);
 }
 
 function getLessonWordsForChar(c, words) {
   const source = Array.isArray(words) && words.length ? words : currentLessonChars;
   const clean = [...new Set((source || []).filter(Boolean))];
   return clean.length ? clean : [c];
+}
+
+function deriveMeaningFromWordEntries(c) {
+  const direct = (WORD_ENTRY_FIX_MAP[c] || []).filter(item => item?.word && item?.meaning);
+  if (direct.length) {
+    const examples = direct.slice(0, 3).map(item => item.word).join('、');
+    const clue = direct.find(item => !/^常用/.test(item.meaning))?.meaning || direct[0].meaning;
+    return `常用于“${examples}”等词，基本意思可从“${clue}”理解。`;
+  }
+  const tones = MULTI_TONE_MAP[c] || [];
+  if (tones.length) {
+    return tones.map(item => `${item.py}：${item.meaning}`).join('；') + '。';
+  }
+  return '';
 }
 
 function getMeaningForChar(c, providedMeaning, words) {
@@ -1375,12 +1467,11 @@ function getMeaningForChar(c, providedMeaning, words) {
   if (isUsefulMeaning(providedMeaning)) return providedMeaning;
   const entries = (WORD_ENTRY_FIX_MAP[c] || []).slice(0, 3).map(item => item.word);
   const lessonWords = getLessonWordsForChar(c, words).filter(item => item && item.length > 1);
-  const stru = getChineseStructure(c);
   const poly = MULTI_TONE_MAP[c] ? `这是多音多义字，可在拼音旁下拉选择：${MULTI_TONE_MAP[c].map(x=>x.py).join(' / ')}。` : '';
-  const baseMeaning = CHAR_MEANING_FIX_MAP[c] || `${c}：这是本课要掌握的习写生字，可先从字形和常用词理解它。`;
+  const baseMeaning = CHAR_MEANING_FIX_MAP[c] || deriveMeaningFromWordEntries(c) || `常见汉字，读作 ${pinyinPro.pinyin(c,{toneType:'symbol'})}；请结合课文词语和生活语境理解。`;
   const examples = entries.length ? entries : lessonWords.slice(0, 3);
   const exampleText = examples.length ? `常用词：${examples.join('、')}。` : '';
-  return `${poly}${c}：${baseMeaning}${exampleText}书写时重点观察${stru}结构、重心和各部分比例。`;
+  return `${poly}${c}：${baseMeaning}${exampleText}`;
 }
 
 const WORD_ENTRY_FIX_MAP = {
@@ -1498,6 +1589,7 @@ Object.assign(WORD_ENTRY_FIX_MAP, {
   '痕': [{word:'痕迹', meaning:'留下的印子'}, {word:'伤痕', meaning:'受伤后的印子'}, {word:'地上有痕迹', meaning:'常用短句：留下印子'}],
   '型': [{word:'模型', meaning:'按样子做成的物体'}, {word:'类型', meaning:'类别'}, {word:'这是新的类型', meaning:'常用短句：说明类别'}],
   '聚': [{word:'聚集', meaning:'集合在一起'}, {word:'团聚', meaning:'亲人相聚'}, {word:'大家聚在一起', meaning:'常用短句：集合起来'}],
+  '梦': [{word:'做梦', meaning:'睡着时脑中出现景象'}, {word:'梦想', meaning:'心里向往并努力追求的目标'}, {word:'美梦', meaning:'美好的梦，也比喻美好愿望'}, {word:'梦见', meaning:'在梦里看到或经历'}, {word:'实现梦想', meaning:'常用短语：让心愿变成现实'}],
   '摊': [{word:'摊位', meaning:'摆卖东西的小位置'}, {word:'小摊', meaning:'小卖摊'}, {word:'夜市有很多摊位', meaning:'常用短句：夜市很多摊'}],
   '赐': [{word:'赏赐', meaning:'给予奖赏'}, {word:'赐予', meaning:'给予'}, {word:'大自然赐予资源', meaning:'常用短句：自然给予'}],
   '核': [{word:'核心', meaning:'中心、关键'}, {word:'果核', meaning:'水果里的硬核'}, {word:'这是问题核心', meaning:'常用短句：重点所在'}],
@@ -1574,6 +1666,79 @@ Object.assign(WORD_ENTRY_FIX_MAP, {
   '歇': [{word:'歇息', meaning:'休息'}, {word:'停歇', meaning:'停止休息'}, {word:'走累了就歇一歇', meaning:'常用短句：累了休息'}]
 });
 
+Object.assign(WORD_ENTRY_FIX_MAP, {
+  '双': [{word:'双手', meaning:'两只手'}, {word:'一双鞋', meaning:'常用数量搭配'}, {word:'妈妈有一双巧手', meaning:'常用短句：手很灵巧'}],
+  '片': [{word:'一片', meaning:'表示薄片或一块'}, {word:'片刻', meaning:'很短的时间'}, {word:'天空飘着一片云', meaning:'常用短句：有一朵云'}],
+  '羊': [{word:'山羊', meaning:'一种羊'}, {word:'羊毛', meaning:'羊身上的毛'}, {word:'草地上有小羊', meaning:'常用短句：草地有羊'}],
+  '大': [{word:'大家', meaning:'所有人'}, {word:'大人', meaning:'成年人'}, {word:'大声朗读', meaning:'常用短句：声音响亮地读'}],
+  '开': [{word:'开门', meaning:'把门打开'}, {word:'开心', meaning:'心情快乐'}, {word:'春天花开了', meaning:'常用短句：花开放'}],
+  '回': [{word:'回来', meaning:'回到原处'}, {word:'回家', meaning:'回到家里'}, {word:'放学后回家', meaning:'常用短句：回家去'}],
+  '声': [{word:'声音', meaning:'听到的响声'}, {word:'笑声', meaning:'笑的声音'}, {word:'教室里有读书声', meaning:'常用短句：有人读书'}],
+  '亲': [{word:'亲人', meaning:'家里关系亲近的人'}, {word:'亲切', meaning:'温和友好'}, {word:'老师说话很亲切', meaning:'常用短句：态度好'}],
+  '爸': [{word:'爸爸', meaning:'父亲'}, {word:'爸妈', meaning:'爸爸和妈妈'}, {word:'爸爸陪我读书', meaning:'常用短句：父亲陪伴'}],
+  '妈': [{word:'妈妈', meaning:'母亲'}, {word:'爸妈', meaning:'爸爸和妈妈'}, {word:'妈妈给我讲故事', meaning:'常用短句：母亲讲故事'}],
+  '饭': [{word:'吃饭', meaning:'用餐'}, {word:'米饭', meaning:'煮熟的米'}, {word:'我们一起吃饭', meaning:'常用短句：一起用餐'}],
+  '鱼': [{word:'小鱼', meaning:'小的鱼'}, {word:'鱼塘', meaning:'养鱼的池塘'}, {word:'小鱼在水里游', meaning:'常用短句：鱼游动'}],
+  '喜': [{word:'喜欢', meaning:'对人或事有好感'}, {word:'喜爱', meaning:'很喜欢'}, {word:'我喜欢读书', meaning:'常用短句：爱读书'}],
+  '月': [{word:'月亮', meaning:'夜晚常见的天体'}, {word:'月光', meaning:'月亮的光'}, {word:'月亮挂在天上', meaning:'常用短句：夜晚有月'}],
+  '雨': [{word:'下雨', meaning:'天空落雨'}, {word:'雨水', meaning:'落下的水'}, {word:'雨后空气清新', meaning:'常用短句：雨停后很舒服'}],
+  '山': [{word:'高山', meaning:'高大的山'}, {word:'青山', meaning:'绿色的山'}, {word:'远处有一座山', meaning:'常用短句：远方有山'}],
+  '多': [{word:'多少', meaning:'数量问题'}, {word:'很多', meaning:'数量不少'}, {word:'朋友越来越多', meaning:'常用短句：朋友增加'}],
+  '少': [{word:'多少', meaning:'数量多少'}, {word:'少年', meaning:'年纪轻的人'}, {word:'少说多做', meaning:'常用成语/短语：多做事少空谈'}],
+  '牙': [{word:'牙齿', meaning:'口中咬东西的器官'}, {word:'刷牙', meaning:'清洁牙齿'}, {word:'每天早晚刷牙', meaning:'常用短句：保护牙齿'}],
+  '香': [{word:'香味', meaning:'好闻的气味'}, {word:'花香', meaning:'花的香气'}, {word:'饭菜真香', meaning:'常用短句：饭菜好闻好吃'}],
+  '机': [{word:'飞机', meaning:'会飞的交通工具'}, {word:'机会', meaning:'有利的时机'}, {word:'飞机飞上天空', meaning:'常用短句：飞机起飞'}],
+  '爱': [{word:'爱心', meaning:'关爱的心'}, {word:'爱护', meaning:'珍惜保护'}, {word:'我们爱护校园', meaning:'常用短句：保护校园'}],
+  '夜': [{word:'夜晚', meaning:'晚上的时间'}, {word:'夜色', meaning:'夜里的景色'}, {word:'夜晚星星很亮', meaning:'常用短句：夜里有星'}],
+  '白': [{word:'白云', meaning:'白色的云'}, {word:'明白', meaning:'懂得'}, {word:'我明白这个道理', meaning:'常用短句：我懂了'}],
+  '金': [{word:'金色', meaning:'像黄金的颜色'}, {word:'金鱼', meaning:'观赏鱼'}, {word:'阳光像金色一样亮', meaning:'常用短句：阳光明亮'}],
+  '工': [{word:'工人', meaning:'劳动工作的人'}, {word:'工作', meaning:'做事或职业'}, {word:'工人认真工作', meaning:'常用短句：认真做事'}],
+  '同': [{word:'同学', meaning:'一起学习的人'}, {word:'同伴', meaning:'一起活动的人'}, {word:'我和同学一起读书', meaning:'常用短句：一起学习'}],
+  '师': [{word:'老师', meaning:'教学生的人'}, {word:'师生', meaning:'老师和学生'}, {word:'老师教我们写字', meaning:'常用短句：老师教学'}],
+  '年': [{word:'今年', meaning:'现在这一年'}, {word:'新年', meaning:'新的一年'}, {word:'新年快乐', meaning:'常用短句：祝福新年'}],
+  '车': [{word:'汽车', meaning:'车辆'}, {word:'火车', meaning:'在轨道上行驶的车'}, {word:'汽车在路上行驶', meaning:'常用短句：车在路上走'}],
+  '左': [{word:'左边', meaning:'左侧'}, {word:'左右', meaning:'左和右'}, {word:'左手', meaning:'左边的手'}],
+  '右': [{word:'右边', meaning:'右侧'}, {word:'左右', meaning:'左和右'}, {word:'右手', meaning:'右边的手'}],
+  '光': [{word:'阳光', meaning:'太阳光'}, {word:'灯光', meaning:'灯发出的光'}, {word:'灯光照亮教室', meaning:'常用短句：灯很亮'}],
+  '前': [{word:'前面', meaning:'位置在前'}, {word:'以前', meaning:'过去'}, {word:'请看前面的黑板', meaning:'常用短句：看前方'}],
+  '花': [{word:'花朵', meaning:'花'}, {word:'花园', meaning:'种花的地方'}, {word:'花园里有许多花', meaning:'常用短句：花很多'}],
+  '水': [{word:'水果', meaning:'可吃的果实'}, {word:'喝水', meaning:'饮用水'}, {word:'多喝水有益健康', meaning:'常用短句：喝水有好处'}],
+  '足': [{word:'足球', meaning:'球类运动'}, {word:'满足', meaning:'感到够了'}, {word:'我们一起踢足球', meaning:'常用短句：一起运动'}],
+  '友': [{word:'朋友', meaning:'关系亲近的人'}, {word:'友好', meaning:'友善和睦'}, {word:'朋友之间要互相帮助', meaning:'常用短句：朋友互助'}],
+  '狗': [{word:'小狗', meaning:'小的狗'}, {word:'狗叫', meaning:'狗发出声音'}, {word:'小狗摇着尾巴', meaning:'常用短句：狗很高兴'}],
+  '云': [{word:'白云', meaning:'白色的云'}, {word:'云朵', meaning:'一团云'}, {word:'白云在天空飘', meaning:'常用短句：云在天上'}],
+  '九': [{word:'九月', meaning:'一年中的第九个月'}, {word:'九牛一毛', meaning:'很小的一部分'}, {word:'九个苹果', meaning:'常用短语：数量是九'}],
+  '田': [{word:'田地', meaning:'种农作物的地'}, {word:'农田', meaning:'耕种的田'}, {word:'农民在田里劳动', meaning:'常用短句：在田里工作'}],
+  '桥': [{word:'大桥', meaning:'大的桥'}, {word:'桥梁', meaning:'架在水上或路上的通道'}, {word:'我们走过大桥', meaning:'常用短句：过桥'}],
+  '星': [{word:'星星', meaning:'夜空中的小亮点'}, {word:'明星', meaning:'有名的人'}, {word:'夜空中有星星', meaning:'常用短句：夜里有星'}],
+  '自': [{word:'自己', meaning:'本人'}, {word:'自然', meaning:'不是人为的'}, {word:'自己的事情自己做', meaning:'常用短句：独立完成'}],
+  '问': [{word:'问题', meaning:'需要回答或解决的事'}, {word:'请问', meaning:'有礼貌地发问'}, {word:'不懂就问老师', meaning:'常用短句：主动提问'}],
+  '台': [{word:'台灯', meaning:'桌上用的灯'}, {word:'讲台', meaning:'老师讲课的台'}, {word:'台灯照亮书桌', meaning:'常用短句：灯照着桌子'}],
+  '满': [{word:'满意', meaning:'觉得合心意'}, {word:'充满', meaning:'到处都有'}, {word:'教室充满笑声', meaning:'常用短句：很多笑声'}],
+  '简': [{word:'简单', meaning:'不复杂'}, {word:'简短', meaning:'内容不长'}, {word:'请写简单句子', meaning:'常用短句：句子不复杂'}],
+  '典': [{word:'字典', meaning:'查字词的工具书'}, {word:'经典', meaning:'有代表性、影响大的作品'}, {word:'遇到生字查字典', meaning:'常用短句：用字典学习'}],
+  '邮': [{word:'邮票', meaning:'寄信贴的凭证'}, {word:'邮局', meaning:'寄信寄包裹的地方'}, {word:'我去邮局寄信', meaning:'常用短句：寄一封信'}],
+  '万': [{word:'万一', meaning:'如果发生意外情况'}, {word:'千万', meaning:'很多；也表示叮嘱'}, {word:'千万不要迟到', meaning:'常用短句：提醒准时'}],
+  '千': [{word:'千里', meaning:'很远的路'}, {word:'千方百计', meaning:'想尽各种办法'}, {word:'千方百计解决问题', meaning:'常用短句：想办法'}],
+  '界': [{word:'世界', meaning:'地球上一切地方'}, {word:'边界', meaning:'分界线'}, {word:'我们认识世界', meaning:'常用短句：了解世界'}],
+  '奔': [{word:'奔跑', meaning:'快速跑'}, {word:'奔向', meaning:'朝某处跑去'}, {word:'孩子奔向操场', meaning:'常用短句：跑向操场'}],
+  '浪': [{word:'海浪', meaning:'海水起伏形成的波'}, {word:'浪花', meaning:'波浪激起的水花'}, {word:'海浪拍打岸边', meaning:'常用短句：浪打岸'}],
+  '美': [{word:'美丽', meaning:'好看'}, {word:'美术', meaning:'绘画等艺术'}, {word:'校园十分美丽', meaning:'常用短句：校园好看'}],
+  '货': [{word:'货物', meaning:'商品或物品'}, {word:'送货', meaning:'运送货物'}, {word:'卡车运送货物', meaning:'常用短句：车运东西'}],
+  '整': [{word:'整齐', meaning:'有条理、不乱'}, {word:'整理', meaning:'收拾安排'}, {word:'把书包整理好', meaning:'常用短句：收拾书包'}],
+  '交': [{word:'交通', meaning:'车辆行人往来'}, {word:'交朋友', meaning:'结识朋友'}, {word:'过马路注意交通', meaning:'常用短句：注意安全'}],
+  '借': [{word:'借书', meaning:'暂时拿来使用'}, {word:'借用', meaning:'暂时使用'}, {word:'我向朋友借书', meaning:'常用短句：借一本书'}],
+  '望': [{word:'希望', meaning:'心里的愿望'}, {word:'看望', meaning:'去探望'}, {word:'我希望明天晴天', meaning:'常用短句：盼望好天气'}],
+  '野': [{word:'野外', meaning:'郊外或自然环境'}, {word:'田野', meaning:'田地和原野'}, {word:'田野里开满小花', meaning:'常用短句：花很多'}],
+  '类': [{word:'种类', meaning:'类别'}, {word:'人类', meaning:'人的总称'}, {word:'动物有许多种类', meaning:'常用短句：种类很多'}],
+  '步': [{word:'脚步', meaning:'走路的步子'}, {word:'进步', meaning:'比以前好'}, {word:'每天进步一点点', meaning:'常用短句：慢慢变好'}],
+  '旅': [{word:'旅行', meaning:'出门游览'}, {word:'旅客', meaning:'旅行的人'}, {word:'一家人去旅行', meaning:'常用短句：出门游玩'}],
+  '导': [{word:'指导', meaning:'教导帮助'}, {word:'领导', meaning:'带领'}, {word:'老师指导我写字', meaning:'常用短句：老师帮助'}],
+  '勤': [{word:'勤劳', meaning:'努力劳动'}, {word:'勤奋', meaning:'努力学习或工作'}, {word:'勤奋学习会进步', meaning:'常用短句：努力学习'}],
+  '医': [{word:'医生', meaning:'治病的人'}, {word:'医院', meaning:'看病的地方'}, {word:'医生照顾病人', meaning:'常用短句：帮助病人'}],
+  '健': [{word:'健康', meaning:'身体好'}, {word:'健身', meaning:'锻炼身体'}, {word:'运动让身体健康', meaning:'常用短句：运动有益'}]
+});
+
 let decodedLegacyWordMap = null;
 function containsLegacyMojibake(value) {
   return typeof value === 'string' && /[\u00e5\u00e6\u00e7]/.test(value);
@@ -1601,7 +1766,7 @@ function getDecodedLegacyWords(c) {
 }
 function shortCharMeaning(c) {
   const tone = currentToneData?.meaning;
-  const raw = tone || MEANING_FIX_MAP[c] || `${c}：本课习写生字`;
+  const raw = tone || MEANING_FIX_MAP[c] || CHAR_MEANING_FIX_MAP[c] || deriveMeaningFromWordEntries(c) || `${c}：常见汉字`;
   return String(raw).replace(/<[^>]+>/g,'').split(/[。；;]/)[0].replace(/^多音多义字：/,'');
 }
 function getWordMeaning(word, anchor) {
@@ -1614,12 +1779,8 @@ function getWordMeaning(word, anchor) {
   return `含「${anchor}」的配词，帮助理解：${shortCharMeaning(anchor)}`;
 }
 function getFallbackWordEntries(c) {
-  const meaning = shortCharMeaning(c);
-  return [
-    { word: `生活中遇见「${c}」`, meaning: `常用短句：把字义放进生活情境` },
-    { word: `把「${c}」写端正`, meaning: `常用短句：观察结构、重心和比例` },
-    { word: `用「${c}」说一句话`, meaning: `学习短句：尝试找常用搭配` }
-  ].map(item => ({ ...item, meaning: item.meaning || meaning }));
+  const source = getLessonWordsForChar(c, []).filter(word => typeof word === 'string' && word.length > 1 && word.includes(c));
+  return source.map(word => ({ word, meaning: getWordMeaning(word, c) }));
 }
 function getWordEntriesForChar(c, words) {
   const entries = [];
@@ -2078,6 +2239,7 @@ function updateLearningStandardPanel() {
   }
 }
 const LOW_GRADE_ISSUE_MAP = {
+  '字还没写完整': '这个字还没写完',
   '字形偏小': '字可以写大一点',
   '字形偏大': '字可以写小一点',
   '整体偏左': '字有点靠左',
@@ -2097,6 +2259,7 @@ const LOW_GRADE_ISSUE_MAP = {
   '整体较规范': '写得不错'
 };
 const MID_GRADE_ISSUE_MAP = {
+  '字还没写完整': '字还没有写完整',
   '左右留白不均，楷体重心要居中': '左右留白要更平均',
   '上下留白不均，田字格占位要匀称': '上下占格要更平均',
   '楷体字形大小占格不稳': '字的大小占格要更稳定',
@@ -2324,7 +2487,7 @@ function dateDiffDays(a,b){
   return Math.round((right-left)/86400000);
 }
 function createProgressData(){
-  return { lastCheckin:'', streak:0, totalSubmits:0, bestScore:0, completedChars:{}, days:{}, lessons:{} };
+  return { lastCheckin:'', streak:0, totalSubmits:0, bestScore:0, completedChars:{}, days:{}, lessons:{}, lastPractice:null };
 }
 function loadProgressData(){
   try{
@@ -2370,16 +2533,20 @@ function recordPracticeProgress(score){
   data.lessons[key].last=today;
   data.lessons[key].bestScore=Math.max(data.lessons[key].bestScore||0, Number(score)||0);
   data.lessons[key].chars[currentChar]=Math.max(data.lessons[key].chars[currentChar]||0, Number(score)||0);
+  data.lastPractice={ grade:currentGrade||1, unit:currentUnit||'', lesson:currentLesson||'', char:currentChar, date:today };
   saveProgressData(data);
   updateProgressPanels();
   return data;
 }
-function getCurrentLessonCompletedCount(data=loadProgressData()){
+function getLessonCompletion(data=loadProgressData()){
+  const list=getPracticeCharList();
   const key=getLessonProgressKey();
   const lesson=data.lessons[key];
-  const list=getPracticeCharList();
-  if(!lesson) return 0;
-  return list.filter(ch => (lesson.chars?.[ch]||0) > 0).length;
+  const done=list.filter(ch => (lesson?.chars?.[ch]||0) > 0).length;
+  return { list, total:list.length || 1, done, key, lesson };
+}
+function getCurrentLessonCompletedCount(data=loadProgressData()){
+  return getLessonCompletion(data).done;
 }
 function updateProgressPanels(){
   const data=loadProgressData();
@@ -2396,9 +2563,9 @@ function updateProgressPanels(){
   const total=list.length || 1;
   const done=getCurrentLessonCompletedCount(data);
   const pct=Math.min(100, Math.round(done/total*100));
-  setText('lessonCheckinStatus', todayDone ? '今日已打卡' : '今日未打卡');
-  setText('lessonCompleteText', `本课 ${done} / ${total}`);
-  setText('lessonCheckinSub', done>=total ? '本课已完成，可以继续挑战更高分。' : `完成标准：写完交卷并获得分数就会打勾。今天已练 ${Object.keys(todayData.chars||{}).length} 个字。`);
+  setText('lessonCheckinStatus', done>=total ? '本课已完成' : `还差 ${Math.max(0,total-done)} 个字`);
+  setText('lessonCompleteText', `完成 ${done} / ${total}`);
+  setText('lessonCheckinSub', done>=total ? '本课生字都已经练习并交卷，可以继续挑战更高分。' : `作用：记录本课哪些字已经练过。只要有练习并交卷打分，按钮会出现 ✓。今天已练 ${Object.keys(todayData.chars||{}).length} 个字。`);
   const fill=document.getElementById('lessonCompleteFill');
   if(fill) fill.style.width=`${pct}%`;
   document.querySelectorAll('.tag-btn').forEach(btn=>{
@@ -2406,6 +2573,57 @@ function updateProgressPanels(){
     btn.classList.toggle('completed', score>0);
     if(score>0) btn.title=`已完成：${score}分`;
   });
+}
+function getFirstIncompleteChar(data=loadProgressData()){
+  const { list, lesson } = getLessonCompletion(data);
+  return list.find(ch => !(lesson?.chars?.[ch] > 0)) || list[0] || currentChar;
+}
+function continueUnfinished(){
+  const next=getFirstIncompleteChar();
+  if(next && next!==currentChar) quickLoad(next);
+  capySay(next ? `青蛙老师：我们继续练「${next}」。` : '青蛙老师：本课已经完成，可以挑战更高分。');
+}
+function continuePractice(){
+  const data=loadProgressData();
+  const last=data.lastPractice;
+  if(last?.grade && last?.lesson){
+    currentGrade=last.grade;
+    currentUnit=last.unit || currentUnit;
+    selectLesson(last.lesson);
+    setTimeout(()=>continueUnfinished(),100);
+    return;
+  }
+  app.showGradeSelect();
+  capySay('青蛙老师：先选择年级和课文，再开始练习。');
+}
+function buildProgressReport(){
+  const data=loadProgressData();
+  const today=todayKey();
+  const todayData=data.days[today] || { chars:{} };
+  const { total, done, lesson } = getLessonCompletion(data);
+  const title=lesson?.title || getLessonTitleForProgress();
+  const completedList=Object.entries(lesson?.chars || {}).map(([ch,score])=>`${ch}${score ? `(${score}分)` : ''}`).join('、') || '暂无';
+  return [
+    '戏字小助手学习报告',
+    `日期：${today}`,
+    `年级：${currentGrade || '-'}`,
+    `课文：${title}`,
+    `今日完成：${Object.keys(todayData.chars || {}).length} 个生字`,
+    `连续打卡：${Number(data.streak)||0} 天`,
+    `本课进度：${done} / ${total}`,
+    `本课已完成：${completedList}`,
+    `本机最高分：${Number(data.bestScore)||0} 分`
+  ].join('\n');
+}
+async function copyProgressReport(){
+  const report=buildProgressReport();
+  try{
+    await navigator.clipboard.writeText(report);
+    capySay('青蛙老师：学习报告已复制，可以发给老师或家长。');
+  }catch{
+    window.prompt('复制学习报告：', report);
+    capySay('青蛙老师：如果没有自动复制，请手动复制弹窗里的报告。');
+  }
 }
 function resetProgressData(){
   if(!confirm('确定要清除这台设备上的打卡和完成进度吗？')) return;
@@ -2425,7 +2643,7 @@ function selectLesson(lid){ const d=getGradeData(currentGrade); const lesson=d.l
 function loadLessonCharacters(chars){ if(chars&&chars.length){ currentLessonChars = chars.map(c=>c.char || c); quickLoad(chars[0].char || chars[0]); } buildQuickTags(); }
 
 function buildToneSelector(c){ const m=MULTI_TONE_MAP[c]; const s=document.getElementById('multiToneSelector'), e=document.getElementById('toneSelect'); if(m&&m.length>1){ s.style.display='inline-block'; e.innerHTML=''; m.forEach((it,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${it.py} (${it.meaning.slice(0,6)}...)`; e.appendChild(o); }); e.value='0'; currentToneData=m[0]; return m[0]; } else { s.style.display='none'; currentToneData=null; return null; } }
-function onToneChange(){ const s=document.getElementById('toneSelect'); const i=s.value; const m=MULTI_TONE_MAP[currentChar]; if(m&&m[i]){ currentToneData=m[i]; document.getElementById('pinyinDisplay').textContent=currentToneData.py; document.getElementById('meaningContent').innerHTML=getMeaningForChar(currentChar, currentToneData.meaning, currentToneData.words); buildWordsList(currentToneData.words || findCharacterData(currentChar)?.words || [], currentChar); capySay(`读音：${currentToneData.py}`); updateTeacherTarget(currentChar); updateStudentTargets(currentChar); } }
+function onToneChange(){ const s=document.getElementById('toneSelect'); const i=s.value; const m=MULTI_TONE_MAP[currentChar]; if(m&&m[i]){ currentToneData=m[i]; document.getElementById('pinyinDisplay').textContent=currentToneData.py; document.getElementById('meaningContent').innerHTML=getMeaningForChar(currentChar, currentToneData.meaning, currentToneData.words); buildWordsList(currentToneData.words || findCharacterData(currentChar)?.words || [], currentChar); capySay(`读音：${currentToneData.py}`); updateTeacherTarget(currentChar); updateStudentTargets(currentChar,false); } }
 function loadCharacter(c,py,radical,stroke,meaning,words){ closeAllMarkupModes(true); currentChar=c; document.getElementById('charInput').value=c; const rad=getCleanRadical(c), stk=getStrokeCount(c), stru=getChineseStructure(c); const m=buildToneSelector(c); let fpy,fmean,fwords; if(m){ fpy=m.py; fwords=m.words?.length ? m.words : (words||[c]); fmean=getMeaningForChar(c,m.meaning,fwords); } else { fpy=py||pinyinPro.pinyin(c,{toneType:'symbol'}); fwords=words||[c]; fmean=getMeaningForChar(c,meaning,fwords); } document.getElementById('pinyinDisplay').textContent=fpy; document.getElementById('radicalInfo').textContent=`部首: ${rad}（${getRadicalName(rad)}） | 结构: ${stru} | 笔画: ${stk}`; document.getElementById('meaningContent').innerHTML=fmean; const dictNote=document.getElementById('dictLink'); if(dictNote) dictNote.textContent='本课释义'; buildWordsList(fwords,c); updateLessonProgress(); updateLearningStandardPanel(); const frogTip=updateFrogTip(c,fpy,stru,rad,stk); updateTeacherTarget(c); updateStudentTargets(c); setTimeout(()=>resizePracticeCanvases(),60); refreshStructureHint(c, rad, stk); capySay(`青蛙老师：${frogTip}`); }
 function getPracticeCharList(){ if(currentLesson){ const lesson=getGradeData(currentGrade || 1).lessonsData?.[currentLesson]; if(lesson?.characters?.length) return lesson.characters.map(c=>c.char || c); } if(currentLessonChars.length) return currentLessonChars; return currentChar ? [currentChar] : []; }
 function buildQuickTags(){ const c=document.getElementById('quickTags'); c.innerHTML=''; const charsToShow = getPracticeCharList();
@@ -2577,7 +2795,15 @@ function setupPointer(can,ctx,id,enabled,historyType){ const active=new Map(); c
 function drawDataUrlToCanvas(dataUrl, canvas, ctx){ if(!dataUrl) return; const img=new Image(); img.onload=()=>{ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(img,0,0,canvas.width,canvas.height); ctx.restore(); }; img.src=dataUrl; }
 function resizeStudentCanvas(id){ const can=document.getElementById(`canvas${id}`), m=document.getElementById(`markupCanvas${id}`), wrap=document.getElementById(`wrap${id}`); if(!wrap) return; const r=wrap.getBoundingClientRect(); if(!r.width) return; const oldDraw=can.width&&can.height?can.toDataURL():null; const oldMarkup=m.width&&m.height?m.toDataURL():null; const dpr=window.devicePixelRatio||1, side=Math.min(r.width,r.height); can.width=side*dpr; can.height=side*dpr; m.width=side*dpr; m.height=side*dpr; can.style.width=side+'px'; can.style.height=side+'px'; m.style.width=side+'px'; m.style.height=side+'px'; const ctx=can.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth=4; ctx.strokeStyle='#222'; ctx.lineCap='round'; ctx.lineJoin='round'; const mCtx=m.getContext('2d'); mCtx.setTransform(dpr,0,0,dpr,0,0); mCtx.lineWidth=5; mCtx.strokeStyle='#e53935'; mCtx.lineCap='round'; mCtx.lineJoin='round'; studentData[id].drawCtx=ctx; studentData[id].markupCtx=mCtx; drawStudentBackground(id); drawDataUrlToCanvas(oldDraw,can,ctx); drawDataUrlToCanvas(oldMarkup,m,mCtx); if(!studentData[id].drawHistory.length) setTimeout(()=>resetDrawHistory(id),0); if(!studentData[id].markupHistory.length) setTimeout(()=>resetMarkupHistory(id),0); updateUndoRedoButtons(id); }
 function drawStudentBackground(id){ const div=document.getElementById(`hanzi${id}`); div.innerHTML=''; const sz=div.getBoundingClientRect().width||240; const w=HanziWriter.create(`hanzi${id}`,currentChar,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); w.hideCharacter(); w.showOutline(); studentData[id].writer=w; setTimeout(()=>enableMultiTouchTarget(div,id),0); }
-function updateStudentTargets(ch){ closeAllMarkupModes(true); for(let i=1;i<=5;i++){ const t=document.getElementById(`hanzi${i}`); if(!t) continue; t.innerHTML=''; const sz=t.getBoundingClientRect().width||240; studentData[i].writer=HanziWriter.create(`hanzi${i}`,ch,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); studentData[i].writer.hideCharacter(); studentData[i].writer.showOutline(); enableMultiTouchTarget(t,i); clearCanvas(i,true); clearMarkup(i); } }
+function clearStudentEvaluation(id){
+  const fb=document.getElementById(`fb${id}`);
+  const badge=document.getElementById(`badge${id}`);
+  const card=document.getElementById(`card${id}`);
+  if(fb) fb.textContent='准备就绪';
+  if(badge){ badge.textContent='待评分'; badge.className='current-badge'; }
+  if(card) card.classList.remove('celebrate');
+}
+function updateStudentTargets(ch, resetEvaluation=true){ closeAllMarkupModes(true); for(let i=1;i<=5;i++){ const t=document.getElementById(`hanzi${i}`); if(!t) continue; t.innerHTML=''; const sz=t.getBoundingClientRect().width||240; studentData[i].writer=HanziWriter.create(`hanzi${i}`,ch,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); studentData[i].writer.hideCharacter(); studentData[i].writer.showOutline(); enableMultiTouchTarget(t,i); clearCanvas(i,true); clearMarkup(i,true); if(resetEvaluation) clearStudentEvaluation(i); } }
 function clearCanvas(id,resetHistory=false){ const c=document.getElementById(`canvas${id}`); c.getContext('2d').clearRect(0,0,c.width,c.height); if(resetHistory) resetDrawHistory(id); else updateUndoRedoButtons(id); }
 function clearMarkup(id,resetHistory=false){ const c=document.getElementById(`markupCanvas${id}`); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height); const wrap=document.getElementById(`wrap${id}`); if(wrap) wrap.classList.remove('score-mark-active'); if(resetHistory) resetMarkupHistory(id); else updateUndoRedoButtons(id); }
 function closeMarkupMode(id,clear=false,showFeedback=false){ const data=studentData[id]; if(!data) return; data.markupActive=false; const wrap=document.getElementById(`wrap${id}`); if(wrap) wrap.classList.remove('markup-active'); if(clear) clearMarkup(id,true); else updateUndoRedoButtons(id); if(showFeedback){ const fb=document.getElementById(`fb${id}`); if(fb) fb.textContent='圈画模式已关闭'; } }
@@ -2585,7 +2811,7 @@ function closeAllMarkupModes(clear=false){ for(let i=1;i<=5;i++) closeMarkupMode
 function setMode(id,mode){ activeStudentId=id; closeMarkupMode(id,true,false); studentData[id].mode=mode; const card=document.getElementById(`card${id}`); if(card) card.querySelectorAll('.switch-opt').forEach((opt,idx)=>opt.classList.toggle('active',idx===(mode==='stroke'?0:1))); const wrap=document.getElementById(`wrap${id}`); wrap.classList.toggle('mode-stroke',mode==='stroke'); wrap.classList.toggle('mode-free',mode==='free'); clearCanvas(id,true); clearMarkup(id,true); drawStudentBackground(id); const w=studentData[id].writer; if(mode==='stroke'){ w.cancelQuiz(); w.hideCharacter(); setTimeout(()=>enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id),0); w.quiz({ onMistake:()=>{ SFX.bad(); capySay(pickRandom(FROG_COMMENTS.strokeTry)); }, onCorrectStroke:()=>{ SFX.ok(); if(Math.random()<0.35) capySay(pickRandom(FROG_COMMENTS.strokeGood)); }, onComplete:()=>{ SFX.win(); capySay(`青蛙老师：学生${id} 笔顺完成！这次很专心。`); } }); } else { w.cancelQuiz(); w.showOutline(); enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id); } document.getElementById(`fb${id}`).textContent=mode==='free'?'可多指临摹 · 撤销/重做只管理笔迹':'严格笔顺可多人同时写 · 撤销会重开笔顺，重做不适用'; updateUndoRedoButtons(id); SFX.click(); }
 function undoDraw(id){ activeStudentId=id; const data=studentData[id]; if(data.markupActive){ if(data.markupHistoryIndex>0){ data.markupHistoryIndex--; restoreMarkupHistory(id); document.getElementById(`fb${id}`).textContent='已撤销一笔圈画'; } else { document.getElementById(`fb${id}`).textContent='没有可撤销的圈画'; updateUndoRedoButtons(id); } return; } if(data.mode!=='free'){ setMode(id,'stroke'); capySay(`学生${id} 笔顺已重开`); return; } if(data.historyIndex>0){ data.historyIndex--; restoreCanvasHistory(id); document.getElementById(`fb${id}`).textContent='已撤销一笔笔迹'; } else { document.getElementById(`fb${id}`).textContent='没有可撤销的笔迹'; updateUndoRedoButtons(id); } }
 function redoDraw(id){ activeStudentId=id; const data=studentData[id]; if(data.markupActive){ if(data.markupHistoryIndex < data.markupHistory.length-1){ data.markupHistoryIndex++; restoreMarkupHistory(id); document.getElementById(`fb${id}`).textContent='已重做一笔圈画'; } else { document.getElementById(`fb${id}`).textContent='没有可重做的圈画'; updateUndoRedoButtons(id); } return; } if(data.mode!=='free'){ document.getElementById(`fb${id}`).textContent='严格笔顺没有重做，请用撤销重开'; updateUndoRedoButtons(id); return; } if(data.historyIndex < data.drawHistory.length-1){ data.historyIndex++; restoreCanvasHistory(id); document.getElementById(`fb${id}`).textContent='已重做一笔笔迹'; } else { document.getElementById(`fb${id}`).textContent='没有可重做的笔迹'; updateUndoRedoButtons(id); } }
-function resetStudent(id){ closeMarkupMode(id,true,false); clearCanvas(id,true); clearMarkup(id,true); document.getElementById(`fb${id}`).textContent='准备就绪'; document.getElementById(`badge${id}`).textContent='待评分'; setMode(id,studentData[id].mode); }
+function resetStudent(id){ closeMarkupMode(id,true,false); clearCanvas(id,true); clearMarkup(id,true); clearStudentEvaluation(id); setMode(id,studentData[id].mode); }
 function resetAll(){ closeAllMarkupModes(true); for(let i=1;i<=5;i++) resetStudent(i); clearTeacherCanvas(); }
 function toggleMarkupMode(id){ activeStudentId=id; const w=document.getElementById(`wrap${id}`); const next=!studentData[id].markupActive; studentData[id].markupActive=next; w.classList.toggle('markup-active',next); if(next && !studentData[id].markupHistory.length) resetMarkupHistory(id); updateUndoRedoButtons(id); document.getElementById(`fb${id}`).textContent=next?'圈画模式已开启 · 撤销/重做现在只管理圈画':'圈画模式已关闭 · 撤销/重做回到笔迹'; }
 
@@ -2913,6 +3139,7 @@ async function smartMarkAndScore(id,canvas){
   const lrBalanceDiff = shapeCompare.lrBalanceDiff;
   const tbBalanceDiff = shapeCompare.tbBalanceDiff;
   const gridDifference = shapeCompare.densityDiff;
+  const isIncomplete = areaRatio < 0.34 || (missingRatio > 0.62 && overlapRatio < 0.52) || (gridDifference > 0.22 && missingRatio > 0.5);
   const outOfBounds = studentMetrics.box.minX < w * 0.12 || studentMetrics.box.maxX > w * 0.88 || studentMetrics.box.minY < h * 0.12 || studentMetrics.box.maxY > h * 0.88;
   const structure = reference.structure || getChineseStructure(currentChar);
   const studentStructure = inferStructureFromMask(sMask, w, h);
@@ -2963,6 +3190,10 @@ async function smartMarkAndScore(id,canvas){
     label: text
   });
 
+  if(isIncomplete) {
+    const missingMarker = missingClusters[0] || edgeMarker('center', '字还没写完整', 28, '#d32f2f');
+    addIssue('字还没写完整', 28, { ...missingMarker, label: '字还没写完整', color: '#d32f2f', weight: 28 });
+  }
   if(areaRatio < 0.72) addIssue('字形偏小', sizePenalty, sizeMarker('字形偏小', sizePenalty));
   if(areaRatio > 1.28) addIssue('字形偏大', sizePenalty, sizeMarker('字形偏大', sizePenalty));
   if(dx < -0.075) addIssue('整体偏左', positionPenalty, edgeMarker('left', '整体偏左', positionPenalty));
@@ -3025,6 +3256,7 @@ async function smartMarkAndScore(id,canvas){
     - kaiBalancePenalty * 0.85
     - boundsPenalty * 0.6;
   score = Math.max(0, Math.min(100, Math.round(score + 4)));
+  if(isIncomplete) score = Math.min(score, 58);
   const hasRealIssues = issues.length > 0;
   const maxMarkers = !hasRealIssues || score >= 94 ? 0 : score >= 84 ? Math.min(2, issues.length) : score >= 68 ? Math.min(4, Math.max(issues.length, 2)) : Math.min(6, Math.max(issues.length, 3));
   const issueLabels = new Set(issues);
@@ -3046,7 +3278,7 @@ async function smartMarkAndScore(id,canvas){
   const wrap=document.getElementById(`wrap${id}`);
   if(wrap) wrap.classList.toggle('score-mark-active', markers.length>0);
   resetMarkupHistory(id);
-  return {score, summary, issues: displayIssues, rawIssues: issues, markers, markerNotes};
+  return {score, summary, issues: displayIssues, rawIssues: issues, markers, markerNotes, incomplete: isIncomplete};
 }
 
 function escapeHtml(text){
@@ -3066,7 +3298,8 @@ async function submitStudent(id){
   const canvas=document.getElementById(`canvas${id}`);
   const fb=document.getElementById(`fb${id}`), badge=document.getElementById(`badge${id}`), card=document.getElementById(`card${id}`);
   fb.textContent='评分中...';
-  const {score,summary,issues,markerNotes}=await smartMarkAndScore(id,canvas);
+  const beforeComplete=getLessonCompletion();
+  const {score,summary,issues,markerNotes,incomplete}=await smartMarkAndScore(id,canvas);
   const perf=getPerformanceLevel(score);
   const frogComment=frogScoreComment(score,issues);
   badge.textContent=`表现${perf.level} · ${score}分`;
@@ -3076,10 +3309,13 @@ async function submitStudent(id){
   if(score>0) recordPracticeProgress(score);
   fb.innerHTML=`<div>${escapeHtml(perf.label)} · ${score}分 · ${escapeHtml(summary)}</div>${buildMarkerFeedbackHtml(markerNotes)}`;
   const markerSpeech = markerNotes && markerNotes.length ? ` 圈起来的地方：${markerNotes.join('；')}。` : '';
-  const progressText = score>0 ? '这个字已经记入完成进度。' : '还没有检测到分数，先写完再交卷。';
-  capySay(`${frogComment}${markerSpeech} ${progressText} 这次约为表现${perf.level}：${perf.label}。`);
+  const afterComplete=getLessonCompletion();
+  const lessonJustCompleted=beforeComplete.done < beforeComplete.total && afterComplete.done >= afterComplete.total;
+  const progressText = score>0 ? (incomplete ? '这个字还没完全写完整，但已经算作练习完成。' : '这个字已经记入完成进度。') : '还没有检测到分数，先写一点再交卷。';
+  capySay(`${frogComment}${markerSpeech} ${progressText}${lessonJustCompleted?' 太好了，本课已经全部完成！':''} 这次约为表现${perf.level}：${perf.label}。`);
   if(card && score>=82){ card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); }
-  if(score>=90){ SFX.win(); confetti({particleCount:70}); } else if(score>=75){ SFX.ok(); } else { SFX.bad(); }
+  if(lessonJustCompleted){ SFX.win(); confetti({particleCount:120, spread:80}); }
+  else if(score>=90){ SFX.win(); confetti({particleCount:70}); } else if(score>=75){ SFX.ok(); } else { SFX.bad(); }
 }
 
 function initTeacherCanvas(){
@@ -3141,7 +3377,7 @@ window.onload=()=>{ currentGrade=1; initPwaApp(); buildQuickTags(); initStudentS
 window.selectGrade=selectGrade; window.selectUnit=selectUnit; window.selectLesson=selectLesson; window.quickLoad=quickLoad; window.playAudio=playAudio; window.playRadicalAudio=playRadicalAudio; window.repeatFrogTip=repeatFrogTip; window.setActiveStudent=setActiveStudent; window.goBack=goBack;
 window.animateTeacher=animateTeacher; window.toggleTeacherMode=toggleTeacherMode; window.clearTeacherCanvas=clearTeacherCanvas; window.setMode=setMode;
 window.undoDraw=undoDraw; window.redoDraw=redoDraw; window.resetStudent=resetStudent; window.submitStudent=submitStudent; window.toggleMarkupMode=toggleMarkupMode; window.resetAll=resetAll; window.prevCharacter=prevCharacter; window.nextCharacter=nextCharacter; window.toggleTeacherFullscreen=toggleTeacherFullscreen; window.exitTeacherFullscreen=exitTeacherFullscreen;
-window.capyTalk=capyTalk; window.onToneChange=onToneChange; window.resetProgressData=resetProgressData;
+window.capyTalk=capyTalk; window.onToneChange=onToneChange; window.resetProgressData=resetProgressData; window.continueUnfinished=continueUnfinished; window.continuePractice=continuePractice; window.copyProgressReport=copyProgressReport;
 </script>
 </body>
 </html>
