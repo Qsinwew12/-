@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no, maximum-scale=1" />
+  <meta name="theme-color" content="#039be5" />
+  <meta name="application-name" content="戏字小助手" />
+  <meta name="apple-mobile-web-app-title" content="戏字小助手" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="xizi-manifest.webmanifest" />
+  <link rel="icon" href="xizi-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="xizi-icon.svg" />
   <title>戏字小助手 · 一至六年级华文练字</title>
 
   <script src="https://unpkg.com/hanzi-writer@3.5.0/dist/hanzi-writer.min.js"></script>
@@ -32,11 +40,30 @@
     .back-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
     .manual-btn { background: #fff8e1; border: 2px solid #ffe082; border-radius: 40px; padding: 9px 18px; font-weight: 900; color: #bf360c; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: 0.2s; }
     .manual-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+    .install-btn { background: #e8f5e9; border: 2px solid #a5d6a7; border-radius: 40px; padding: 9px 18px; font-weight: 900; color: #1b5e20; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: 0.2s; }
+    .install-btn:hover { background: #43a047; color: white; transform: translateY(-2px); }
     .breadcrumb { background: rgba(255,255,255,0.7); padding: 8px 18px; border-radius: 40px; backdrop-filter: blur(4px); font-weight: 600; color: var(--primary-dark); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
     .breadcrumb a { color: var(--primary); text-decoration: none; margin: 0 4px; }
     .breadcrumb span { color: #5d4037; }
     .home-btn { background: white; border-radius: 40px; padding: 8px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-weight: bold; color: #0033a0; cursor: pointer; border: 1px solid #cfd8dc; transition: 0.2s; }
     .home-btn:hover { background: var(--primary); color: white; }
+    .checkin-dashboard { margin: 20px auto 0; max-width: 920px; background: linear-gradient(135deg,#ffffff 0%,#e8f5e9 100%); border: 3px solid #b3e5fc; border-radius: 28px; padding: 18px; box-shadow: 0 8px 22px rgba(0,0,0,0.07); }
+    .checkin-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .checkin-title { font-size: 22px; font-weight: 950; color: var(--primary-dark); }
+    .checkin-pill { background: #fff8e1; color: #bf360c; border: 2px solid #ffe082; border-radius: 999px; padding: 7px 12px; font-weight: 900; }
+    .checkin-stats { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 10px; }
+    .checkin-stat { background: rgba(255,255,255,0.9); border: 1px solid #d7edf7; border-radius: 18px; padding: 12px; text-align: center; }
+    .checkin-number { font-size: 28px; line-height: 1; font-weight: 950; color: #2e7d32; }
+    .checkin-label { margin-top: 5px; color: #546e7a; font-size: 13px; font-weight: 850; }
+    .checkin-note { margin-top: 10px; color: #607d8b; font-size: 13px; font-weight: 800; text-align: center; }
+    .reset-progress-btn { border: none; background: #eceff1; color: #546e7a; border-radius: 999px; padding: 7px 12px; font-weight: 850; cursor: pointer; }
+    .lesson-checkin-card { background: linear-gradient(135deg,#e3f2fd,#f1f8e9); border: 2px solid #c8e8f5; border-radius: 16px; padding: 10px 12px; display: grid; gap: 7px; }
+    .lesson-checkin-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; font-weight: 900; color: #2e7d32; }
+    .lesson-progress-track { height: 12px; background: rgba(255,255,255,0.85); border-radius: 999px; overflow: hidden; border: 1px solid #d7edf7; }
+    .lesson-progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg,#43a047,#ffca28); transition: width 0.35s ease; }
+    .lesson-checkin-sub { color: #607d8b; font-size: 12px; font-weight: 800; }
+    .tag-btn.completed { background: #e8f5e9; border-color: #81c784; color: #2e7d32; position: relative; }
+    .tag-btn.completed::after { content: "✓"; position: absolute; right: -5px; top: -7px; width: 19px; height: 19px; border-radius: 50%; background: #43a047; color: #fff; display: grid; place-items: center; font-size: 12px; font-family: "Microsoft YaHei", sans-serif; }
 
     .view-container { max-width: 1580px; margin: 0 auto; }
     .view { display: none; }
@@ -159,7 +186,7 @@
     .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
     .btn { border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 13px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 5px; }
     .btn:active { transform: scale(0.96); }
-    .btn-blue { background: var(--primary); } .btn-orange { background: var(--accent); } .btn-red { background: #ef5350; }
+    .btn-blue { background: var(--primary); } .btn-orange { background: var(--accent); } .btn-red { background: #ef5350; } .btn-green { background: #43a047; }
     .btn-purple { background: #ab47bc; } .btn-mark { background: #8d6e63; }
 
     .teacher-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 640px; }
@@ -209,7 +236,9 @@
     .mode-stroke .hanzi-layer { opacity: 0.6; }
     .mode-free .hanzi-layer { opacity: 0.6; pointer-events: none; }
 
-    .feedback-text { margin-top: 8px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #555; background: #f5f5f5; width: 100%; border-radius: 8px; }
+    .feedback-text { margin-top: 8px; min-height: 32px; height: auto; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; padding: 6px 8px; line-height: 1.35; text-align: center; font-size: 12px; font-weight: bold; color: #555; background: #f5f5f5; width: 100%; border-radius: 8px; }
+    .marker-feedback-list { display: grid; gap: 3px; width: 100%; color: #455a64; font-size: 12px; font-weight: 800; text-align: left; }
+    .marker-feedback-list span { display: block; background: #fff; border: 1px solid #dfe9ef; border-radius: 7px; padding: 3px 6px; }
     .student-card.celebrate { animation: cardCelebrate 0.9s ease-out; }
     @keyframes cardCelebrate { 0%{transform:scale(1)} 35%{transform:scale(1.035); box-shadow:0 0 0 7px rgba(255,202,40,0.35)} 100%{transform:scale(1)} }
     .undo-btn { background: #cfd8dc; color: #37474f; border-radius: 8px; padding: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; }
@@ -230,7 +259,7 @@
       .canvas-wrap { max-height: min(72svh, 620px); }
       .feedback-text { min-height: 38px; height: auto; padding: 6px 8px; }
     }
-    @media (max-width: 800px) { body { padding: 12px; padding-bottom: 110px; } .top-section { grid-template-columns: 1fr; } .char-input-wrap { width: 100px; height: 100px; } input#charInput { font-size: 68px; } .pinyin-large { font-size: 34px; } .radical-info { font-size: 14px; } .teacher-panel { min-height: auto; padding: 14px 10px; justify-content: flex-start; } .teacher-header { position: static; width: 100%; display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 8px; } .teacher-title { text-align: center; white-space: nowrap; font-size: 18px; } .teacher-actions { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 7px !important; } .teacher-actions .btn { width: 100%; min-height: 40px; padding: 8px 6px !important; font-size: 13px; white-space: nowrap; } .mizige-container { width: min(100%, 390px); margin: 8px 0 12px; } .student-grid { grid-template-columns: 1fr; max-width: 520px; } .capy-img { width: 74px; } .capy-bubble { max-width: 180px; font-size: 12px; } }
+    @media (max-width: 800px) { body { padding: 12px; padding-bottom: 110px; } .top-section { grid-template-columns: 1fr; } .checkin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .checkin-dashboard { padding: 14px; border-radius: 22px; } .char-input-wrap { width: 100px; height: 100px; } input#charInput { font-size: 68px; } .pinyin-large { font-size: 34px; } .radical-info { font-size: 14px; } .teacher-panel { min-height: auto; padding: 14px 10px; justify-content: flex-start; } .teacher-header { position: static; width: 100%; display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 8px; } .teacher-title { text-align: center; white-space: nowrap; font-size: 18px; } .teacher-actions { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 7px !important; } .teacher-actions .btn { width: 100%; min-height: 40px; padding: 8px 6px !important; font-size: 13px; white-space: nowrap; } .mizige-container { width: min(100%, 390px); margin: 8px 0 12px; } .student-grid { grid-template-columns: 1fr; max-width: 520px; } .capy-img { width: 74px; } .capy-bubble { max-width: 180px; font-size: 12px; } }
     @media (max-width: 520px) { .top-bar { gap: 8px; } .back-btn, .manual-btn { padding: 8px 12px; font-size: 13px; } .breadcrumb { width: 100%; font-size: 13px; } .control-panel { padding: 14px; } .char-header { gap: 12px; align-items: flex-start; } .quick-tags { max-height: 118px; } .tag-btn { font-size: 18px; padding: 7px 12px; } .action-btns, .mini-nav { grid-template-columns: 1fr; } .teacher-title { font-size: 17px; } .teacher-actions .btn { font-size: 12px; min-height: 38px; } .teacher-status, #teacherStatus { margin-top: 8px !important; font-size: 14px; } .student-card { padding: 12px 8px; } .canvas-wrap { border-width: 2px; } .word-card { min-width: 94px; } }
   </style>
 </head>
@@ -238,6 +267,7 @@
   <div class="top-bar">
     <button class="back-btn" id="backBtn" onclick="goBack()" type="button">← 返回</button>
     <button class="manual-btn" onclick="app.showManual()" type="button">📘 使用手册</button>
+    <button class="install-btn" id="installAppBtn" onclick="app.installApp()" type="button">📱 安装App</button>
     <div class="breadcrumb" id="breadcrumb"><a href="#" onclick="app.showHome()">首页</a></div>
   </div>
 
@@ -245,7 +275,20 @@
     <div id="viewHome" class="view active">
       <h1>📖 戏字小助手<br><small>KSSR Semakan 2017 · 一至六年级华文练字</small></h1>
       <div style="display:flex; justify-content:center; margin:30px 0;"><img src="https://cdn-icons-png.flaticon.com/512/1864/1864472.png" style="width:140px;" alt="青蛙老师"></div>
-      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px;"><button class="btn btn-blue" style="padding:16px 40px; font-size:20px;" onclick="app.showGradeSelect()">🚀 开始学习 · 选择年级</button><button class="btn btn-orange" style="padding:16px 34px; font-size:20px;" onclick="app.showManual()">📘 使用手册</button></div>
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px;"><button class="btn btn-blue" style="padding:16px 40px; font-size:20px;" onclick="app.showGradeSelect()">🚀 开始学习 · 选择年级</button><button class="btn btn-orange" style="padding:16px 34px; font-size:20px;" onclick="app.showManual()">📘 使用手册</button><button class="btn btn-green" style="padding:16px 34px; font-size:20px;" onclick="app.installApp()">📱 安装成App</button></div>
+      <div class="checkin-dashboard" aria-live="polite">
+        <div class="checkin-head">
+          <div class="checkin-title">📅 今日打卡与完成进度</div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;"><span class="checkin-pill" id="homeCheckinStatus">今日未打卡</span><button class="reset-progress-btn" onclick="resetProgressData()" type="button">清除本机记录</button></div>
+        </div>
+        <div class="checkin-stats">
+          <div class="checkin-stat"><div class="checkin-number" id="homeStreak">0</div><div class="checkin-label">连续打卡</div></div>
+          <div class="checkin-stat"><div class="checkin-number" id="homeTodayCount">0</div><div class="checkin-label">今日完成生字</div></div>
+          <div class="checkin-stat"><div class="checkin-number" id="homeTotalChars">0</div><div class="checkin-label">本机累计生字</div></div>
+          <div class="checkin-stat"><div class="checkin-number" id="homeBestScore">0</div><div class="checkin-label">本机最高分</div></div>
+        </div>
+        <div class="checkin-note">记录保存在这台电话或 iPad；换设备不会自动同步。</div>
+      </div>
       <div style="background:white; border-radius:30px; padding:25px; margin-top:30px; text-align:center; border:3px solid #0033a0;"><p style="font-size:18px; margin:0 0 10px;">✨ 点击🔊可朗读拼音 · 点击部首可听名称 · 支持多处圈画</p><p style="margin:0;">🐸 青蛙老师陪你一起练字，智能批改更真实</p></div>
     </div>
 
@@ -352,8 +395,20 @@
           <p>电脑会显示 5 位学生；iPad 和手机会自动只显示学生 1。</p>
           <p>这样临摹区更大，比较适合触控书写。</p>
         </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><span class="mini-score-badge">打卡</span><div class="mini-standard"><span></span><span></span><span></span></div></div></div>
+          <h3>9. 打卡进度</h3>
+          <p>学生点“交卷”后会自动打卡。</p>
+          <p>60 分以上会算完成，本课生字按钮会出现 ✓。</p>
+        </div>
+        <div class="manual-card">
+          <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-device"></div><span class="mini-chip hot">App</span></div></div>
+          <h3>10. 安装成App</h3>
+          <p>有HTTPS链接后，点“安装App”可放到主屏幕。</p>
+          <p>iPad 和 iPhone 请用 Safari 分享按钮，选择“添加到主屏幕”。</p>
+        </div>
       </div>
-      <div class="manual-note">小提示：如果页面没有更新，请按 Ctrl + F5 强制刷新。若画面太大，可点 Chrome 或 Microsoft Edge 右上角“三个点”，按“−”缩小银幕比例。</div>
+      <div class="manual-note">小提示：如果页面没有更新，请按 Ctrl + F5 强制刷新。若画面太大，可点 Chrome 或 Microsoft Edge 右上角“三个点”，按“−”缩小银幕比例。本地HTML文件不能直接安装成App，需要先上传成HTTPS链接。</div>
     </div>
 
     <div id="viewGrade" class="view"><h2>📌 选择年级 (Tahun 1-6)</h2><div class="card-grid" id="gradeGrid"></div></div>
@@ -379,6 +434,11 @@
           </div>
           <div class="quick-tags" id="quickTags"></div>
           <div class="lesson-progress"><span id="lessonProgress">第 1 / 1 字</span><span id="shortcutHint">← → 可换字</span></div>
+          <div class="lesson-checkin-card">
+            <div class="lesson-checkin-row"><span id="lessonCheckinStatus">今日未打卡</span><span id="lessonCompleteText">本课 0 / 0</span></div>
+            <div class="lesson-progress-track"><div class="lesson-progress-fill" id="lessonCompleteFill"></div></div>
+            <div class="lesson-checkin-sub" id="lessonCheckinSub">交卷后会自动记录完成进度。</div>
+          </div>
           <div class="frog-tip-card" id="frogTipCard" onclick="repeatFrogTip()" title="点击让青蛙老师再说一次">🐸 <b>写字重点：</b><span id="frogTipText">先看结构，再下笔。</span></div>
           <details class="standard-section" id="standardBox">
             <summary>📋 学习标准与表现标准</summary>
@@ -388,7 +448,7 @@
               <div><div class="standard-title">表现标准</div><div class="rubric-list" id="performanceRubric"></div></div>
             </div>
           </details>
-          <div class="meaning-section"><div class="meaning-title"><span>📖 释义</span><a id="dictLink" href="#" target="_blank" style="color:#0288d1; text-decoration:none;">🔗 百度百科</a></div><div class="meaning-content" id="meaningContent">天空；高处</div></div>
+          <div class="meaning-section"><div class="meaning-title"><span>📖 释义</span><span id="dictLink" style="color:#607d8b; font-weight:800;">本课释义</span></div><div class="meaning-content" id="meaningContent">天空；高处</div></div>
           <div class="words-section"><div class="words-title">🌟 配词与词义</div><div class="words-list" id="wordsList"></div></div>
           <div class="mini-nav"><button class="btn btn-blue" id="prevCharBtn" onclick="prevCharacter()">← 上一个字</button><button class="btn btn-blue" id="nextCharBtn" onclick="nextCharacter()">下一个字 →</button></div>
           <div class="action-btns"><button class="btn btn-orange" onclick="animateTeacher()">▶ 教师演示</button><button class="btn btn-red" onclick="resetAll()">🗑️ 全局清空</button></div>
@@ -2209,14 +2269,151 @@ function frogScoreComment(score, issues=[]){
 let currentChar='天',currentLesson=null,currentUnit=null,currentGrade=null,teacherWriter=null,teacherCtx=null,isTeacherWriteMode=false,currentToneData=null;
 const studentData={};
 let activeStudentId=1;
+let deferredInstallPrompt=null;
+const PROGRESS_KEY='xiziPracticeProgressV1';
 function setActiveStudent(id){ activeStudentId=id; }
 function updateBreadcrumb(items){ const bc=document.getElementById('breadcrumb'); bc.innerHTML=`<a href="#" onclick="app.showHome()">🏠 首页</a>`; items.forEach((it,i)=>{ if(i===items.length-1) bc.innerHTML+=` &gt; <span>${it.text}</span>`; else bc.innerHTML+=` &gt; <a href="#" onclick="${it.action}">${it.text}</a>`; }); }
 function getCurrentViewName(){ const active=document.querySelector('.view.active'); return active ? active.id.replace(/^view/,'').toLowerCase() : 'home'; }
 function updateBackButton(){ const btn=document.getElementById('backBtn'); if(!btn) return; const view=getCurrentViewName(); btn.disabled=view==='home'; btn.style.visibility=view==='home'?'hidden':'visible'; }
 function showView(v){ if(v!=='practice') closeAllMarkupModes(false); document.querySelectorAll('.view').forEach(el=>el.classList.remove('active')); document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1)).classList.add('active'); updateBackButton(); if(v==='practice') setTimeout(()=>resizePracticeCanvases(),50); }
 function goBack(){ const view=getCurrentViewName(); if(view==='practice' && currentGrade && currentUnit){ const d=getGradeData(currentGrade); const u=d.unitsData[currentUnit]; showView('lesson'); document.getElementById('lessonUnitTitle').innerText=`${u.unitName} · 课文`; updateBreadcrumb([{text:`${currentGrade}年级`, action:`selectGrade(${currentGrade})`},{text:u.unitName, action:`selectUnit(${currentGrade},'${currentUnit}')`}]); renderLessons(currentGrade,currentUnit); capySay('青蛙老师：已回到课文选择。'); return; } if(view==='lesson' && currentGrade){ selectGrade(currentGrade); return; } if(view==='unit'){ app.showGradeSelect(); return; } if(view==='grade' || view==='manual'){ app.showHome(); return; } app.showHome(); }
-const app = { showHome(){ showView('home'); updateBreadcrumb([]); capySay('青蛙老师：欢迎回来，点“开始学习”就可以继续练字。'); }, showManual(){ showView('manual'); updateBreadcrumb([{text:'使用手册', action:'app.showManual()'}]); capySay('青蛙老师：这里有网站的简单使用方法。'); }, showGradeSelect(){ showView('grade'); updateBreadcrumb([{text:'选择年级', action:'app.showGradeSelect()'}]); renderGradeGrid(); capySay(pickRandom(FROG_COMMENTS.start)); }, showPractice(){ showView('practice'); } };
+function isStandaloneApp(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true; }
+function isIOSDevice(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); }
+function updateInstallButton(){
+  const btn=document.getElementById('installAppBtn');
+  if(!btn) return;
+  btn.textContent=isStandaloneApp()?'✅ App模式':'📱 安装App';
+  btn.disabled=isStandaloneApp();
+  btn.style.opacity=isStandaloneApp()?'0.65':'1';
+}
+async function installApp(){
+  if(isStandaloneApp()){ capySay('青蛙老师：现在已经是App模式啦。'); return; }
+  if(location.protocol==='file:'){ capySay('青蛙老师：本地HTML不能直接安装成App。先把这个文件上传成HTTPS链接，再点“安装App”。'); return; }
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const choice=await deferredInstallPrompt.userChoice.catch(()=>null);
+    deferredInstallPrompt=null;
+    updateInstallButton();
+    capySay(choice?.outcome==='accepted'?'青蛙老师：安装完成！下次可以从主屏幕打开。':'青蛙老师：没关系，需要时再点“安装App”。');
+    return;
+  }
+  if(isIOSDevice()){ capySay('青蛙老师：iPad或iPhone请用Safari打开，点分享按钮，再选“添加到主屏幕”。'); return; }
+  capySay('青蛙老师：如果没有弹窗，请点浏览器右上角菜单，选择“安装应用”或“添加到主屏幕”。');
+}
+function initPwaApp(){
+  updateInstallButton();
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredInstallPrompt=e; updateInstallButton(); capySay('青蛙老师：现在可以点“安装App”，把戏字小助手放到主屏幕。'); });
+  window.addEventListener('appinstalled',()=>{ deferredInstallPrompt=null; updateInstallButton(); capySay('青蛙老师：安装成功！以后可以像App一样打开。'); });
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    navigator.serviceWorker.register('./xizi-sw.js').catch(()=>{});
+  }
+}
+const app = { showHome(){ showView('home'); updateBreadcrumb([]); updateProgressPanels(); capySay('青蛙老师：欢迎回来，点“开始学习”就可以继续练字。'); }, showManual(){ showView('manual'); updateBreadcrumb([{text:'使用手册', action:'app.showManual()'}]); capySay('青蛙老师：这里有网站的简单使用方法。'); }, showGradeSelect(){ showView('grade'); updateBreadcrumb([{text:'选择年级', action:'app.showGradeSelect()'}]); renderGradeGrid(); capySay(pickRandom(FROG_COMMENTS.start)); }, showPractice(){ showView('practice'); updateProgressPanels(); }, installApp };
 window.app = app;
+function todayKey(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function dateDiffDays(a,b){
+  if(!a||!b) return 9999;
+  const left=new Date(`${a}T00:00:00`);
+  const right=new Date(`${b}T00:00:00`);
+  return Math.round((right-left)/86400000);
+}
+function createProgressData(){
+  return { lastCheckin:'', streak:0, totalSubmits:0, bestScore:0, completedChars:{}, days:{}, lessons:{} };
+}
+function loadProgressData(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(PROGRESS_KEY)||'');
+    return { ...createProgressData(), ...(parsed||{}) };
+  }catch{
+    return createProgressData();
+  }
+}
+function saveProgressData(data){
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(data));
+}
+function getLessonProgressKey(){
+  return currentGrade && currentLesson ? `g${currentGrade}:${currentLesson}` : `free:${currentGrade||1}`;
+}
+function getLessonTitleForProgress(){
+  if(currentGrade && currentLesson){
+    const lesson=getGradeData(currentGrade).lessonsData?.[currentLesson];
+    return lesson?.lessonName || currentLesson;
+  }
+  return '自由练习';
+}
+function recordPracticeProgress(score){
+  const data=loadProgressData();
+  const today=todayKey();
+  const oldLast=data.lastCheckin;
+  if(oldLast!==today){
+    data.streak=dateDiffDays(oldLast,today)===1 ? (Number(data.streak)||0)+1 : 1;
+    data.lastCheckin=today;
+  }
+  data.totalSubmits=(Number(data.totalSubmits)||0)+1;
+  data.bestScore=Math.max(Number(data.bestScore)||0, Number(score)||0);
+  data.days[today]=data.days[today] || { chars:{}, count:0, bestScore:0 };
+  data.days[today].chars[currentChar]=Math.max(data.days[today].chars[currentChar]||0, Number(score)||0);
+  data.days[today].count=Object.keys(data.days[today].chars).length;
+  data.days[today].bestScore=Math.max(data.days[today].bestScore||0, Number(score)||0);
+  if(score>=60) data.completedChars[currentChar]=Math.max(data.completedChars[currentChar]||0, Number(score)||0);
+  const key=getLessonProgressKey();
+  const list=getPracticeCharList();
+  data.lessons[key]=data.lessons[key] || { title:getLessonTitleForProgress(), total:list.length||1, chars:{}, bestScore:0, last:'' };
+  data.lessons[key].title=getLessonTitleForProgress();
+  data.lessons[key].total=list.length||1;
+  data.lessons[key].last=today;
+  data.lessons[key].bestScore=Math.max(data.lessons[key].bestScore||0, Number(score)||0);
+  data.lessons[key].chars[currentChar]=Math.max(data.lessons[key].chars[currentChar]||0, Number(score)||0);
+  saveProgressData(data);
+  updateProgressPanels();
+  return data;
+}
+function getCurrentLessonCompletedCount(data=loadProgressData()){
+  const key=getLessonProgressKey();
+  const lesson=data.lessons[key];
+  const list=getPracticeCharList();
+  if(!lesson) return 0;
+  return list.filter(ch => (lesson.chars?.[ch]||0) >= 60).length;
+}
+function updateProgressPanels(){
+  const data=loadProgressData();
+  const today=todayKey();
+  const todayData=data.days[today] || { chars:{}, count:0 };
+  const todayDone=data.lastCheckin===today;
+  const setText=(id,text)=>{ const el=document.getElementById(id); if(el) el.textContent=text; };
+  setText('homeCheckinStatus', todayDone ? '今日已打卡' : '今日未打卡');
+  setText('homeStreak', `${Number(data.streak)||0}天`);
+  setText('homeTodayCount', Object.keys(todayData.chars||{}).length);
+  setText('homeTotalChars', Object.keys(data.completedChars||{}).length);
+  setText('homeBestScore', Number(data.bestScore)||0);
+  const list=getPracticeCharList();
+  const total=list.length || 1;
+  const done=getCurrentLessonCompletedCount(data);
+  const pct=Math.min(100, Math.round(done/total*100));
+  setText('lessonCheckinStatus', todayDone ? '今日已打卡' : '今日未打卡');
+  setText('lessonCompleteText', `本课 ${done} / ${total}`);
+  setText('lessonCheckinSub', done>=total ? '本课已完成，可以继续挑战更高分。' : `完成标准：交卷达到 60 分以上会打勾。今天已练 ${Object.keys(todayData.chars||{}).length} 个字。`);
+  const fill=document.getElementById('lessonCompleteFill');
+  if(fill) fill.style.width=`${pct}%`;
+  document.querySelectorAll('.tag-btn').forEach(btn=>{
+    const score=data.lessons[getLessonProgressKey()]?.chars?.[btn.innerText] || 0;
+    btn.classList.toggle('completed', score>=60);
+    if(score>=60) btn.title=`已完成：${score}分`;
+  });
+}
+function resetProgressData(){
+  if(!confirm('确定要清除这台设备上的打卡和完成进度吗？')) return;
+  localStorage.removeItem(PROGRESS_KEY);
+  updateProgressPanels();
+  buildQuickTags();
+  capySay('青蛙老师：本机打卡记录已清除。');
+}
 function renderGradeGrid(){ const g=document.getElementById('gradeGrid'); g.innerHTML=''; AppData.grades.forEach(gr=>{ const c=document.createElement('div'); c.className='nav-card'; c.innerHTML=`<div class="emoji-big">📘</div><h3>${gr} 年级</h3><div class="desc">Tahun ${gr}</div>`; c.onclick=()=>selectGrade(gr); g.appendChild(c); }); }
 function getGradeData(gr){ return AppData['grade'+gr]||AppData.grade1; }
 function selectGrade(gr){ currentGrade=gr; currentLesson=null; currentLessonChars=[]; showView('unit'); document.getElementById('unitGradeTitle').innerText=`${gr}年级 · 单元`; updateBreadcrumb([{text:`${gr}年级`, action:`selectGrade(${gr})`}]); renderUnits(gr); updateLearningStandardPanel(); capySay(`青蛙老师：现在是${gr}年级，选一个单元开始吧！`); }
@@ -2229,14 +2426,14 @@ function loadLessonCharacters(chars){ if(chars&&chars.length){ currentLessonChar
 
 function buildToneSelector(c){ const m=MULTI_TONE_MAP[c]; const s=document.getElementById('multiToneSelector'), e=document.getElementById('toneSelect'); if(m&&m.length>1){ s.style.display='inline-block'; e.innerHTML=''; m.forEach((it,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${it.py} (${it.meaning.slice(0,6)}...)`; e.appendChild(o); }); e.value='0'; currentToneData=m[0]; return m[0]; } else { s.style.display='none'; currentToneData=null; return null; } }
 function onToneChange(){ const s=document.getElementById('toneSelect'); const i=s.value; const m=MULTI_TONE_MAP[currentChar]; if(m&&m[i]){ currentToneData=m[i]; document.getElementById('pinyinDisplay').textContent=currentToneData.py; document.getElementById('meaningContent').innerHTML=getMeaningForChar(currentChar, currentToneData.meaning, currentToneData.words); buildWordsList(currentToneData.words || findCharacterData(currentChar)?.words || [], currentChar); capySay(`读音：${currentToneData.py}`); updateTeacherTarget(currentChar); updateStudentTargets(currentChar); } }
-function loadCharacter(c,py,radical,stroke,meaning,words){ closeAllMarkupModes(true); currentChar=c; document.getElementById('charInput').value=c; const rad=getCleanRadical(c), stk=getStrokeCount(c), stru=getChineseStructure(c); const m=buildToneSelector(c); let fpy,fmean,fwords; if(m){ fpy=m.py; fwords=m.words?.length ? m.words : (words||[c]); fmean=getMeaningForChar(c,m.meaning,fwords); } else { fpy=py||pinyinPro.pinyin(c,{toneType:'symbol'}); fwords=words||[c]; fmean=getMeaningForChar(c,meaning,fwords); } document.getElementById('pinyinDisplay').textContent=fpy; document.getElementById('radicalInfo').textContent=`部首: ${rad}（${getRadicalName(rad)}） | 结构: ${stru} | 笔画: ${stk}`; document.getElementById('meaningContent').innerHTML=fmean; document.getElementById('dictLink').href=`https://baike.baidu.com/search/word?word=${encodeURIComponent(c)}`; buildWordsList(fwords,c); updateLessonProgress(); updateLearningStandardPanel(); const frogTip=updateFrogTip(c,fpy,stru,rad,stk); updateTeacherTarget(c); updateStudentTargets(c); setTimeout(()=>resizePracticeCanvases(),60); refreshStructureHint(c, rad, stk); capySay(`青蛙老师：${frogTip}`); }
+function loadCharacter(c,py,radical,stroke,meaning,words){ closeAllMarkupModes(true); currentChar=c; document.getElementById('charInput').value=c; const rad=getCleanRadical(c), stk=getStrokeCount(c), stru=getChineseStructure(c); const m=buildToneSelector(c); let fpy,fmean,fwords; if(m){ fpy=m.py; fwords=m.words?.length ? m.words : (words||[c]); fmean=getMeaningForChar(c,m.meaning,fwords); } else { fpy=py||pinyinPro.pinyin(c,{toneType:'symbol'}); fwords=words||[c]; fmean=getMeaningForChar(c,meaning,fwords); } document.getElementById('pinyinDisplay').textContent=fpy; document.getElementById('radicalInfo').textContent=`部首: ${rad}（${getRadicalName(rad)}） | 结构: ${stru} | 笔画: ${stk}`; document.getElementById('meaningContent').innerHTML=fmean; const dictNote=document.getElementById('dictLink'); if(dictNote) dictNote.textContent='本课释义'; buildWordsList(fwords,c); updateLessonProgress(); updateLearningStandardPanel(); const frogTip=updateFrogTip(c,fpy,stru,rad,stk); updateTeacherTarget(c); updateStudentTargets(c); setTimeout(()=>resizePracticeCanvases(),60); refreshStructureHint(c, rad, stk); capySay(`青蛙老师：${frogTip}`); }
 function getPracticeCharList(){ if(currentLesson){ const lesson=getGradeData(currentGrade || 1).lessonsData?.[currentLesson]; if(lesson?.characters?.length) return lesson.characters.map(c=>c.char || c); } if(currentLessonChars.length) return currentLessonChars; return currentChar ? [currentChar] : []; }
 function buildQuickTags(){ const c=document.getElementById('quickTags'); c.innerHTML=''; const charsToShow = getPracticeCharList();
   charsToShow.forEach(ch=>{ const b=document.createElement('button'); b.className='tag-btn'; b.innerText=ch; b.onclick=()=>quickLoad(ch); if(ch===currentChar) b.classList.add('active'); c.appendChild(b); }); updateLessonProgress(); }
 function quickLoad(ch){ const data=findCharacterData(ch); loadCharacter(ch, data?.pinyin, data?.radical, data?.stroke, data?.meaning, data?.words); }
 function findCharacterData(c){ const gradeData = getGradeData(currentGrade || 1); const current = currentLesson ? gradeData.lessonsData[currentLesson] : null; if(current){ const hit=current.characters.find(x=>x.char===c); if(hit) return hit; } const ls=Object.values(gradeData.lessonsData || {}); for(let l of ls){ const hit=l.characters.find(x=>x.char===c); if(hit) return hit; } return null; }
 function getCurrentCharList(){ return getPracticeCharList(); }
-function updateLessonProgress(){ const list=getCurrentCharList(); const index=Math.max(0,list.indexOf(currentChar)); const total=list.length || 1; const label=document.getElementById('lessonProgress'); if(label) label.textContent=`第 ${index+1} / ${total} 字：${currentChar}`; const prev=document.getElementById('prevCharBtn'), next=document.getElementById('nextCharBtn'); if(prev) prev.disabled=index<=0; if(next) next.disabled=index>=total-1; document.querySelectorAll('.tag-btn').forEach(btn=>btn.classList.toggle('active',btn.innerText===currentChar)); }
+function updateLessonProgress(){ const list=getCurrentCharList(); const index=Math.max(0,list.indexOf(currentChar)); const total=list.length || 1; const label=document.getElementById('lessonProgress'); if(label) label.textContent=`第 ${index+1} / ${total} 字：${currentChar}`; const prev=document.getElementById('prevCharBtn'), next=document.getElementById('nextCharBtn'); if(prev) prev.disabled=index<=0; if(next) next.disabled=index>=total-1; document.querySelectorAll('.tag-btn').forEach(btn=>btn.classList.toggle('active',btn.innerText===currentChar)); updateProgressPanels(); }
 function moveCharacter(step){ const list=getCurrentCharList(); if(!list.length) return; const index=list.indexOf(currentChar); const nextIndex=Math.max(0,Math.min(list.length-1,(index<0?0:index)+step)); if(list[nextIndex] && list[nextIndex]!==currentChar) quickLoad(list[nextIndex]); }
 function prevCharacter(){ moveCharacter(-1); }
 function nextCharacter(){ moveCharacter(1); }
@@ -2656,9 +2853,21 @@ function drawIssueMarkers(ctx, markers, w, h) {
   ctx.restore();
 }
 
+function describeMarkerLocation(marker, box) {
+  if (!marker || !box || !box.width || !box.height) return '这一处';
+  const rx = (marker.cx - box.minX) / Math.max(1, box.width);
+  const ry = (marker.cy - box.minY) / Math.max(1, box.height);
+  const horizontal = rx < 0.36 ? '左' : rx > 0.64 ? '右' : '';
+  const vertical = ry < 0.36 ? '上' : ry > 0.64 ? '下' : '';
+  if (horizontal && vertical) return `${horizontal}${vertical}这一处`;
+  if (horizontal) return `${horizontal}边这一处`;
+  if (vertical) return `${vertical}方这一处`;
+  return '中间这一处';
+}
+
 async function smartMarkAndScore(id,canvas){
   const w=canvas.width, h=canvas.height;
-  if(w<10) return {score:0, summary:'未检测到书写', issues:[], markers:[]};
+  if(w<10) return {score:0, summary:'未检测到书写', issues:[], markers:[], markerNotes:[]};
   const reference = await getReferenceAnalysis(currentChar, Math.max(w, h));
   const sCtx=canvas.getContext('2d');
   const sImg=sCtx.getImageData(0,0,w,h);
@@ -2666,7 +2875,7 @@ async function smartMarkAndScore(id,canvas){
   const rMask=reference.mask;
   const studentMetrics = analyzeMaskMetrics(sMask, w, h);
   const refMetrics = analyzeMaskMetrics(rMask, w, h);
-  if(!studentMetrics || !refMetrics) return {score:0, summary:'未检测到书写', issues:['请先写字再交卷'], markers:[]};
+  if(!studentMetrics || !refMetrics) return {score:0, summary:'未检测到书写', issues:['请先写字再交卷'], markers:[], markerNotes:[]};
 
   const unionBox = {
     minX: Math.max(0, Math.min(studentMetrics.box.minX, refMetrics.box.minX) - 6),
@@ -2827,15 +3036,51 @@ async function smartMarkAndScore(id,canvas){
 
   const displayIssues = getStudentFriendlyIssues(issues);
   const summary = displayIssues.slice(0, 4).join(' · ');
+  const markerNotes = markers.map((marker, index) => {
+    const rawLabel = marker.label || issues[index] || '这一处再看范字';
+    const friendly = getStudentFriendlyIssues([rawLabel])[0] || rawLabel;
+    return `${index + 1}. ${describeMarkerLocation(marker, studentMetrics.box)}：${friendly}`;
+  });
   const mCtx = studentData[id].markupCtx;
   drawIssueMarkers(mCtx, markers, w, h);
   const wrap=document.getElementById(`wrap${id}`);
   if(wrap) wrap.classList.toggle('score-mark-active', markers.length>0);
   resetMarkupHistory(id);
-  return {score, summary, issues: displayIssues, rawIssues: issues, markers};
+  return {score, summary, issues: displayIssues, rawIssues: issues, markers, markerNotes};
 }
 
-async function submitStudent(id){ const canvas=document.getElementById(`canvas${id}`); const fb=document.getElementById(`fb${id}`), badge=document.getElementById(`badge${id}`), card=document.getElementById(`card${id}`); fb.textContent='评分中...'; const {score,summary,issues}=await smartMarkAndScore(id,canvas); const perf=getPerformanceLevel(score); const frogComment=frogScoreComment(score,issues); badge.textContent=`表现${perf.level} · ${score}分`; badge.className='current-badge '+(score>=80?'high':'low'); studentData[id].total+=score; document.getElementById(`total${id}`).innerText=studentData[id].total; fb.textContent=`${perf.label} · ${score}分 · ${summary}`; capySay(`${frogComment} 这次约为表现${perf.level}：${perf.label}。`); if(card && score>=82){ card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); } if(score>=90){ SFX.win(); confetti({particleCount:70}); } else if(score>=75){ SFX.ok(); } else { SFX.bad(); } }
+function escapeHtml(text){
+  return String(text).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function buildMarkerFeedbackHtml(markerNotes){
+  if(!markerNotes || !markerNotes.length) return '';
+  const rows = markerNotes.map((note, index) => {
+    const detail = String(note).replace(/^\d+\.\s*/, '');
+    return `<span>圈 ${index + 1}：${escapeHtml(detail)}</span>`;
+  }).join('');
+  return `<div class="marker-feedback-list">${rows}</div>`;
+}
+
+async function submitStudent(id){
+  const canvas=document.getElementById(`canvas${id}`);
+  const fb=document.getElementById(`fb${id}`), badge=document.getElementById(`badge${id}`), card=document.getElementById(`card${id}`);
+  fb.textContent='评分中...';
+  const {score,summary,issues,markerNotes}=await smartMarkAndScore(id,canvas);
+  const perf=getPerformanceLevel(score);
+  const frogComment=frogScoreComment(score,issues);
+  badge.textContent=`表现${perf.level} · ${score}分`;
+  badge.className='current-badge '+(score>=80?'high':'low');
+  studentData[id].total+=score;
+  document.getElementById(`total${id}`).innerText=studentData[id].total;
+  if(score>0) recordPracticeProgress(score);
+  fb.innerHTML=`<div>${escapeHtml(perf.label)} · ${score}分 · ${escapeHtml(summary)}</div>${buildMarkerFeedbackHtml(markerNotes)}`;
+  const markerSpeech = markerNotes && markerNotes.length ? ` 圈起来的地方：${markerNotes.join('；')}。` : '';
+  const progressText = score>=60 ? '这个字已经记入完成进度。' : '这次先不算完成，再练一次就有机会打勾。';
+  capySay(`${frogComment}${markerSpeech} ${progressText} 这次约为表现${perf.level}：${perf.label}。`);
+  if(card && score>=82){ card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); }
+  if(score>=90){ SFX.win(); confetti({particleCount:70}); } else if(score>=75){ SFX.ok(); } else { SFX.bad(); }
+}
 
 function initTeacherCanvas(){
   const canvas=document.getElementById('teacherCanvas'), cont=document.getElementById('teacherBox');
@@ -2892,11 +3137,11 @@ function initTeacherCanvas(){
 }
 function resizePracticeCanvases(){ for(let i=1;i<=5;i++) resizeStudentCanvas(i); }
 
-window.onload=()=>{ currentGrade=1; buildQuickTags(); initStudentSuite(); initTeacherCanvas(); document.getElementById('charInput').addEventListener('change',e=>{ const c=e.target.value.trim()[0]; if(c) quickLoad(c); }); loadCharacter('天','tiān','一',4,'本课生字',['天','太','阳','上','学']); app.showHome(); window.addEventListener('resize',()=>{ resizePracticeCanvases(); updateTeacherTarget(currentChar); }); document.addEventListener('fullscreenchange',()=>setTimeout(()=>updateTeacherTarget(currentChar),120)); window.addEventListener('pagehide',()=>{ closeAllMarkupModes(false); exitTeacherPseudoFullscreen(); }); document.addEventListener('visibilitychange',()=>{ if(document.hidden){ closeAllMarkupModes(false); exitTeacherPseudoFullscreen(); } }); };
+window.onload=()=>{ currentGrade=1; initPwaApp(); buildQuickTags(); initStudentSuite(); initTeacherCanvas(); document.getElementById('charInput').addEventListener('change',e=>{ const c=e.target.value.trim()[0]; if(c) quickLoad(c); }); loadCharacter('天','tiān','一',4,'本课生字',['天','太','阳','上','学']); app.showHome(); updateProgressPanels(); window.addEventListener('resize',()=>{ resizePracticeCanvases(); updateTeacherTarget(currentChar); updateInstallButton(); updateProgressPanels(); }); document.addEventListener('fullscreenchange',()=>setTimeout(()=>updateTeacherTarget(currentChar),120)); window.addEventListener('pagehide',()=>{ closeAllMarkupModes(false); exitTeacherPseudoFullscreen(); }); document.addEventListener('visibilitychange',()=>{ if(document.hidden){ closeAllMarkupModes(false); exitTeacherPseudoFullscreen(); } }); };
 window.selectGrade=selectGrade; window.selectUnit=selectUnit; window.selectLesson=selectLesson; window.quickLoad=quickLoad; window.playAudio=playAudio; window.playRadicalAudio=playRadicalAudio; window.repeatFrogTip=repeatFrogTip; window.setActiveStudent=setActiveStudent; window.goBack=goBack;
 window.animateTeacher=animateTeacher; window.toggleTeacherMode=toggleTeacherMode; window.clearTeacherCanvas=clearTeacherCanvas; window.setMode=setMode;
 window.undoDraw=undoDraw; window.redoDraw=redoDraw; window.resetStudent=resetStudent; window.submitStudent=submitStudent; window.toggleMarkupMode=toggleMarkupMode; window.resetAll=resetAll; window.prevCharacter=prevCharacter; window.nextCharacter=nextCharacter; window.toggleTeacherFullscreen=toggleTeacherFullscreen; window.exitTeacherFullscreen=exitTeacherFullscreen;
-window.capyTalk=capyTalk; window.onToneChange=onToneChange;
+window.capyTalk=capyTalk; window.onToneChange=onToneChange; window.resetProgressData=resetProgressData;
 </script>
 </body>
 </html>
