@@ -399,7 +399,7 @@
           <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><span class="mini-score-badge">打卡</span><div class="mini-standard"><span></span><span></span><span></span></div></div></div>
           <h3>9. 打卡进度</h3>
           <p>学生点“交卷”后会自动打卡。</p>
-          <p>60 分以上会算完成，本课生字按钮会出现 ✓。</p>
+          <p>只要写完交卷并获得分数，就会算完成，本课生字按钮会出现 ✓。</p>
         </div>
         <div class="manual-card">
           <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-device"></div><span class="mini-chip hot">App</span></div></div>
@@ -2361,7 +2361,7 @@ function recordPracticeProgress(score){
   data.days[today].chars[currentChar]=Math.max(data.days[today].chars[currentChar]||0, Number(score)||0);
   data.days[today].count=Object.keys(data.days[today].chars).length;
   data.days[today].bestScore=Math.max(data.days[today].bestScore||0, Number(score)||0);
-  if(score>=60) data.completedChars[currentChar]=Math.max(data.completedChars[currentChar]||0, Number(score)||0);
+  if(score>0) data.completedChars[currentChar]=Math.max(data.completedChars[currentChar]||0, Number(score)||0);
   const key=getLessonProgressKey();
   const list=getPracticeCharList();
   data.lessons[key]=data.lessons[key] || { title:getLessonTitleForProgress(), total:list.length||1, chars:{}, bestScore:0, last:'' };
@@ -2379,7 +2379,7 @@ function getCurrentLessonCompletedCount(data=loadProgressData()){
   const lesson=data.lessons[key];
   const list=getPracticeCharList();
   if(!lesson) return 0;
-  return list.filter(ch => (lesson.chars?.[ch]||0) >= 60).length;
+  return list.filter(ch => (lesson.chars?.[ch]||0) > 0).length;
 }
 function updateProgressPanels(){
   const data=loadProgressData();
@@ -2398,13 +2398,13 @@ function updateProgressPanels(){
   const pct=Math.min(100, Math.round(done/total*100));
   setText('lessonCheckinStatus', todayDone ? '今日已打卡' : '今日未打卡');
   setText('lessonCompleteText', `本课 ${done} / ${total}`);
-  setText('lessonCheckinSub', done>=total ? '本课已完成，可以继续挑战更高分。' : `完成标准：交卷达到 60 分以上会打勾。今天已练 ${Object.keys(todayData.chars||{}).length} 个字。`);
+  setText('lessonCheckinSub', done>=total ? '本课已完成，可以继续挑战更高分。' : `完成标准：写完交卷并获得分数就会打勾。今天已练 ${Object.keys(todayData.chars||{}).length} 个字。`);
   const fill=document.getElementById('lessonCompleteFill');
   if(fill) fill.style.width=`${pct}%`;
   document.querySelectorAll('.tag-btn').forEach(btn=>{
     const score=data.lessons[getLessonProgressKey()]?.chars?.[btn.innerText] || 0;
-    btn.classList.toggle('completed', score>=60);
-    if(score>=60) btn.title=`已完成：${score}分`;
+    btn.classList.toggle('completed', score>0);
+    if(score>0) btn.title=`已完成：${score}分`;
   });
 }
 function resetProgressData(){
@@ -3076,7 +3076,7 @@ async function submitStudent(id){
   if(score>0) recordPracticeProgress(score);
   fb.innerHTML=`<div>${escapeHtml(perf.label)} · ${score}分 · ${escapeHtml(summary)}</div>${buildMarkerFeedbackHtml(markerNotes)}`;
   const markerSpeech = markerNotes && markerNotes.length ? ` 圈起来的地方：${markerNotes.join('；')}。` : '';
-  const progressText = score>=60 ? '这个字已经记入完成进度。' : '这次先不算完成，再练一次就有机会打勾。';
+  const progressText = score>0 ? '这个字已经记入完成进度。' : '还没有检测到分数，先写完再交卷。';
   capySay(`${frogComment}${markerSpeech} ${progressText} 这次约为表现${perf.level}：${perf.label}。`);
   if(card && score>=82){ card.classList.remove('celebrate'); void card.offsetWidth; card.classList.add('celebrate'); }
   if(score>=90){ SFX.win(); confetti({particleCount:70}); } else if(score>=75){ SFX.ok(); } else { SFX.bad(); }
