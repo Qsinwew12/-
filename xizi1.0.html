@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no, maximum-scale=1" />
   <meta name="theme-color" content="#039be5" />
-  <meta name="application-name" content="戏字小助手" />
-  <meta name="apple-mobile-web-app-title" content="戏字小助手" />
+<meta name="application-name" content="习字小助手" />
+<meta name="apple-mobile-web-app-title" content="习字小助手" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="manifest" href="xizi-manifest.webmanifest" />
   <link rel="icon" href="xizi-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="xizi-icon.svg" />
-  <title>戏字小助手 · 一至六年级华文练字</title>
+<title>习字小助手 · 一至六年级华文练字</title>
 
   <script src="https://unpkg.com/hanzi-writer@3.5.0/dist/hanzi-writer.min.js"></script>
   <script src="https://unpkg.com/pinyin-pro/dist/index.js"></script>
@@ -278,7 +278,7 @@
 
   <div class="view-container">
     <div id="viewHome" class="view active">
-      <h1>📖 戏字小助手<br><small>KSSR Semakan 2017 · 一至六年级华文练字</small></h1>
+      <h1>📖 习字小助手<br><small>KSSR Semakan 2017 · 一至六年级华文练字</small></h1>
       <div style="display:flex; justify-content:center; margin:30px 0;"><img src="https://cdn-icons-png.flaticon.com/512/1864/1864472.png" style="width:140px;" alt="青蛙老师"></div>
       <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px;"><button class="btn btn-blue" style="padding:16px 40px; font-size:20px;" onclick="app.showGradeSelect()">🚀 开始学习 · 选择年级</button><button class="btn btn-orange" style="padding:16px 34px; font-size:20px;" onclick="app.showManual()">📘 使用手册</button><button class="btn btn-green" style="padding:16px 34px; font-size:20px;" onclick="app.installApp()">📱 安装成App</button></div>
       <div class="checkin-dashboard" aria-live="polite">
@@ -2465,7 +2465,7 @@ async function installApp(){
 }
 function initPwaApp(){
   updateInstallButton();
-  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredInstallPrompt=e; updateInstallButton(); capySay('青蛙老师：现在可以点“安装App”，把戏字小助手放到主屏幕。'); });
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredInstallPrompt=e; updateInstallButton(); capySay('青蛙老师：现在可以点“安装App”，把习字小助手放到主屏幕。'); });
   window.addEventListener('appinstalled',()=>{ deferredInstallPrompt=null; updateInstallButton(); capySay('青蛙老师：安装成功！以后可以像App一样打开。'); });
   if('serviceWorker' in navigator && location.protocol.startsWith('http')){
     navigator.serviceWorker.register('./xizi-sw.js').catch(()=>{});
@@ -2604,7 +2604,7 @@ function buildProgressReport(){
   const title=lesson?.title || getLessonTitleForProgress();
   const completedList=Object.entries(lesson?.chars || {}).map(([ch,score])=>`${ch}${score ? `(${score}分)` : ''}`).join('、') || '暂无';
   return [
-    '戏字小助手学习报告',
+    '习字小助手学习报告',
     `日期：${today}`,
     `年级：${currentGrade || '-'}`,
     `课文：${title}`,
