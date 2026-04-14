@@ -1739,6 +1739,29 @@ Object.assign(WORD_ENTRY_FIX_MAP, {
   '健': [{word:'健康', meaning:'身体好'}, {word:'健身', meaning:'锻炼身体'}, {word:'运动让身体健康', meaning:'常用短句：运动有益'}]
 });
 
+const SUPPLEMENT_WORD_CORPUS = `
+安全 平安 安心 岸边 河岸 凹凸 骄傲 傲慢 八月 尾巴 水坝 大坝 罢工 罢休 霸道 霸王 百年 百姓 失败 打败 拜访 拜年 办法 办理 半天 一半 帮助 帮忙 榜样 排行榜 包子 书包 城堡 堡垒 卑微 卑下 北方 北边 宝贝 贝壳 书本 本子 绷带 紧绷 鼻子 鼻音 比较 比赛 必须 必要 毕业 毕竟 墙壁 壁画 编写 编排 变化 改变 遍地 一遍 分别 告别 饼干 月饼 广播 播放 捕捉 捕虫 布料 布置 才能 刚才 采花 采摘 彩色 光彩 早餐 用餐 仓库 仓促 册子 画册 插花 插入 观察 考察 拆开 拆除 常常 经常 工厂 厂房 唱歌 合唱 潮水 热潮 大臣 臣子 尘土 灰尘 沉重 下沉 早晨 清晨 成功 完成 乘车 乘坐 路程 过程 吃饭 吃力 松弛 弛缓 迟到 迟早 尺子 尺寸 牙齿 齿轮 赤色 赤脚 翅膀 展翅 充分 充满 丑陋 小丑 臭味 发臭 出来 出发 除法 除去 厨房 厨师 春天 春风 纯洁 单纯 告辞 辞别 此时 因此 刺刀 刺痛 匆忙 匆匆 葱花 青葱 从前 跟从 促进 急促 催促 催眠 摧毁 摧残 清脆 脆弱 存在 保存 措施 措手 带领 带子 怠慢 懈怠 袋子 口袋 丹心 丹青 单独 单元 元旦 旦夕 挡住 阻挡 刀子 小刀 到达 看到 盗窃 强盗 道路 知道 灯光 台灯 等待 等候 瞪眼 瞪大 笛子 竹笛 底下 海底 弟弟 兄弟 点心 点头 电话 电灯 雕刻 雕像 吊灯 吊桥 碟子 碗碟 丁字 园丁 定时 决定 东方 东西 冬天 冬日 动作 动物 山洞 洞口 豆子 黄豆 督促 监督 对错 对方 争夺 夺取 花朵 云朵 而且 然而 耳朵 耳边 二月 二十 反对 相反 方向 方正 放学 放心 飞机 飞翔 非常 是非 费用 花费 分开 分别 奋斗 奋发 丰收 丰富 风雨 大风 疯狂 发疯 夫人 丈夫 父亲 父母 复习 恢复 改正 改变 肝脏 肝胆 勇敢 敢于 水缸 鱼缸 岗位 山岗 高山 高兴 哥哥 大哥 鸽子 白鸽 改革 革命 个人 一个 各自 各种 耕田 耕种 更加 更新 公园 公共 功课 功劳 恭喜 恭敬 共同 一共 贡献 贡品 水沟 沟通 古代 古诗 股份 股票 鼓声 打鼓 固定 坚固 顾客 照顾 瓜果 西瓜 寡人 寡言 乖巧 乖乖 拐杖 拐弯 关闭 关心 图书馆 饭馆 习惯 惯用 广大 广场 乌龟 海龟 滚动 翻滚 果实 水果 包裹 裹住 孩子 小孩 大海 海边 害怕 伤害 旱灾 干旱 号码 号角 喝水 喝茶 合作 合上 很多 很好 狠心 凶狠 红色 红花 后来 后面 呼吸 呼喊 忽然 忽视 水壶 茶壶 互相 互助 户口 门户 化学 变化 说话 讲话 幻想 变幻 呼唤 召唤 荒地 荒凉 黄色 黄昏 汇合 汇报 绘画 描绘 昏暗 黄昏 火车 火光 伙伴 同伙 或者 或许 及时 以及 疾病 疾风 自己 知己 国际 边际 足迹 事迹 佳节 佳作 家人 家庭 坚强 坚持 监督 监考 看见 见面 建设 建立 键盘 关键 酱油 果酱 叫声 叫好 接近 接受 揭开 揭示 街道 街口 节日 季节 抢劫 劫难 姐姐 姐妹 今天 今年 紧张 抓紧 谨慎 谨记 经过 经常 井水 水井 景色 风景 路径 小径 干净 净化 久久 长久 局长 局面 句子 语句 拒绝 抗拒 均匀 平均 卡片 卡车 看见 看书 健康 健身 抵抗 反抗 考试 思考 可以 可爱 刻苦 时刻 空气 天空 扣子 纽扣 枯树 枯黄 仓库 书库 跨过 跨步 快乐 快速 宽阔 宽大 方框 框住 阔大 开阔 蓝天 蓝色 篮球 篮子 浏览 浏阳 揽月 招揽 懒惰 偷懒 烂漫 灿烂 劳动 辛劳 老师 老人 冷水 冷静 离开 距离 里面 里外 力气 力量 历史 日历 厉害 严厉 立正 站立 美丽 华丽 联合 联系 笑脸 脸色 练习 训练 两个 两边 明亮 月亮 治疗 疗养 聊天 闲聊 排列 列车 临时 来临 灵活 心灵 铃声 铃铛 溜走 溜冰 浏览 浏河 六月 六个 笼子 鸟笼 简陋 陋习 陆地 大陆 记录 录音 混乱 乱跑 轮流 车轮 讨论 议论 网络 联络 屡次 屡屡 考虑 顾虑 省略 略过 马路 马车 埋伏 埋头 光芒 芒果 毛笔 羽毛 什么 怎么 眉毛 眉目 妹妹 姐妹 我们 你们 萌芽 萌发 米饭 大米 睡眠 休眠 勉强 勉励 面包 面前 民族 人民 敏捷 灵敏 名字 有名 魔法 魔术 母亲 父母 木头 树木 目光 目前 幕布 屏幕 那里 那边 纳入 接纳 牛奶 奶奶 无奈 奈何 男生 男人 脑袋 头脑 你好 你们 牛羊 水牛 农田 农民 玩弄 弄错 温暖 暖和 女儿 女生 趴下 趴着 爬山 爬行 手帕 帕子 判断 判定 盼望 期盼 庞大 庞然 旁边 身旁 朋友 亲朋 蓬勃 蓬松 皮球 皮肤 品格 作品 平安 平时 凭借 凭证 瓶子 水瓶 七月 七个 凄凉 凄惨 整齐 齐心 其他 其中 祈祷 祈求 乞求 乞讨 起来 起立 气球 空气 放弃 抛弃 哭泣 泣声 迁移 变迁 牵手 牵牛 浅水 深浅 欠缺 欠身 敲门 敲打 巧妙 灵巧 琴声 钢琴 青山 青色 倾听 倾斜 心情 情感 请求 求助 足球 球场 曲线 歌曲 屈服 委屈 趣味 有趣 痊愈 痊愈 麻雀 雀鸟 群众 人群 自然 然后 人们 人口 日子 今日 柔软 温柔 肉类 牛肉 入口 加入 三月 三个 嗓音 嗓子 扫地 打扫 颜色 色彩 森林 森森 杀虫 杀菌 衬衫 衣衫 闪电 闪亮 商店 商量 烧火 发烧 树梢 梢头 舌头 舌尖 摄影 拍摄 谁来 谁是 身体 身边 什么 什锦 神奇 精神 甚至 甚多 慎重 谨慎 升旗 上升 生活 学生 绳子 跳绳 失去 失望 诗歌 古诗 施肥 施工 十分 十月 石头 石子 时间 小时 食物 食品 驾驶 行驶 士兵 士气 表示 示范 世界 世代 形式 方式 是非 于是 誓言 发誓 守护 守时 野兽 兽类 特殊 殊荣 舒服 舒心 蔬菜 蔬果 熟悉 成熟 顺利 顺手 说话 小说 司机 司令 四季 四方 搜索 搜查 随便 跟随 岁月 年岁 孙子 子孙 他们 他人 高塔 宝塔 谈话 谈心 木炭 炭火 汤水 热汤 滔滔 滔天 啼叫 啼哭 代替 替换 添加 增添 条件 条理 跳舞 跳高 家庭 法庭 挺直 挺立 传统 系统 偷偷 小偷 头发 头顶 光秃 秃头 图画 地图 徒弟 徒步 涂色 涂抹 土地 泥土 吞下 吞吞吐吐 挖土 挖洞 外面 外国 玩具 玩耍 顽皮 顽强 挽救 挽回 晚上 晚饭 饭碗 木碗 王子 国王 危险 危机 微笑 微小 围巾 周围 未来 未必 文明 文字 新闻 听闻 鸟窝 小窝 我们 自我 乌云 乌鸦 污水 污点 无声 无论 五月 五个 中午 午饭 任务 务必 物品 动物 夕阳 夕照 西方 西边 希望 希少 稀少 稀饭 缝隙 空隙 朝霞 晚霞 下雨 下方 先生 先进 献花 奉献 乡村 家乡 方向 向前 小巷 巷口 大象 象牙 消失 消防 夜宵 元宵 孝顺 孝心 学校 校园 笑声 微笑 协助 协会 形状 形象 凶猛 凶手 兄弟 兄长 胸口 胸怀 削皮 削弱 雪花 下雪 血液 血汗 驯服 驯养 淹没 淹水 语言 言语 岩石 山岩 炎热 发炎 沿路 沿海 讨厌 厌烦 养成 养育 药物 药品 椰子 椰树 爷爷 老爷 作业 事业 衣服 衣物 阿姨 姨妈 遗产 遗留 已经 已有 以后 可以 义气 意义 艺术 文艺 异同 奇异 抑制 抑郁 容易 易懂 有益 益处 因为 原因 树荫 绿荫 音乐 声音 吟唱 吟诗 引导 吸引 印象 脚印 欢迎 迎接 营养 经营 勇敢 英勇 用处 使用 悠久 悠闲 由于 自由 有趣 有用 又是 又来 幼儿 幼小 余下 业余 与其 参与 宇宙 宇航 羽毛 羽翼 遇见 相遇 防御 御寒 荣誉 信誉 队员 员工 原来 原因 怨言 抱怨 悦耳 喜悦 跳跃 飞跃 越过 超越 均匀 匀称 怀孕 孕育 杂志 复杂 灾难 火灾 栽树 栽花 再见 再次 在家 现在 采摘 摘要 窄路 狭窄 展开 展示 战斗 战士 张开 张望 手杖 拐杖 找到 寻找 这个 这些 枕头 枕边 震动 地震 争取 争光 正确 正在 之一 之前 支持 支架 肢体 四肢 侄子 侄女 停止 止步 旗帜 帜旗 制作 制度 周围 周到 扫帚 竹子 竹林 逐步 追逐 主要 主人 帮助 助手 专心 专门 化妆 妆容 装饰 包装 强壮 壮大 状态 形状 追赶 追求 滋味 滋养 子女 子孙 演奏 奏乐 民族 家族 最好 最近 作业 作品 坐下 坐好 做事 做梦 梦想 美梦 梦见 实现梦想
+普通 普遍
+`;
+
+let supplementWordIndex = null;
+function getSupplementWordIndex() {
+  if (supplementWordIndex) return supplementWordIndex;
+  supplementWordIndex = {};
+  const words = SUPPLEMENT_WORD_CORPUS.split(/[\s、，,；;。]+/).map(w => w.trim()).filter(w => /^[\u4e00-\u9fff]{2,8}$/.test(w));
+  words.forEach(word => {
+    const uniqueChars = [...new Set([...word])];
+    uniqueChars.forEach(ch => {
+      supplementWordIndex[ch] = supplementWordIndex[ch] || [];
+      if (!supplementWordIndex[ch].includes(word)) supplementWordIndex[ch].push(word);
+    });
+  });
+  return supplementWordIndex;
+}
+function getSupplementWordsForChar(c) {
+  return (getSupplementWordIndex()[c] || []).slice(0, 8);
+}
+
 let decodedLegacyWordMap = null;
 function containsLegacyMojibake(value) {
   return typeof value === 'string' && /[\u00e5\u00e6\u00e7]/.test(value);
@@ -1776,7 +1799,7 @@ function getWordMeaning(word, anchor) {
   const tone = MULTI_TONE_MAP[anchor]?.find(item => item.words?.includes(word));
   if (tone?.meaning) return tone.meaning;
   if (word === anchor) return shortCharMeaning(anchor);
-  return `含「${anchor}」的配词，帮助理解：${shortCharMeaning(anchor)}`;
+  return `常用配词，意思可结合「${anchor}」理解：${shortCharMeaning(anchor)}`;
 }
 function getFallbackWordEntries(c) {
   const source = getLessonWordsForChar(c, []).filter(word => typeof word === 'string' && word.length > 1 && word.includes(c));
@@ -1791,6 +1814,7 @@ function getWordEntriesForChar(c, words) {
   };
   (WORD_ENTRY_FIX_MAP[c] || []).forEach(item => add(item.word, item.meaning));
   (MULTI_TONE_MAP[c] || []).forEach(tone => (tone.words || []).forEach(word => add(word, tone.meaning)));
+  getSupplementWordsForChar(c).forEach(word => add(word));
   getDecodedLegacyWords(c).forEach(word => add(word));
   (Array.isArray(words) ? words : []).filter(word => typeof word === 'string' && word.length > 1).forEach(word => add(word));
   if (entries.length < 2) getFallbackWordEntries(c).forEach(item => add(item.word, item.meaning));
