@@ -218,6 +218,7 @@
 
     .section-header { text-align: center; margin: 40px 0 20px; font-size: 22px; font-weight: 900; color: var(--primary-dark); }
     .device-note { display: none; max-width: 720px; margin: -10px auto 18px; padding: 12px 16px; border-radius: 18px; background: #fff8e1; border: 2px solid #ffe082; color: #6d4c41; font-weight: 900; text-align: center; }
+    body.multi-student-mode .device-note { display: block; background: #e8f5e9; border-color: #a5d6a7; color: #1b5e20; }
     .student-grid { display: grid; grid-template-columns: repeat(5, minmax(190px, 1fr)); gap: 18px; max-width: 1580px; margin: 0 auto; touch-action: none; overscroll-behavior: contain; }
 
     .student-card { position: relative; display: flex; flex-direction: column; align-items: center; padding: 15px 10px; touch-action: none; }
@@ -238,7 +239,8 @@
     .markup-active .markup-layer { display: block; }
     .score-mark-active:not(.markup-active) .markup-layer { display: block; pointer-events: none; }
     .mode-stroke .draw-layer { display: none; pointer-events: none; }
-    .mode-stroke .hanzi-layer { opacity: 0.6; }
+    .mode-stroke .hanzi-layer { opacity: 0.6; z-index: 12; pointer-events: auto; }
+    .mode-stroke .hanzi-layer svg, .mode-stroke .hanzi-layer path, .mode-stroke .hanzi-layer g { pointer-events: auto; touch-action: none; }
     .mode-free .hanzi-layer { opacity: 0.6; pointer-events: none; }
 
     .feedback-text { margin-top: 8px; min-height: 32px; height: auto; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; padding: 6px 8px; line-height: 1.35; text-align: center; font-size: 12px; font-weight: bold; color: #555; background: #f5f5f5; width: 100%; border-radius: 8px; }
@@ -261,6 +263,8 @@
       .student-grid { grid-template-columns: minmax(260px, 640px); justify-content: center; max-width: 720px; }
       .student-card:nth-child(n+2) { display: none; }
       .device-note { display: block; }
+      body.multi-student-mode .student-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); justify-content: stretch; max-width: 100%; }
+      body.multi-student-mode .student-card:nth-child(n+2) { display: flex; }
       .canvas-wrap { max-height: min(72svh, 620px); }
       .feedback-text { min-height: 38px; height: auto; padding: 6px 8px; }
     }
@@ -410,7 +414,7 @@
           <div class="manual-mini-img" aria-hidden="true"><div class="mini-ui"><div class="mini-device"></div><span class="mini-chip hot">App</span></div></div>
           <h3>10. 安装成App</h3>
           <p>有HTTPS链接后，点“安装App”可放到主屏幕。</p>
-          <p>iPad 和 iPhone 请用 Safari 分享按钮，选择“添加到主屏幕”。</p>
+        <p>Chrome、Microsoft Edge 可点右上角“三个点”，选择“安装应用”或“添加到主屏幕”；iPad 和 iPhone 可用 Safari 分享按钮添加到主屏幕。</p>
         </div>
       </div>
       <div class="manual-note">小提示：如果页面没有更新，请按 Ctrl + F5 强制刷新。若画面太大，可点 Chrome 或 Microsoft Edge 右上角“三个点”，按“−”缩小银幕比例。本地HTML文件不能直接安装成App，需要先上传成HTTPS链接。</div>
@@ -466,7 +470,7 @@
         </div>
       </div>
       <div class="section-header">🏆 学生练习区</div>
-      <div class="device-note">平板 / 手机模式：这里只显示学生 1，临摹区会自动放大，方便触控书写。</div>
+      <div class="device-note">多人同写已开启：平板 / 触控屏会显示全部学生格子，可同时严格笔顺或描红临摹。</div>
       <div class="student-grid" id="studentGrid"></div>
     </div>
   </div>
@@ -2484,7 +2488,7 @@ async function installApp(){
     capySay(choice?.outcome==='accepted'?'青蛙老师：安装完成！下次可以从主屏幕打开。':'青蛙老师：没关系，需要时再点“安装App”。');
     return;
   }
-  if(isIOSDevice()){ capySay('青蛙老师：iPad或iPhone请用Safari打开，点分享按钮，再选“添加到主屏幕”。'); return; }
+  if(isIOSDevice()){ capySay('青蛙老师：Chrome、Microsoft Edge 可点右上角“三个点”安装；iPad或iPhone也可用 Safari 分享按钮，选择“添加到主屏幕”。'); return; }
   capySay('青蛙老师：如果没有弹窗，请点浏览器右上角菜单，选择“安装应用”或“添加到主屏幕”。');
 }
 function initPwaApp(){
@@ -2794,7 +2798,7 @@ function exitTeacherFullscreen(event){ event?.stopPropagation?.(); if(document.f
 
 // 学生卡片及评分圈画
 function buildStudentCards(){ const g=document.getElementById('studentGrid'); g.innerHTML=''; for(let i=1;i<=5;i++){ const c=document.createElement('div'); c.className='card student-card'; c.id=`card${i}`; c.innerHTML=`<div class="current-badge" id="badge${i}">待评分</div><div class="score-container"><span class="score-box">👤 学生 ${i}</span><span class="score-box total-score">🏆 累积: <span id="total${i}">0</span></span></div><div class="switch-capsule"><div class="switch-opt active" onclick="setMode(${i}, 'stroke')">严格笔顺</div><div class="switch-opt" onclick="setMode(${i}, 'free')">描红临摹</div></div><div class="canvas-wrap mode-stroke" id="wrap${i}" onpointerdown="setActiveStudent(${i})"><div class="grid-lines"></div><div id="hanzi${i}" class="hanzi-layer"></div><canvas id="canvas${i}" class="draw-layer"></canvas><canvas id="markupCanvas${i}" class="markup-layer"></canvas></div><div class="feedback-text" id="fb${i}">准备就绪</div><div style="width:100%; display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;"><button id="undoBtn${i}" onclick="undoDraw(${i})" class="undo-btn" style="flex:1;">↩️ 撤销笔迹</button><button id="redoBtn${i}" onclick="redoDraw(${i})" class="redo-btn" style="flex:1;">↪️ 重做笔迹</button><button onclick="resetStudent(${i})" style="flex:1; background:#eceff1; border-radius:8px; padding:6px;">↺ 重置</button><button onclick="submitStudent(${i})" style="flex:1; background:var(--primary); color:white; border-radius:8px; padding:6px; font-weight:bold;">✅ 交卷</button><button onclick="toggleMarkupMode(${i})" class="btn-mark" style="flex:1; background:#8d6e63; color:white; border-radius:8px; padding:6px;">🖍️ 圈画</button></div>`; g.appendChild(c); } }
-function initStudentSuite(){ for(let i=1;i<=5;i++) studentData[i]={ mode:'stroke', total:0, markupActive:false, drawHistory:[], historyIndex:-1, markupHistory:[], markupHistoryIndex:-1 }; buildStudentCards(); for(let i=1;i<=5;i++){ initDrawHistory(i); initStudentCanvas(i); } installKeyboardShortcuts(); installMultitouchGuards(); }
+function initStudentSuite(){ document.body.classList.add('multi-student-mode'); for(let i=1;i<=5;i++) studentData[i]={ mode:'stroke', total:0, markupActive:false, drawHistory:[], historyIndex:-1, markupHistory:[], markupHistoryIndex:-1 }; buildStudentCards(); for(let i=1;i<=5;i++){ initDrawHistory(i); initStudentCanvas(i); } installKeyboardShortcuts(); installMultitouchGuards(); }
 function initDrawHistory(id){ const data=studentData[id]; data.drawHistory=[]; data.historyIndex=-1; data.markupHistory=[]; data.markupHistoryIndex=-1; }
 function pushCanvasHistory(id){ pushHistorySnapshot(id,'draw'); }
 function pushMarkupHistory(id){ pushHistorySnapshot(id,'markup'); }
@@ -2817,8 +2821,21 @@ function finishTouchState(state,active,historyType,id){ if(!state) return false;
 function setupTouchFallback(can,ctx,id,enabled,historyType,commitHistory){ if(window.PointerEvent) return; const active=new Map(); const touchToPoint=(touch,last,count)=>getPointerPoint({clientX:touch.clientX,clientY:touch.clientY,timeStamp:performance.now(),pressure:touch.force||0.55},can,last,count,historyType); const start=e=>{ if(!enabled()) return; activeStudentId=id; Array.from(e.changedTouches||[]).forEach(touch=>{ const p=touchToPoint(touch,null,0); active.set(touch.identifier,{key:touch.identifier,last:p,count:0,ctx}); drawStrokeTip(ctx,p,historyType,false); }); e.preventDefault(); }; const move=e=>{ if(!enabled()) return; Array.from(e.changedTouches||[]).forEach(touch=>{ const state=active.get(touch.identifier); if(!state) return; const p=touchToPoint(touch,state.last,state.count); if(drawBrushSegment(ctx,state.last,p,historyType)) commitHistory.changed=true; state.last=p; state.count++; }); e.preventDefault(); }; const end=e=>{ Array.from(e.changedTouches||[]).forEach(touch=>finishTouchState(active.get(touch.identifier),active,historyType,id)); if(!active.size&&commitHistory.changed){ if(historyType==='draw') pushCanvasHistory(id); if(historyType==='markup') pushMarkupHistory(id); commitHistory.changed=false; } e.preventDefault(); }; can.addEventListener('touchstart',start,{passive:false}); can.addEventListener('touchmove',move,{passive:false}); can.addEventListener('touchend',end,{passive:false}); can.addEventListener('touchcancel',end,{passive:false}); }
 function setupPointer(can,ctx,id,enabled,historyType){ const active=new Map(); const commitHistory={changed:false}; can.style.touchAction='none'; can.style.msTouchAction='none'; can.style.userSelect='none'; const finish=e=>{ const state=active.get(e.pointerId); if(state){ drawStrokeTip(ctx,state.last,historyType,true); active.delete(e.pointerId); if(active.size===0&&commitHistory.changed){ if(historyType==='draw') pushCanvasHistory(id); if(historyType==='markup') pushMarkupHistory(id); commitHistory.changed=false; } } try{ can.releasePointerCapture(e.pointerId); }catch{} e.preventDefault(); }; const consume=e=>{ const state=active.get(e.pointerId); if(!state) return; if(!enabled()){ active.delete(e.pointerId); return; } const events=typeof e.getCoalescedEvents==='function'?e.getCoalescedEvents():[e]; for(const ev of events){ const p=getPointerPoint(ev,can,state.last,state.count,historyType); if(drawBrushSegment(ctx,state.last,p,historyType)) commitHistory.changed=true; state.last=p; state.count++; } e.preventDefault(); }; can.addEventListener('pointerdown',e=>{ if(!enabled()) return; activeStudentId=id; try{ can.setPointerCapture(e.pointerId); }catch{} const p=getPointerPoint(e,can,null,0,historyType); active.set(e.pointerId,{last:p,count:0}); drawStrokeTip(ctx,p,historyType,false); e.preventDefault(); }); can.addEventListener('pointermove',consume); can.addEventListener('pointerup',finish); can.addEventListener('pointercancel',finish); can.addEventListener('pointerleave',e=>{ if(active.has(e.pointerId)){ try{ can.setPointerCapture(e.pointerId); }catch{} } }); can.addEventListener('lostpointercapture',e=>{ if(active.has(e.pointerId)){ try{ can.setPointerCapture(e.pointerId); }catch{} } }); setupTouchFallback(can,ctx,id,enabled,historyType,commitHistory); }
 function drawDataUrlToCanvas(dataUrl, canvas, ctx){ if(!dataUrl) return; const img=new Image(); img.onload=()=>{ ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(img,0,0,canvas.width,canvas.height); ctx.restore(); }; img.src=dataUrl; }
-function resizeStudentCanvas(id){ const can=document.getElementById(`canvas${id}`), m=document.getElementById(`markupCanvas${id}`), wrap=document.getElementById(`wrap${id}`); if(!wrap) return; const r=wrap.getBoundingClientRect(); if(!r.width) return; const oldDraw=can.width&&can.height?can.toDataURL():null; const oldMarkup=m.width&&m.height?m.toDataURL():null; const dpr=window.devicePixelRatio||1, side=Math.min(r.width,r.height); can.width=side*dpr; can.height=side*dpr; m.width=side*dpr; m.height=side*dpr; can.style.width=side+'px'; can.style.height=side+'px'; m.style.width=side+'px'; m.style.height=side+'px'; const ctx=can.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth=4; ctx.strokeStyle='#222'; ctx.lineCap='round'; ctx.lineJoin='round'; const mCtx=m.getContext('2d'); mCtx.setTransform(dpr,0,0,dpr,0,0); mCtx.lineWidth=5; mCtx.strokeStyle='#e53935'; mCtx.lineCap='round'; mCtx.lineJoin='round'; studentData[id].drawCtx=ctx; studentData[id].markupCtx=mCtx; drawStudentBackground(id); drawDataUrlToCanvas(oldDraw,can,ctx); drawDataUrlToCanvas(oldMarkup,m,mCtx); if(!studentData[id].drawHistory.length) setTimeout(()=>resetDrawHistory(id),0); if(!studentData[id].markupHistory.length) setTimeout(()=>resetMarkupHistory(id),0); updateUndoRedoButtons(id); }
+function resizeStudentCanvas(id){ const can=document.getElementById(`canvas${id}`), m=document.getElementById(`markupCanvas${id}`), wrap=document.getElementById(`wrap${id}`); if(!wrap) return; const r=wrap.getBoundingClientRect(); if(!r.width) return; const oldDraw=can.width&&can.height?can.toDataURL():null; const oldMarkup=m.width&&m.height?m.toDataURL():null; const dpr=window.devicePixelRatio||1, side=Math.min(r.width,r.height); can.width=side*dpr; can.height=side*dpr; m.width=side*dpr; m.height=side*dpr; can.style.width=side+'px'; can.style.height=side+'px'; m.style.width=side+'px'; m.style.height=side+'px'; const ctx=can.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineWidth=4; ctx.strokeStyle='#222'; ctx.lineCap='round'; ctx.lineJoin='round'; const mCtx=m.getContext('2d'); mCtx.setTransform(dpr,0,0,dpr,0,0); mCtx.lineWidth=5; mCtx.strokeStyle='#e53935'; mCtx.lineCap='round'; mCtx.lineJoin='round'; studentData[id].drawCtx=ctx; studentData[id].markupCtx=mCtx; drawStudentBackground(id); if(studentData[id]?.mode==='stroke') setTimeout(()=>startStudentStrokeQuiz(id),0); drawDataUrlToCanvas(oldDraw,can,ctx); drawDataUrlToCanvas(oldMarkup,m,mCtx); if(!studentData[id].drawHistory.length) setTimeout(()=>resetDrawHistory(id),0); if(!studentData[id].markupHistory.length) setTimeout(()=>resetMarkupHistory(id),0); updateUndoRedoButtons(id); }
 function drawStudentBackground(id){ const div=document.getElementById(`hanzi${id}`); div.innerHTML=''; const sz=div.getBoundingClientRect().width||240; const w=HanziWriter.create(`hanzi${id}`,currentChar,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); w.hideCharacter(); w.showOutline(); studentData[id].writer=w; setTimeout(()=>enableMultiTouchTarget(div,id),0); }
+function startStudentStrokeQuiz(id){
+  const w=studentData[id]?.writer;
+  const div=document.getElementById(`hanzi${id}`);
+  if(!w||!div) return;
+  w.cancelQuiz();
+  w.hideCharacter();
+  enableMultiTouchTarget(div,id);
+  w.quiz({
+    onMistake:()=>{ SFX.bad(); capySay(pickRandom(FROG_COMMENTS.strokeTry)); },
+    onCorrectStroke:()=>{ SFX.ok(); if(Math.random()<0.25) capySay(pickRandom(FROG_COMMENTS.strokeGood)); },
+    onComplete:()=>{ SFX.win(); capySay(`青蛙老师：学生${id} 笔顺完成！这次很专心。`); }
+  });
+}
 function clearStudentEvaluation(id){
   const fb=document.getElementById(`fb${id}`);
   const badge=document.getElementById(`badge${id}`);
@@ -2827,12 +2844,12 @@ function clearStudentEvaluation(id){
   if(badge){ badge.textContent='待评分'; badge.className='current-badge'; }
   if(card) card.classList.remove('celebrate');
 }
-function updateStudentTargets(ch, resetEvaluation=true){ closeAllMarkupModes(true); for(let i=1;i<=5;i++){ const t=document.getElementById(`hanzi${i}`); if(!t) continue; t.innerHTML=''; const sz=t.getBoundingClientRect().width||240; studentData[i].writer=HanziWriter.create(`hanzi${i}`,ch,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); studentData[i].writer.hideCharacter(); studentData[i].writer.showOutline(); enableMultiTouchTarget(t,i); clearCanvas(i,true); clearMarkup(i,true); if(resetEvaluation) clearStudentEvaluation(i); } }
+function updateStudentTargets(ch, resetEvaluation=true){ closeAllMarkupModes(true); for(let i=1;i<=5;i++){ const t=document.getElementById(`hanzi${i}`); if(!t) continue; t.innerHTML=''; const sz=t.getBoundingClientRect().width||240; studentData[i].writer=HanziWriter.create(`hanzi${i}`,ch,{width:sz,height:sz,padding:10,showOutline:true,outlineColor:'#7a838a',strokeColor:'#000'}); studentData[i].writer.hideCharacter(); studentData[i].writer.showOutline(); enableMultiTouchTarget(t,i); if(studentData[i].mode==='stroke') startStudentStrokeQuiz(i); clearCanvas(i,true); clearMarkup(i,true); if(resetEvaluation) clearStudentEvaluation(i); } }
 function clearCanvas(id,resetHistory=false){ const c=document.getElementById(`canvas${id}`); c.getContext('2d').clearRect(0,0,c.width,c.height); if(resetHistory) resetDrawHistory(id); else updateUndoRedoButtons(id); }
 function clearMarkup(id,resetHistory=false){ const c=document.getElementById(`markupCanvas${id}`); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height); const wrap=document.getElementById(`wrap${id}`); if(wrap) wrap.classList.remove('score-mark-active'); if(resetHistory) resetMarkupHistory(id); else updateUndoRedoButtons(id); }
 function closeMarkupMode(id,clear=false,showFeedback=false){ const data=studentData[id]; if(!data) return; data.markupActive=false; const wrap=document.getElementById(`wrap${id}`); if(wrap) wrap.classList.remove('markup-active'); if(clear) clearMarkup(id,true); else updateUndoRedoButtons(id); if(showFeedback){ const fb=document.getElementById(`fb${id}`); if(fb) fb.textContent='圈画模式已关闭'; } }
 function closeAllMarkupModes(clear=false){ for(let i=1;i<=5;i++) closeMarkupMode(i,clear,false); }
-function setMode(id,mode){ activeStudentId=id; closeMarkupMode(id,true,false); studentData[id].mode=mode; const card=document.getElementById(`card${id}`); if(card) card.querySelectorAll('.switch-opt').forEach((opt,idx)=>opt.classList.toggle('active',idx===(mode==='stroke'?0:1))); const wrap=document.getElementById(`wrap${id}`); wrap.classList.toggle('mode-stroke',mode==='stroke'); wrap.classList.toggle('mode-free',mode==='free'); clearCanvas(id,true); clearMarkup(id,true); drawStudentBackground(id); const w=studentData[id].writer; if(mode==='stroke'){ w.cancelQuiz(); w.hideCharacter(); setTimeout(()=>enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id),0); w.quiz({ onMistake:()=>{ SFX.bad(); capySay(pickRandom(FROG_COMMENTS.strokeTry)); }, onCorrectStroke:()=>{ SFX.ok(); if(Math.random()<0.35) capySay(pickRandom(FROG_COMMENTS.strokeGood)); }, onComplete:()=>{ SFX.win(); capySay(`青蛙老师：学生${id} 笔顺完成！这次很专心。`); } }); } else { w.cancelQuiz(); w.showOutline(); enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id); } document.getElementById(`fb${id}`).textContent=mode==='free'?'可多指临摹 · 撤销/重做只管理笔迹':'严格笔顺可多人同时写 · 撤销会重开笔顺，重做不适用'; updateUndoRedoButtons(id); SFX.click(); }
+function setMode(id,mode){ activeStudentId=id; closeMarkupMode(id,true,false); studentData[id].mode=mode; const card=document.getElementById(`card${id}`); if(card) card.querySelectorAll('.switch-opt').forEach((opt,idx)=>opt.classList.toggle('active',idx===(mode==='stroke'?0:1))); const wrap=document.getElementById(`wrap${id}`); wrap.classList.toggle('mode-stroke',mode==='stroke'); wrap.classList.toggle('mode-free',mode==='free'); clearCanvas(id,true); clearMarkup(id,true); drawStudentBackground(id); const w=studentData[id].writer; if(mode==='stroke'){ startStudentStrokeQuiz(id); } else { w.cancelQuiz(); w.showOutline(); enableMultiTouchTarget(document.getElementById(`hanzi${id}`),id); } document.getElementById(`fb${id}`).textContent=mode==='free'?'可多指临摹 · 撤销/重做只管理笔迹':'严格笔顺已启动 · 可多人同时写'; updateUndoRedoButtons(id); SFX.click(); }
 function undoDraw(id){ activeStudentId=id; const data=studentData[id]; if(data.markupActive){ if(data.markupHistoryIndex>0){ data.markupHistoryIndex--; restoreMarkupHistory(id); document.getElementById(`fb${id}`).textContent='已撤销一笔圈画'; } else { document.getElementById(`fb${id}`).textContent='没有可撤销的圈画'; updateUndoRedoButtons(id); } return; } if(data.mode!=='free'){ setMode(id,'stroke'); capySay(`学生${id} 笔顺已重开`); return; } if(data.historyIndex>0){ data.historyIndex--; restoreCanvasHistory(id); document.getElementById(`fb${id}`).textContent='已撤销一笔笔迹'; } else { document.getElementById(`fb${id}`).textContent='没有可撤销的笔迹'; updateUndoRedoButtons(id); } }
 function redoDraw(id){ activeStudentId=id; const data=studentData[id]; if(data.markupActive){ if(data.markupHistoryIndex < data.markupHistory.length-1){ data.markupHistoryIndex++; restoreMarkupHistory(id); document.getElementById(`fb${id}`).textContent='已重做一笔圈画'; } else { document.getElementById(`fb${id}`).textContent='没有可重做的圈画'; updateUndoRedoButtons(id); } return; } if(data.mode!=='free'){ document.getElementById(`fb${id}`).textContent='严格笔顺没有重做，请用撤销重开'; updateUndoRedoButtons(id); return; } if(data.historyIndex < data.drawHistory.length-1){ data.historyIndex++; restoreCanvasHistory(id); document.getElementById(`fb${id}`).textContent='已重做一笔笔迹'; } else { document.getElementById(`fb${id}`).textContent='没有可重做的笔迹'; updateUndoRedoButtons(id); } }
 function resetStudent(id){ closeMarkupMode(id,true,false); clearCanvas(id,true); clearMarkup(id,true); clearStudentEvaluation(id); setMode(id,studentData[id].mode); }
